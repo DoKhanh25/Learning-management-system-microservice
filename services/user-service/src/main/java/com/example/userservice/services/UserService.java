@@ -1,10 +1,7 @@
 package com.example.userservice.services;
 
 import com.example.userservice.configuration.KeycloakProvider;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -29,6 +26,7 @@ public class UserService {
     public ResponseEntity<List<UserRepresentation>> getUsers(){
         Keycloak keycloak = keycloakProvider.getInstance();
         List<UserRepresentation> userList = keycloak.realm(realm).users().list();
+        keycloak.close();
         return ResponseEntity.ok(userList);
     }
 

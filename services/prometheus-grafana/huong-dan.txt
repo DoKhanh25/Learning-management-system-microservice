@@ -1,0 +1,7 @@
+1. bật docker engine lên (Docker desktop)
+2. cmd vào thư mục hiện tại prometheus-grafana và gõ lệnh sau:
+docker-compose up -d --build
+
+Đợi docker chạy tạo container và truy cập
+prometheus:  localhost:9090
+grafana: localhost:4000
