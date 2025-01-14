@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 @Data
-@SuperBuilder
 public class CohortMemberPostDTO extends CohortMemberDTO{
     Long cohort;
 }

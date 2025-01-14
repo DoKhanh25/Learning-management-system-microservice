@@ -31,9 +31,6 @@ public class CohortEntity {
     @Column(name = "created_time")
     Date createdTime;
 
-    @Column(name = "component")
-    Long component;
-
     @Column(name = "available")
     Short available;
 
