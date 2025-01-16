@@ -2,17 +2,19 @@ package com.example.userservice.services;
 
 import com.example.userservice.configuration.KeycloakProvider;
 import com.example.userservice.configuration.Utils;
-import com.example.userservice.dto.UserInfoGetDTO;
-import com.example.userservice.dto.UserInfoPostDTO;
-import com.example.userservice.dto.UserSessionGetDTO;
+import com.example.userservice.dto.*;
 import com.example.userservice.exception.KeycloakException;
+import com.example.userservice.mapper.RolesMapper;
 import com.example.userservice.mapper.UserInfoMapper;
 import com.example.userservice.mapper.UserSessionMapper;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ public class UserService {
     @Autowired
     KeycloakProvider keycloakProvider;
 
+
     @Value("${keycloak.realm}")
     String realm;
 
@@ -45,23 +48,15 @@ public class UserService {
             userInfoGetDTOS.add(userInfoGetDTO);
         }
 
-        keycloak.close();
         return ResponseEntity.ok(userInfoGetDTOS);
     }
 
-    public ResponseEntity<List<UserInfoGetDTO>> searchUserListByIdOrUsernameOrEmail(String id){
+    public ResponseEntity<List<UserInfoGetDTO>> searchUserListByUsernameOrEmail(String id){
         List<UserRepresentation> userRepresentationList;
         List<UserInfoGetDTO> userInfoGetDTOS = new ArrayList<>();
         Keycloak keycloak = keycloakProvider.getInstance();
 
-        userRepresentationList = keycloak.realm(realm).users().search(id);
-        if(Utils.isNullOrEmpty(Collections.singletonList(userRepresentationList))){
-            userRepresentationList = keycloak.realm(realm).users().searchByUsername(id, false);
-        }
-
-        if(Utils.isNullOrEmpty(Collections.singletonList(userRepresentationList))){
-            userRepresentationList = keycloak.realm(realm).users().searchByEmail(id, false);
-        }
+        userRepresentationList = keycloak.realm(realm).users().search(id, false);
 
         if(Utils.isNullOrEmpty(Collections.singletonList(userRepresentationList))){
             return ResponseEntity.ok(userInfoGetDTOS);
@@ -72,30 +67,43 @@ public class UserService {
             userInfoGetDTOS.add(userInfoGetDTO);
         }
 
-        keycloak.close();
         return ResponseEntity.ok(userInfoGetDTOS);
     }
 
     public ResponseEntity<UserInfoGetDTO> getUserByIdOrUsernameOrEmail(String id){
-        UserRepresentation userRepresentation = new UserRepresentation();
+        UserRepresentation userRepresentation;
         Keycloak keycloak = keycloakProvider.getInstance();
         UserInfoGetDTO userInfoGetDTO;
+        List<UserRepresentation> userRepresentationList;
 
-        userRepresentation = keycloak.realm(realm).users().search(id, true).get(0);
-        if(userRepresentation == null){
-            userRepresentation = keycloak.realm(realm).users().searchByUsername(id, true).get(0);
-        }
-        if(userRepresentation == null){
-            userRepresentation = keycloak.realm(realm).users().searchByEmail(id, true).get(0);
-        }
+        try{
+            userRepresentation = keycloak.realm(realm).users().get(id).toRepresentation();
 
-        if(userRepresentation == null){
-            return ResponseEntity.ok(new UserInfoGetDTO());
-        }
-        userInfoGetDTO = UserInfoMapper.toUserDTO(userRepresentation);
+            if(userRepresentation == null){
+                return ResponseEntity.ok(new UserInfoGetDTO());
+            }
+            userInfoGetDTO = UserInfoMapper.toUserDTO(userRepresentation);
 
-        keycloak.close();
-        return ResponseEntity.ok(userInfoGetDTO);
+            return ResponseEntity.ok(userInfoGetDTO);
+
+        } catch (NotFoundException exception){
+            userRepresentationList = keycloak.realm(realm).users().search(id, true);
+
+            if(userRepresentationList.isEmpty()){
+
+                return ResponseEntity.ok(null);
+
+            } else {
+                userRepresentation = userRepresentationList.get(0);
+                if(userRepresentation == null){
+                    return ResponseEntity.ok(null);
+                }
+                userInfoGetDTO = UserInfoMapper.toUserDTO(userRepresentation);
+
+            }
+
+            return ResponseEntity.ok(userInfoGetDTO);
+        }
     }
     public ResponseEntity<List<UserSessionGetDTO>> getUserSessionById(String id){
         Keycloak keycloak = keycloakProvider.getInstance();
@@ -108,13 +116,14 @@ public class UserService {
         for(UserSessionRepresentation session: userSessionRepresentationList){
             userSessionGetDTOS.add(UserSessionMapper.userSessionDTO(session));
         }
-        keycloak.close();
 
         return ResponseEntity.ok(userSessionGetDTOS);
     }
 
-    public ResponseEntity<UserInfoGetDTO> createUser(UserInfoPostDTO userInfoPostDTO){
+    public ResponseEntity<ResultDTO> createUser(UserInfoPostDTO userInfoPostDTO){
         Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+
 
         UserRepresentation user = new UserRepresentation();
         user.setUsername(userInfoPostDTO.getUsername());
@@ -122,6 +131,9 @@ public class UserService {
         user.setFirstName(userInfoPostDTO.getFirstName());
         user.setLastName(userInfoPostDTO.getLastName());
         user.setEnabled(true);
+
+
+
         user.setAttributes(userInfoPostDTO.getAttributes());
         user.setRealmRoles(userInfoPostDTO.getRoles());
         user.setGroups(userInfoPostDTO.getGroups());
@@ -132,19 +144,41 @@ public class UserService {
         credential.setTemporary(false);
 
         Response response = keycloak.realm(realm).users().create(user);
-        if(response.getStatus() == 201){
+        log.info("Response |  Status: {} | Status Info: {}", response.getStatus(), response.getStatusInfo());
+
+
+        if(response.getStatus() ==  Response.Status.CREATED.getStatusCode()){
             String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
             keycloak.realm(realm).users().get(userId).resetPassword(credential);
-        } else {
-            throw new KeycloakException();
+
+
+            resultDTO.setStatus(response.getStatus());
+            resultDTO.setMessage("Success");
+            resultDTO.setData(userId);
+
+        } else if(response.getStatus() == Response.Status.CONFLICT.getStatusCode()){
+            resultDTO.setStatus(response.getStatus());
+            resultDTO.setMessage("Tai khoan da ton tai");
+            resultDTO.setData(null);
+
         }
 
-        UserInfoGetDTO userInfoGetDTO = new UserInfoGetDTO();
-        userInfoGetDTO.setUsername(userInfoPostDTO.getUsername());
 
-        keycloak.close();
-
-        return ResponseEntity.ok(userInfoGetDTO);
+        return ResponseEntity.ok(resultDTO);
     }
+
+    public ResponseEntity<List<RolesGetDTO>> getRolesKeycloak(){
+        Keycloak keycloak = keycloakProvider.getInstance();
+        List<RoleRepresentation> rolesResources = keycloak.realm(realm).roles().list();
+        log.info(rolesResources.get(0).toString());
+
+        List<RolesGetDTO> rolesGetDTOs = new ArrayList<>();
+        for (RoleRepresentation role : rolesResources){
+            rolesGetDTOs.add(RolesMapper.toRolesGetDTO(role));
+        }
+
+        return  ResponseEntity.ok(rolesGetDTOs);
+    }
+
 
 }

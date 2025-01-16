@@ -1,5 +1,6 @@
 package com.example.userservice.configuration;
 
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.keycloak.OAuth2Constants;
@@ -38,6 +39,12 @@ public class KeycloakProvider {
                     .build();
         }
         return keycloak;
+    }
+    @PreDestroy
+    public void onDestroy() {
+        if (keycloak != null) {
+            keycloak.close();
+        }
     }
 
 
