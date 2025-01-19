@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,6 +51,14 @@ public class UserController {
     public ResponseEntity<Resource> getUserSampleFile() throws IOException {
         return userService.getSampleCreateUsersExcel();
     }
+
+    @PostMapping(value = "/uploadUsersExcel", consumes = {"multipart/form-data"})
+    public ResponseEntity<Resource> uploadUsersCreateExcel(@RequestParam(name = "file") MultipartFile file) throws Exception{
+        return userService.uploadUsersExcel(file);
+    }
+
+
+
 
 
 

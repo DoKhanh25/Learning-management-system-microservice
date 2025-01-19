@@ -3,36 +3,39 @@ package com.example.userservice.services;
 import com.example.userservice.configuration.KeycloakProvider;
 import com.example.userservice.configuration.Utils;
 import com.example.userservice.dto.*;
-import com.example.userservice.exception.KeycloakException;
 import com.example.userservice.mapper.RolesMapper;
 import com.example.userservice.mapper.UserInfoMapper;
 import com.example.userservice.mapper.UserSessionMapper;
 import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.util.IOUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @NoArgsConstructor
@@ -185,29 +188,156 @@ public class UserService {
     }
 
     public ResponseEntity<Resource> getSampleCreateUsersExcel() throws IOException{
+        File file = new ClassPathResource("sample/users_create_sample.xlsx").getFile();
+        if(!file.exists()){
+            return ResponseEntity.internalServerError().body(null);
+        }
+        try (FileInputStream fs = new FileInputStream(file)) {
+            byte[] excelContent = IOUtils.toByteArray(fs);
 
-        File file = new ClassPathResource("sample/users_create_sample.xlsx").getFile();;
-
-        try (FileInputStream fs = new FileInputStream(file);
-        ) {
-            InputStreamResource resource = new InputStreamResource(fs);
             HttpHeaders header = new HttpHeaders();
 
             header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=users_create_sample.xlsx");
             header.add("Cache-Control", "no-cache, no-store, must-revalidate");
             header.add("Pragma", "no-cache");
             header.add("Expires", "0");
+
+            ByteArrayResource resource = new ByteArrayResource(excelContent);
             return ResponseEntity.ok()
                     .headers(header)
                     .contentLength(file.length())
-                    .contentType(org.springframework.http.MediaType.valueOf(MediaType.APPLICATION_OCTET_STREAM))
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(resource);
-
+        } catch (IOException ioException){
+            log.error("Create Sample Excel Send Error", ioException.getMessage());
+            return ResponseEntity.internalServerError().body(null);
         }
+
+
     }
 
+    public ResponseEntity<Resource> uploadUsersExcel(MultipartFile excelFile) throws Exception{
+        log.info("excel file:", excelFile.getName());
+
+        Workbook workbook = new XSSFWorkbook(excelFile.getInputStream());
+        Keycloak keycloak = keycloakProvider.getInstance();
+        HttpHeaders header = new HttpHeaders();
+        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Ket_qua_tao_tai_khoan.xlsx");
+
+        if (excelFile.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
 
 
+
+        Sheet sheet = workbook.getSheetAt(0);
+        for (Row row: sheet){
+            int rowNum = row.getRowNum();
+            if(rowNum == 0) {
+                continue;
+            }
+            UserRepresentation userRepresentation = new UserRepresentation();
+            Map<String, List<String>> attributes = new HashMap<>();
+            String password = null;
+
+
+            for(Cell cell: row){
+                switch (cell.getColumnIndex()){
+                    case 0: userRepresentation.setUsername(cell.getStringCellValue()); break;
+                    case 1: password = cell.getStringCellValue(); break;
+                    case 2: userRepresentation.setEmail(cell.getStringCellValue()); break;
+                    case 3: userRepresentation.setLastName(cell.getStringCellValue()); break;
+                    case 4: userRepresentation.setFirstName(cell.getStringCellValue()); break;
+                    case 5: {
+                        break;
+                    }
+                    case 6:{
+                        List<String> phoneValues = new ArrayList<>();
+                        phoneValues.add(cell.getStringCellValue());;
+                        attributes.put("phone", phoneValues);
+                        break;
+                    }
+                    case 7:
+                    {
+                        List<String> instituteValues = new ArrayList<>();
+                        instituteValues.add(cell.getStringCellValue());
+                        attributes.put("institution", instituteValues);
+                        break;
+                    }
+                    case 8:
+                        List<String> departmentValues = new ArrayList<>();
+                        departmentValues.add(cell.getStringCellValue());
+                        attributes.put("department", departmentValues);
+                        break;
+                    case 9:
+                        List<String> cityValues = new ArrayList<>();
+                        cityValues.add(cell.getStringCellValue());
+                        attributes.put("city", cityValues);
+                        break;
+                    case 10:
+                        List<String> countryValues = new ArrayList<>();
+                        countryValues.add(cell.getStringCellValue());
+                        attributes.put("country", countryValues);
+                        break;
+                    case 11: {
+                        List<String> addressValues = new ArrayList<>();
+                        addressValues.add(cell.getStringCellValue());
+                        attributes.put("address", addressValues);
+                        break;
+                    }
+                }
+            }
+
+            userRepresentation.setEnabled(true);
+            userRepresentation.setAttributes(attributes);
+
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setValue(password);
+            credential.setTemporary(false);
+
+            Response response = keycloak.realm(realm).users().create(userRepresentation);
+
+            if(response.getStatus() ==  Response.Status.CREATED.getStatusCode()){
+                String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+                keycloak.realm(realm).users().get(userId).resetPassword(credential);
+
+                CellStyle cellStyle = workbook.createCellStyle();
+                cellStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+                cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                CellUtil.getCell(row, 12).setCellValue("Khởi tạo thành công");
+                CellUtil.getCell(row, 12).setCellStyle(cellStyle);
+
+            } else if(response.getStatus() == Response.Status.CONFLICT.getStatusCode()){
+                CellStyle cellStyle = workbook.createCellStyle();
+                cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+                cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+
+                CellUtil.getCell(row, 12).setCellValue("Bị trùng username hoặc email");
+                CellUtil.getCell(row, 12).setCellStyle(cellStyle);
+            } else {
+                CellStyle cellStyle = workbook.createCellStyle();
+                cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+                cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                CellUtil.getCell(row, 12).setCellValue("Khởi tạo không thành công");
+                CellUtil.getCell(row, 12).setCellStyle(cellStyle);
+            }
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        workbook.close();
+
+        ByteArrayResource resource = new ByteArrayResource(out.toByteArray());
+
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(resource.contentLength())
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
 
 
 }
