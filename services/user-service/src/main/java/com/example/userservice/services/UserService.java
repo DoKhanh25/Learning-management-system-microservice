@@ -8,6 +8,7 @@ import com.example.userservice.mapper.RolesMapper;
 import com.example.userservice.mapper.UserInfoMapper;
 import com.example.userservice.mapper.UserSessionMapper;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +20,16 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -124,14 +132,12 @@ public class UserService {
         Keycloak keycloak = keycloakProvider.getInstance();
         ResultDTO resultDTO = new ResultDTO();
 
-
         UserRepresentation user = new UserRepresentation();
         user.setUsername(userInfoPostDTO.getUsername());
         user.setEmail(userInfoPostDTO.getEmail());
         user.setFirstName(userInfoPostDTO.getFirstName());
         user.setLastName(userInfoPostDTO.getLastName());
         user.setEnabled(true);
-
 
 
         user.setAttributes(userInfoPostDTO.getAttributes());
@@ -163,7 +169,6 @@ public class UserService {
 
         }
 
-
         return ResponseEntity.ok(resultDTO);
     }
 
@@ -176,9 +181,33 @@ public class UserService {
         for (RoleRepresentation role : rolesResources){
             rolesGetDTOs.add(RolesMapper.toRolesGetDTO(role));
         }
-
         return  ResponseEntity.ok(rolesGetDTOs);
     }
+
+    public ResponseEntity<Resource> getSampleCreateUsersExcel() throws IOException{
+
+        File file = new ClassPathResource("sample/users_create_sample.xlsx").getFile();;
+
+        try (FileInputStream fs = new FileInputStream(file);
+        ) {
+            InputStreamResource resource = new InputStreamResource(fs);
+            HttpHeaders header = new HttpHeaders();
+
+            header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=users_create_sample.xlsx");
+            header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            header.add("Pragma", "no-cache");
+            header.add("Expires", "0");
+            return ResponseEntity.ok()
+                    .headers(header)
+                    .contentLength(file.length())
+                    .contentType(org.springframework.http.MediaType.valueOf(MediaType.APPLICATION_OCTET_STREAM))
+                    .body(resource);
+
+        }
+    }
+
+
+
 
 
 }

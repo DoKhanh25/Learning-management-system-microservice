@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
+
 @RestControllerAdvice
 @Slf4j
 public class ControllerExceptionHandler {
@@ -14,6 +16,12 @@ public class ControllerExceptionHandler {
         log.error(e.getMessage());
         return ResponseEntity.status(401).body("keycloak create user error");
     }
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleIOException(IOException e) {
+        log.error(e.getMessage());
+        return ResponseEntity.status(401).body("IO error");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleUnwantedException(Exception e) {
         log.error(e.getMessage());
