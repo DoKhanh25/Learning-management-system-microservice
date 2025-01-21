@@ -49,8 +49,9 @@ public class UserService {
     @Value("${keycloak.realm}")
     String realm;
 
-    public ResponseEntity<List<UserInfoGetDTO>> getAllUsers(){
+    public ResponseEntity<ResultDTO> getAllUsers(){
         Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
 
         List<UserRepresentation> userKeycloakList = keycloak.realm(realm).users().list();
         List<UserInfoGetDTO> userInfoGetDTOS = new ArrayList<>();
@@ -59,7 +60,11 @@ public class UserService {
             userInfoGetDTOS.add(userInfoGetDTO);
         }
 
-        return ResponseEntity.ok(userInfoGetDTOS);
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("success");
+        resultDTO.setData(userInfoGetDTOS);
+
+        return ResponseEntity.ok(resultDTO);
     }
 
     public ResponseEntity<List<UserInfoGetDTO>> searchUserListByUsernameOrEmail(String id){
@@ -80,6 +85,8 @@ public class UserService {
 
         return ResponseEntity.ok(userInfoGetDTOS);
     }
+
+
 
     public ResponseEntity<UserInfoGetDTO> getUserByIdOrUsernameOrEmail(String id){
         UserRepresentation userRepresentation;
@@ -116,6 +123,8 @@ public class UserService {
             return ResponseEntity.ok(userInfoGetDTO);
         }
     }
+
+
     public ResponseEntity<List<UserSessionGetDTO>> getUserSessionById(String id){
         Keycloak keycloak = keycloakProvider.getInstance();
         List<UserSessionGetDTO> userSessionGetDTOS = new ArrayList<>();
@@ -129,6 +138,19 @@ public class UserService {
         }
 
         return ResponseEntity.ok(userSessionGetDTOS);
+    }
+    public ResponseEntity<ResultDTO> updateUser(UserInfoPostDTO userInfoPostDTO){
+        Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+        UserRepresentation user = new UserRepresentation();
+
+        user.setEmail(userInfoPostDTO.getEmail());
+        user.setFirstName(userInfoPostDTO.getFirstName());
+        user.setLastName(userInfoPostDTO.getLastName());
+        user.setAttributes(userInfoPostDTO.getAttributes());
+        user.setEnabled(true);
+
+        return null;
     }
 
     public ResponseEntity<ResultDTO> createUser(UserInfoPostDTO userInfoPostDTO){
@@ -227,8 +249,6 @@ public class UserService {
         if (excelFile.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
-
-
 
         Sheet sheet = workbook.getSheetAt(0);
         for (Row row: sheet){

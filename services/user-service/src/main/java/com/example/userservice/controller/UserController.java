@@ -12,14 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-@RestController("/api")
+@RestController
+@RequestMapping("/api")
 @Slf4j
 public class UserController {
     @Autowired
     UserService userService;
-
     @GetMapping("/getAllUsers")
-    public ResponseEntity<List<UserInfoGetDTO>> getAllUser(){
+    public ResponseEntity<ResultDTO> getAllUser(){
         return userService.getAllUsers();
     }
 
