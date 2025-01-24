@@ -23,10 +23,10 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/searchUsers")
-    public ResponseEntity<List<UserInfoGetDTO>> searchUser(@RequestParam String id){
-        return userService.searchUserListByUsernameOrEmail(id);
-    }
+//    @GetMapping("/searchUsers")
+//    public ResponseEntity<List<UserInfoGetDTO>> searchUser(@RequestParam String id){
+//        return userService.searchUserListByUsernameOrEmail(id);
+//    }
 
     @GetMapping("/getUser")
     public ResponseEntity<UserInfoGetDTO> getUser(@RequestParam String id){
@@ -37,10 +37,10 @@ public class UserController {
     public ResponseEntity<List<UserSessionGetDTO>> getUserSession(@RequestParam String id){
         return userService.getUserSessionById(id);
     }
-    @GetMapping("/getAllRoles")
-    public ResponseEntity<List<RolesGetDTO>> getAllRoles(){
-        return userService.getRolesKeycloak();
-    }
+//    @GetMapping("/getAllRoles")
+//    public ResponseEntity<List<RolesGetDTO>> getAllRoles(){
+//        return userService.getRolesKeycloak();
+//    }
 
     @PostMapping("/createUser")
     public ResponseEntity<ResultDTO> createUser(@RequestBody UserInfoPostDTO userInfoPostDTO){
@@ -55,6 +55,18 @@ public class UserController {
     @PostMapping(value = "/uploadUsersExcel", consumes = {"multipart/form-data"})
     public ResponseEntity<Resource> uploadUsersCreateExcel(@RequestParam(name = "file") MultipartFile file) throws Exception{
         return userService.uploadUsersExcel(file);
+    }
+
+    @PostMapping(value = "updateUser/{userId}")
+    public ResponseEntity<ResultDTO> updateUser(@RequestBody UserInfoPostDTO userInfoPostDTO,
+                                                @PathVariable String userId){
+        log.info(userId, userInfoPostDTO.getEmail());
+        return userService.updateUser(userInfoPostDTO, userId);
+    }
+
+    @PostMapping(value = "/disableUsers")
+    public ResponseEntity<ResultDTO> disableUsers(@RequestBody List<String> userIds){
+        return userService.disableUsers(userIds);
     }
 
 

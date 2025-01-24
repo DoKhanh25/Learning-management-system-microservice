@@ -11,6 +11,7 @@ public class RolesMapper {
         rolesGetDTO.setName(roleRepresentation.getName());
         rolesGetDTO.setDescription(roleRepresentation.getDescription());
         rolesGetDTO.setIsComposite(roleRepresentation.isComposite());
+        rolesGetDTO.setComposites(CompositeMapper.toCompositesDTO(roleRepresentation.getComposites()));
         return rolesGetDTO;
     }
 }

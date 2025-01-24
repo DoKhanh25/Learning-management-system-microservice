@@ -14,17 +14,17 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(KeycloakException.class)
     public ResponseEntity<String> handleKeycloakException(Exception e) {
         log.error(e.getMessage());
-        return ResponseEntity.status(401).body("keycloak create user error");
+        return ResponseEntity.status(401).body(e.getMessage());
     }
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleIOException(IOException e) {
         log.error(e.getMessage());
-        return ResponseEntity.status(401).body("IO error");
+        return ResponseEntity.status(401).body(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleUnwantedException(Exception e) {
         log.error(e.getMessage());
-        return ResponseEntity.status(500).body("internal error");
+        return ResponseEntity.status(500).body(e.getMessage());
     }
 }

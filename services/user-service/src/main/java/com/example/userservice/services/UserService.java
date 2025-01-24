@@ -67,12 +67,12 @@ public class UserService {
         return ResponseEntity.ok(resultDTO);
     }
 
-    public ResponseEntity<List<UserInfoGetDTO>> searchUserListByUsernameOrEmail(String id){
+    public ResponseEntity<List<UserInfoGetDTO>> searchUserListByUsernameOrEmail(String searchQuery){
         List<UserRepresentation> userRepresentationList;
         List<UserInfoGetDTO> userInfoGetDTOS = new ArrayList<>();
         Keycloak keycloak = keycloakProvider.getInstance();
 
-        userRepresentationList = keycloak.realm(realm).users().search(id, false);
+        userRepresentationList = keycloak.realm(realm).users().search(searchQuery, false);
 
         if(Utils.isNullOrEmpty(Collections.singletonList(userRepresentationList))){
             return ResponseEntity.ok(userInfoGetDTOS);
@@ -139,19 +139,42 @@ public class UserService {
 
         return ResponseEntity.ok(userSessionGetDTOS);
     }
-    public ResponseEntity<ResultDTO> updateUser(UserInfoPostDTO userInfoPostDTO){
+    public ResponseEntity<ResultDTO> updateUser(UserInfoPostDTO userInfoPostDTO, String userId){
         Keycloak keycloak = keycloakProvider.getInstance();
         ResultDTO resultDTO = new ResultDTO();
-        UserRepresentation user = new UserRepresentation();
+        UserRepresentation userRepresentation = keycloak.realm(realm).users().get(userId).toRepresentation();
 
-        user.setEmail(userInfoPostDTO.getEmail());
-        user.setFirstName(userInfoPostDTO.getFirstName());
-        user.setLastName(userInfoPostDTO.getLastName());
-        user.setAttributes(userInfoPostDTO.getAttributes());
-        user.setEnabled(true);
+        userRepresentation.setEmail(userInfoPostDTO.getEmail());
+        userRepresentation.setFirstName(userInfoPostDTO.getFirstName());
+        userRepresentation.setLastName(userInfoPostDTO.getLastName());
+        userRepresentation.setAttributes(userInfoPostDTO.getAttributes());
+        userRepresentation.setEnabled(userInfoPostDTO.getEnable());
 
-        return null;
+        keycloak.realm(realm).users().get(userId).update(userRepresentation);
+
+        resultDTO.setStatus(1);
+        resultDTO.setData(UserInfoMapper.toUserDTO(keycloak.realm(realm).users().get(userId).toRepresentation()));
+        resultDTO.setMessage("success");
+
+        return ResponseEntity.ok(resultDTO);
     }
+
+    public ResponseEntity<ResultDTO> disableUsers(List<String> userIds){
+        Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+        List<UserInfoGetDTO> userInfoGetDTOS = new ArrayList<>();
+        for (String userId: userIds){
+            UserRepresentation userRepresentation = keycloak.realm(realm).users().get(userId).toRepresentation();
+            userRepresentation.setEnabled(false);
+            keycloak.realm(realm).users().get(userId).update(userRepresentation);
+            userInfoGetDTOS.add(UserInfoMapper.toUserDTO(keycloak.realm(realm).users().get(userId).toRepresentation()));
+        }
+
+        resultDTO.setStatus(1);
+        resultDTO.setData(userInfoGetDTOS);
+        resultDTO.setMessage("success");
+
+        return ResponseEntity.ok(resultDTO);    }
 
     public ResponseEntity<ResultDTO> createUser(UserInfoPostDTO userInfoPostDTO){
         Keycloak keycloak = keycloakProvider.getInstance();
@@ -197,17 +220,17 @@ public class UserService {
         return ResponseEntity.ok(resultDTO);
     }
 
-    public ResponseEntity<List<RolesGetDTO>> getRolesKeycloak(){
-        Keycloak keycloak = keycloakProvider.getInstance();
-        List<RoleRepresentation> rolesResources = keycloak.realm(realm).roles().list();
-        log.info(rolesResources.get(0).toString());
-
-        List<RolesGetDTO> rolesGetDTOs = new ArrayList<>();
-        for (RoleRepresentation role : rolesResources){
-            rolesGetDTOs.add(RolesMapper.toRolesGetDTO(role));
-        }
-        return  ResponseEntity.ok(rolesGetDTOs);
-    }
+//    public ResponseEntity<List<RolesGetDTO>> getRolesKeycloak(){
+//        Keycloak keycloak = keycloakProvider.getInstance();
+//        List<RoleRepresentation> rolesResources = keycloak.realm(realm).roles().list();
+//        log.info(rolesResources.get(0).toString());
+//
+//        List<RolesGetDTO> rolesGetDTOs = new ArrayList<>();
+//        for (RoleRepresentation role : rolesResources){
+//            rolesGetDTOs.add(RolesMapper.toRolesGetDTO(role));
+//        }
+//        return  ResponseEntity.ok(rolesGetDTOs);
+//    }
 
     public ResponseEntity<Resource> getSampleCreateUsersExcel() throws IOException{
         File file = new ClassPathResource("sample/users_create_sample.xlsx").getFile();
@@ -237,6 +260,7 @@ public class UserService {
 
 
     }
+
 
     public ResponseEntity<Resource> uploadUsersExcel(MultipartFile excelFile) throws Exception{
         log.info("excel file:", excelFile.getName());
