@@ -4,6 +4,7 @@ import com.example.userservice.dto.ResultDTO;
 import com.example.userservice.dto.RolePostDTO;
 import com.example.userservice.services.RoleService;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -105,6 +106,13 @@ public class RoleController {
     public ResponseEntity<ResultDTO> getClientPolicyById(@RequestParam String id) throws Exception{
         return roleService.getClientPolicyById(id);
     }
+
+    @PostMapping("/updateClientPolicy")
+    public ResponseEntity<ResultDTO> updateClientPolicy(@RequestBody PolicyRepresentation policyRepresentation){
+        return roleService.updateClientPolicy(policyRepresentation);
+    }
+
+
 
 
 

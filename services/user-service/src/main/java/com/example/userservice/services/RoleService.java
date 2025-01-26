@@ -334,15 +334,38 @@ public class RoleService {
         return roleRepresentationList;
     }
 
-    public ResponseEntity<ResultDTO> updateClientPolicy(String id){
+    public ResponseEntity<ResultDTO> updateClientPolicy(PolicyRepresentation policyRepresentation){
         Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+        if(policyRepresentation.getConfig() != null ){
+            policyRepresentation.getConfig().remove("roleDetails");
+        }
 
-//        keycloak.realm(realm)
-//                .clients()
-//                .get(authorizationClient)
-//                .authorization()
-//                .policies().policy(id).update();
-        return null;
+        PolicyRepresentation representation = keycloak.realm(realm)
+                .clients()
+                .get(authorizationClient)
+                .authorization()
+                .policies().policy(policyRepresentation.getId()).toRepresentation();
+
+        representation.setConfig(policyRepresentation.getConfig());
+        representation.setDescription(policyRepresentation.getDescription());
+        representation.setLogic(policyRepresentation.getLogic());
+        representation.setConfig(policyRepresentation.getConfig());
+
+
+        keycloak.realm(realm)
+                .clients()
+                .get(authorizationClient)
+                .authorization()
+                .policies().policy(policyRepresentation.getId()).update(representation);
+
+        resultDTO.setStatus(1);
+        resultDTO.setData(keycloak.realm(realm)
+                .clients()
+                .get(authorizationClient)
+                .authorization()
+                .policies().policy(policyRepresentation.getId()).toRepresentation());
+        return ResponseEntity.ok(resultDTO);
     }
 
 
