@@ -102,7 +102,7 @@ public class RoleController {
     }
 
     @GetMapping("/getClientPolicyById")
-    public ResponseEntity<ResultDTO> getClientPolicyById(@RequestParam String id){
+    public ResponseEntity<ResultDTO> getClientPolicyById(@RequestParam String id) throws Exception{
         return roleService.getClientPolicyById(id);
     }
 

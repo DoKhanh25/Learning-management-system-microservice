@@ -2,9 +2,12 @@ package com.example.userservice.services;
 
 import com.example.userservice.configuration.KeycloakProvider;
 import com.example.userservice.dto.ResultDTO;
+import com.example.userservice.dto.RoleIdDTO;
 import com.example.userservice.dto.RolePostDTO;
 import com.example.userservice.dto.RolesGetDTO;
 import com.example.userservice.mapper.RolesMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -23,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @NoArgsConstructor
 @Slf4j
@@ -293,7 +293,7 @@ public class RoleService {
         return ResponseEntity.ok(resultDTO);
     }
 
-    public ResponseEntity<ResultDTO> getClientPolicyById(String id){
+    public ResponseEntity<ResultDTO> getClientPolicyById(String id) throws Exception{
         Keycloak keycloak = keycloakProvider.getInstance();
         ResultDTO resultDTO = new ResultDTO();
         PolicyRepresentation policyRepresentation = keycloak.realm(realm)
@@ -302,10 +302,36 @@ public class RoleService {
                 .authorization()
                 .policies().policy(id).toRepresentation();
 
+        Map<String, String> configMap = policyRepresentation.getConfig();
+
+        if(!configMap.isEmpty() && configMap.containsKey("roles")){
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<RoleIdDTO> listRoleIds = objectMapper.readValue(configMap.get("roles"), new TypeReference<List<RoleIdDTO>>() {});
+            List<String> ids = new ArrayList<>();
+            for (RoleIdDTO roleId: listRoleIds) {
+                ids.add(roleId.getId());
+            }
+            List<RoleRepresentation> roleRepresentationList = getRoleListByIds(ids);
+            configMap.put("roleDetails", objectMapper.writeValueAsString(roleRepresentationList));
+            policyRepresentation.setConfig(configMap);
+        }
+
         resultDTO.setStatus(1);
         resultDTO.setData(policyRepresentation);
         resultDTO.setMessage("success");
         return ResponseEntity.ok(resultDTO);
+    }
+
+
+    public List<RoleRepresentation> getRoleListByIds(List<String> ids){
+        Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+        List<RoleRepresentation> roleRepresentationList = keycloak.realm(realm).roles().list().stream().filter(
+                (e) -> ids.contains(e.getId())).toList();
+
+        resultDTO.setStatus(1);
+        resultDTO.setData(roleRepresentationList);
+        return roleRepresentationList;
     }
 
     public ResponseEntity<ResultDTO> updateClientPolicy(String id){
