@@ -13,8 +13,6 @@ public class CohortEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    @Column(name = "context_id")
-    Long contextId;
 
     @Column(name = "name")
     String name;
@@ -22,8 +20,6 @@ public class CohortEntity {
     @Column(name = "description")
     String description;
 
-    @Column(name = "id_number")
-    Long idNumber;
 
     @OneToMany(mappedBy = "cohort", cascade = CascadeType.ALL, orphanRemoval = true)
     List<CohortMemberEntity> cohortMembers;

@@ -7,12 +7,8 @@ import java.util.Date;
 import java.util.List;
 @Data
 public class CohortDTO {
-    Long contextId;
+    Long id;
     String name;
     String description;
-    Long idNumber;
-    Date createdTime;
-    Long component;
     Short available;
-    Date updatedTime;
 }

@@ -30,5 +30,5 @@ public class CohortController {
         return cohortService.addCohort(cohortDTO);
     }
 
-    
+
 }

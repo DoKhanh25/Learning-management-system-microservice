@@ -46,8 +46,7 @@ public class CohortService {
         cohortEntity.setName(cohortDTO.getName());
         cohortEntity.setDescription(cohortDTO.getDescription());
         cohortEntity.setCreatedTime(new Date());
-        cohortEntity.setIdNumber(cohortDTO.getIdNumber());
-        cohortEntity.setContextId(cohortDTO.getContextId());
+
 
         Optional<CohortEntity> cohort = cohortRepository.findCohortEntityByName(cohortDTO.getName());
         if(cohort.isPresent()){
@@ -63,5 +62,27 @@ public class CohortService {
 
         return ResponseEntity.ok(resultDTO);
     }
+
+    public ResponseEntity<ResultDTO> updateCohort(CohortDTO cohortDTO){
+        ResultDTO resultDTO = new ResultDTO();
+        Optional<CohortEntity> cohortEntityOptional = cohortRepository.findById(cohortDTO.getId());
+        if(cohortEntityOptional.isEmpty()){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("Dont exist");
+            return ResponseEntity.ok(resultDTO);
+        }
+
+        CohortEntity cohort = cohortEntityOptional.get();
+        cohort.setUpdatedTime(new Date());
+        cohort.setAvailable(cohortDTO.getAvailable());
+        cohort.setDescription(cohortDTO.getDescription());
+
+        CohortEntity cohortEntityResult = cohortRepository.save(cohort);
+        resultDTO.setStatus(1);
+        resultDTO.setData(cohortEntityResult);
+        return ResponseEntity.ok(resultDTO);
+    }
+
+
 
 }
