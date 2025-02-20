@@ -90,31 +90,9 @@ public class RoleController {
         return roleService.getClientScopes();
     }
 
-    @GetMapping("/getClientPolicies")
-    public ResponseEntity<ResultDTO> getClientPolicies(){
-        return roleService.getClientPolicies();
+    @GetMapping("/getScopesByResource")
+    public ResponseEntity<ResultDTO> getScopesByResource(@RequestParam String id){
+        return roleService.getScopesByResource(id);
     }
-
-
-    @GetMapping("/getDependentPermission")
-    public ResponseEntity<ResultDTO> getDependentPermission(@RequestParam String id){
-
-        return roleService.getDependentPermission(id);
-    }
-
-    @GetMapping("/getClientPolicyById")
-    public ResponseEntity<ResultDTO> getClientPolicyById(@RequestParam String id) throws Exception{
-        return roleService.getClientPolicyById(id);
-    }
-
-    @PostMapping("/updateClientPolicy")
-    public ResponseEntity<ResultDTO> updateClientPolicy(@RequestBody PolicyRepresentation policyRepresentation){
-        return roleService.updateClientPolicy(policyRepresentation);
-    }
-
-
-
-
-
 
 }

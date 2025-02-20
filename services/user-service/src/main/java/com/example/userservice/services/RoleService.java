@@ -8,6 +8,7 @@ import com.example.userservice.dto.RolesGetDTO;
 import com.example.userservice.mapper.RolesMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.core.Response;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -168,9 +169,6 @@ public class RoleService {
     }
 
 
-
-
-
     public ResponseEntity<ResultDTO> addCompositesToRole(List<String> roleChildNames, String parentRole){
         List<RoleRepresentation> roleRepresentationChildList = new ArrayList<>();
         Keycloak keycloak = keycloakProvider.getInstance();
@@ -243,9 +241,6 @@ public class RoleService {
     }
 
 
-
-
-
     public ResponseEntity<ResultDTO> getClientResources(){
         Keycloak keycloak = keycloakProvider.getInstance();
         ResultDTO resultDTO = new ResultDTO();
@@ -278,126 +273,28 @@ public class RoleService {
         return ResponseEntity.ok(resultDTO);
     }
 
-    public ResponseEntity<ResultDTO> getClientPolicies(){
+    public ResponseEntity<ResultDTO> getScopesByResource(String id){
         Keycloak keycloak = keycloakProvider.getInstance();
         ResultDTO resultDTO = new ResultDTO();
-        List<PolicyRepresentation> policyRepresentationList = keycloak.realm(realm)
+        Set<ScopeRepresentation> scopeRepresentationSet = keycloak.realm(realm)
                 .clients()
                 .get(authorizationClient)
                 .authorization()
-                .policies().policies();
+                .resources().resource(id).toRepresentation().getScopes();
 
         resultDTO.setStatus(1);
-        resultDTO.setData(policyRepresentationList);
-        resultDTO.setMessage("success");
-        return ResponseEntity.ok(resultDTO);
-    }
-
-    public ResponseEntity<ResultDTO> getClientPolicyById(String id) throws Exception{
-        Keycloak keycloak = keycloakProvider.getInstance();
-        ResultDTO resultDTO = new ResultDTO();
-        PolicyRepresentation policyRepresentation = keycloak.realm(realm)
-                .clients()
-                .get(authorizationClient)
-                .authorization()
-                .policies().policy(id).toRepresentation();
-
-        Map<String, String> configMap = policyRepresentation.getConfig();
-
-        if(!configMap.isEmpty() && configMap.containsKey("roles")){
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<RoleIdDTO> listRoleIds = objectMapper.readValue(configMap.get("roles"), new TypeReference<List<RoleIdDTO>>() {});
-            List<String> ids = new ArrayList<>();
-            for (RoleIdDTO roleId: listRoleIds) {
-                ids.add(roleId.getId());
-            }
-            List<RoleRepresentation> roleRepresentationList = getRoleListByIds(ids);
-            configMap.put("roleDetails", objectMapper.writeValueAsString(roleRepresentationList));
-            policyRepresentation.setConfig(configMap);
-        }
-
-        resultDTO.setStatus(1);
-        resultDTO.setData(policyRepresentation);
+        resultDTO.setData(scopeRepresentationSet);
         resultDTO.setMessage("success");
         return ResponseEntity.ok(resultDTO);
     }
 
 
-    public List<RoleRepresentation> getRoleListByIds(List<String> ids){
-        Keycloak keycloak = keycloakProvider.getInstance();
-        ResultDTO resultDTO = new ResultDTO();
-        List<RoleRepresentation> roleRepresentationList = keycloak.realm(realm).roles().list().stream().filter(
-                (e) -> ids.contains(e.getId())).toList();
-
-        resultDTO.setStatus(1);
-        resultDTO.setData(roleRepresentationList);
-        return roleRepresentationList;
-    }
-
-    public ResponseEntity<ResultDTO> updateClientPolicy(PolicyRepresentation policyRepresentation){
-        Keycloak keycloak = keycloakProvider.getInstance();
-        ResultDTO resultDTO = new ResultDTO();
-        if(policyRepresentation.getConfig() != null ){
-            policyRepresentation.getConfig().remove("roleDetails");
-        }
-
-        PolicyRepresentation representation = keycloak.realm(realm)
-                .clients()
-                .get(authorizationClient)
-                .authorization()
-                .policies().policy(policyRepresentation.getId()).toRepresentation();
-
-        representation.setConfig(policyRepresentation.getConfig());
-        representation.setDescription(policyRepresentation.getDescription());
-        representation.setLogic(policyRepresentation.getLogic());
-        representation.setConfig(policyRepresentation.getConfig());
 
 
-        keycloak.realm(realm)
-                .clients()
-                .get(authorizationClient)
-                .authorization()
-                .policies().policy(policyRepresentation.getId()).update(representation);
-
-        resultDTO.setStatus(1);
-        resultDTO.setData(keycloak.realm(realm)
-                .clients()
-                .get(authorizationClient)
-                .authorization()
-                .policies().policy(policyRepresentation.getId()).toRepresentation());
-        return ResponseEntity.ok(resultDTO);
-    }
 
 
-    public ResponseEntity<ResultDTO> getAssociatedPolicies(String id){
-        Keycloak keycloak = keycloakProvider.getInstance();
-        ResultDTO resultDTO = new ResultDTO();
-        List<PolicyRepresentation> policyRepresentationList = keycloak.realm(realm)
-                .clients()
-                .get(authorizationClient)
-                .authorization()
-                .policies().policy(id).associatedPolicies();
 
-        resultDTO.setStatus(1);
-        resultDTO.setData(policyRepresentationList);
-        resultDTO.setMessage("success");
-        return ResponseEntity.ok(resultDTO);
-    }
 
-    public ResponseEntity<ResultDTO> getDependentPermission(String id){
-        Keycloak keycloak = keycloakProvider.getInstance();
-        ResultDTO resultDTO = new ResultDTO();
-        List<PolicyRepresentation> policyRepresentationList = keycloak.realm(realm)
-                .clients()
-                .get(authorizationClient)
-                .authorization()
-                .policies().policy(id).dependentPolicies();
-
-        resultDTO.setStatus(1);
-        resultDTO.setData(policyRepresentationList);
-        resultDTO.setMessage("success");
-        return ResponseEntity.ok(resultDTO);
-    }
 
 
 }
