@@ -3,10 +3,14 @@ package com.example.userservice.services;
 import com.example.userservice.dto.CohortDTO;
 import com.example.userservice.dto.ResultDTO;
 import com.example.userservice.entity.CohortEntity;
+import com.example.userservice.entity.CohortMemberEntity;
+import com.example.userservice.repository.CohortMemberRepository;
 import com.example.userservice.repository.CohortRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +19,9 @@ import java.util.Optional;
 public class CohortService {
     @Autowired
     private CohortRepository cohortRepository;
+
+    @Autowired
+    private CohortMemberRepository cohortMemberRepository;
 
     public ResponseEntity<ResultDTO> getAllCohorts(){
         ResultDTO resultDTO = new ResultDTO();
@@ -57,8 +64,21 @@ public class CohortService {
         }
 
         CohortEntity cohortResult = cohortRepository.save(cohortEntity);
+
+        List<CohortMemberEntity> cohortMemberEntityList = new ArrayList<>();
+        for (String id: cohortDTO.getUserIds()){
+            CohortMemberEntity cohortMemberEntity = new CohortMemberEntity();
+            cohortMemberEntity.setCohort(cohortResult);
+            cohortMemberEntity.setAvailable((short) 1);
+            cohortMemberEntity.setAddedTime(new Date());
+            cohortMemberEntity.setKeycloakId(id);
+            cohortMemberEntityList.add(cohortMemberEntity);
+        }
+
+        List<CohortMemberEntity> cohortMemberListResult = cohortMemberRepository.saveAll(cohortMemberEntityList);
+
         resultDTO.setStatus(1);
-        resultDTO.setData(cohortResult);
+        resultDTO.setData(cohortMemberListResult);
 
         return ResponseEntity.ok(resultDTO);
     }
@@ -73,6 +93,32 @@ public class CohortService {
         }
 
         CohortEntity cohort = cohortEntityOptional.get();
+
+
+        List<CohortMemberEntity> cohortMemberEntityList = cohort.getCohortMembers();
+        List<String> existUserIds = new ArrayList<>();
+        List<String> updateIds = cohortDTO.getUserIds();
+
+        for(CohortMemberEntity cohortMember: cohortMemberEntityList){
+            existUserIds.add(cohortMember.getKeycloakId());
+        }
+
+        cohortMemberEntityList.removeIf(child -> updateIds.stream()
+                .noneMatch(newId -> newId != null && newId.equals(child.getKeycloakId()))
+        );
+
+        for(String updateId: updateIds){
+            if(!existUserIds.contains(updateId)){
+                CohortMemberEntity cohortMemberEntity = new CohortMemberEntity();
+                cohortMemberEntity.setCohort(cohort);
+                cohortMemberEntity.setAvailable((short) 1);
+                cohortMemberEntity.setAddedTime(new Date());
+                cohortMemberEntity.setKeycloakId(updateId);
+                cohortMemberEntityList.add(cohortMemberEntity);
+            }
+        }
+
+        cohort.setCohortMembers(cohortMemberEntityList);
         cohort.setUpdatedTime(new Date());
         cohort.setAvailable(cohortDTO.getAvailable());
         cohort.setDescription(cohortDTO.getDescription());

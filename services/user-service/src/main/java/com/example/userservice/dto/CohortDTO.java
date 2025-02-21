@@ -11,4 +11,5 @@ public class CohortDTO {
     String name;
     String description;
     Short available;
+    List<String> userIds;
 }

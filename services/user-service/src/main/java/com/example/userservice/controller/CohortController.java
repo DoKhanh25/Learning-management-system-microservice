@@ -2,6 +2,7 @@ package com.example.userservice.controller;
 
 import com.example.userservice.dto.CohortDTO;
 import com.example.userservice.dto.ResultDTO;
+import com.example.userservice.services.CohortMemberService;
 import com.example.userservice.services.CohortService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class CohortController {
     @Autowired
     CohortService cohortService;
+
+    @Autowired
+    CohortMemberService cohortMemberService;
 
     @GetMapping("/getAllCohorts")
     public ResponseEntity<ResultDTO> getAllCohorts(){
@@ -29,6 +33,7 @@ public class CohortController {
     public ResponseEntity<ResultDTO> addCohort(@RequestBody CohortDTO cohortDTO){
         return cohortService.addCohort(cohortDTO);
     }
+
 
 
 }
