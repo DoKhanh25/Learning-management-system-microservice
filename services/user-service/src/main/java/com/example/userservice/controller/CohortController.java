@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @Slf4j
@@ -34,6 +36,15 @@ public class CohortController {
         return cohortService.addCohort(cohortDTO);
     }
 
+    @PostMapping("/updateCohort")
+    public ResponseEntity<ResultDTO> updateCohort(@RequestBody CohortDTO cohortDTO){
+        return cohortService.updateCohort(cohortDTO);
+    }
+
+    @PostMapping("/deleteCohorts")
+    public ResponseEntity<ResultDTO> deleteCohorts(@RequestBody List<Long> ids){
+        return cohortService.deleteCohorts(ids);
+    }
 
 
 }

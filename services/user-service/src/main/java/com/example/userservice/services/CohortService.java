@@ -99,6 +99,18 @@ public class CohortService {
         List<String> existUserIds = new ArrayList<>();
         List<String> updateIds = cohortDTO.getUserIds();
 
+        if(updateIds == null || updateIds.isEmpty()){
+            cohort.getCohortMembers().clear();
+            cohort.setUpdatedTime(new Date());
+            cohort.setAvailable(cohortDTO.getAvailable());
+            cohort.setDescription(cohortDTO.getDescription());
+
+            CohortEntity cohortEntityResult = cohortRepository.save(cohort);
+            resultDTO.setStatus(1);
+            resultDTO.setData(cohortEntityResult);
+            return ResponseEntity.ok(resultDTO);
+        }
+
         for(CohortMemberEntity cohortMember: cohortMemberEntityList){
             existUserIds.add(cohortMember.getKeycloakId());
         }
@@ -128,6 +140,21 @@ public class CohortService {
         resultDTO.setData(cohortEntityResult);
         return ResponseEntity.ok(resultDTO);
     }
+
+    public ResponseEntity<ResultDTO> deleteCohorts(List<Long> ids){
+        ResultDTO resultDTO = new ResultDTO();
+        if(ids == null){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("Not choice");
+            return ResponseEntity.ok(resultDTO);
+        }
+
+        cohortRepository.deleteAllById(ids);
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("Delete Success");
+        return ResponseEntity.ok(resultDTO);
+    }
+
 
 
 
