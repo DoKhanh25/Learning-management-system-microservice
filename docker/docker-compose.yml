@@ -10,3 +10,13 @@ services:
       - MYSQL_DATABASE=user_service
     volumes:
       - D:/LMS-Microservice/database/user_service:/var/lib/mysql
+  course_service_db:
+    image: mysql:latest
+    container_name: course_service_db
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456a@
+      - MYSQL_DATABASE=course_service
+    volumes:
+      - D:/LMS-Microservice/database/course_service:/var/lib/mysql
