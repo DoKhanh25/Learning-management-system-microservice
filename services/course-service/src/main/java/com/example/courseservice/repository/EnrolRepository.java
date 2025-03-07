@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface EnrolRepository extends JpaRepository<EnrolEntity, Long> {
 
-    @Query("SELECT e from enrol e where e.course.id = :id and e.enrolType = :enrolType ")
+    @Query("SELECT e from enrol e where e.course.id = :id and e.enrolType = :enrolType")
     List<EnrolEntity> getEnrolEntitiesByCourseIdAndEnrolType(@Param("id") Long id,
                                                              @Param("enrolType") EnrolType enrolType);
 }

@@ -55,4 +55,12 @@ public class CohortMemberService {
         return ResponseEntity.ok(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> getCohortMemberEntitiesByCohortId(Long cohortId){
+        ResultDTO resultDTO = new ResultDTO();
+        List<CohortMemberEntity> cohortMemberEntityList = cohortMemberRepository.getCohortMemberEntitiesByCohortId(cohortId);
+        resultDTO.setStatus(1);
+        resultDTO.setData(cohortMemberEntityList);
+        return ResponseEntity.ok(resultDTO);
+    }
+
 }

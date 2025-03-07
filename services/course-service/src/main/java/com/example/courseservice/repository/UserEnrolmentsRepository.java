@@ -10,4 +10,6 @@ import java.util.List;
 public interface UserEnrolmentsRepository extends JpaRepository<UserEnrolmentsEntity, Long> {
     @Query("select u from user_enrolment u where u.enrol.course.id = :id")
     List<UserEnrolmentsEntity> getAllUserEnrolmentsByCourseId(@Param("id") Long courseId);
+
+
 }

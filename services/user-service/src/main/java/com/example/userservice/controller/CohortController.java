@@ -46,5 +46,10 @@ public class CohortController {
         return cohortService.deleteCohorts(ids);
     }
 
+    @GetMapping("/getCohortMemberEntitiesByCohortId")
+    public ResponseEntity<ResultDTO> getCohortMemberEntitiesByCohortId(@RequestParam Long id){
+        return cohortMemberService.getCohortMemberEntitiesByCohortId(id);
+    }
+
 
 }

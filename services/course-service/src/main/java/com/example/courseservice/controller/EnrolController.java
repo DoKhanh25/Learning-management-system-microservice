@@ -1,14 +1,12 @@
 package com.example.courseservice.controller;
 
+import com.example.courseservice.dto.EnrolCreateDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.services.EnrolService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -19,6 +17,18 @@ public class EnrolController {
 
     @GetMapping("/getEnrolByCourseAndEnrolType")
     public ResponseEntity<ResultDTO> getEnrolByCourseAndEnrolTypeManual(@RequestParam Long id, @RequestParam String enrolType){
-        return enrolService.getEnrolByCourseAndEnrolTypeManual(id, enrolType);
+        return enrolService.getEnrolByCourseAndEnrolType(id, enrolType);
+    }
+
+    @PostMapping("/createSelfEnrol")
+    public ResponseEntity<ResultDTO> createSelfEnrol(@RequestBody EnrolCreateDTO enrolCreateDTO){
+        return enrolService.createSelfEnrol(enrolCreateDTO);
+    }
+
+    @PostMapping("/addEnrolmentsByCohort")
+    public ResponseEntity<ResultDTO> addEnrolmentsByCohort(@RequestParam("cohortId") Long cohortId,
+                                                           @RequestParam("courseId") Long courseId,
+                                                           @RequestParam("courseRole") String courseRole){
+        return enrolService.addEnrolmentsByCohort(cohortId, courseId, courseRole);
     }
 }

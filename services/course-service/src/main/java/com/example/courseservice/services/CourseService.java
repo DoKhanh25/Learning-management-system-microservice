@@ -3,6 +3,7 @@ package com.example.courseservice.services;
 import com.example.courseservice.dto.CourseCreateDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.entity.CourseEntity;
+import com.example.courseservice.entity.UserEnrolmentsEntity;
 import com.example.courseservice.repository.CourseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,4 +67,6 @@ public class CourseService {
         resultDTO.setData(courseEntityOptional.get());
         return ResponseEntity.ok(resultDTO);
     }
+
+
 }
