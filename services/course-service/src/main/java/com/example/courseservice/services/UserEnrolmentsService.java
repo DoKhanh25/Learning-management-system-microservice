@@ -1,10 +1,13 @@
 package com.example.courseservice.services;
 
+import com.example.courseservice.context.CycleAvoidingMappingContext;
 import com.example.courseservice.dto.ResultDTO;
+import com.example.courseservice.dto.UserEnrolmentsDTO;
 import com.example.courseservice.entity.CourseEntity;
 import com.example.courseservice.entity.EnrolEntity;
 import com.example.courseservice.entity.UserEnrolmentsEntity;
 import com.example.courseservice.enums.CourseRole;
+import com.example.courseservice.mapper.EnrolMapper;
 import com.example.courseservice.repository.CourseRepository;
 import com.example.courseservice.repository.UserEnrolmentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +26,19 @@ public class UserEnrolmentsService {
 
     @Autowired
     CourseRepository courseRepository;
+    @Autowired
+    EnrolMapper enrolMapper;
 
     public ResponseEntity<ResultDTO> getAllUserEnrolmentsByCourseId(Long id){
         ResultDTO resultDTO = new ResultDTO();
+        List<UserEnrolmentsDTO> userEnrolmentsDTOList = new ArrayList<>();
         List<UserEnrolmentsEntity> userEnrolmentsEntityList = userEnrolmentsRepository.getAllUserEnrolmentsByCourseId(id);
+        for (UserEnrolmentsEntity u: userEnrolmentsEntityList){
+            userEnrolmentsDTOList.add(enrolMapper.toDto(u, new CycleAvoidingMappingContext()));
+        }
+
         resultDTO.setStatus(1);
-        resultDTO.setData(userEnrolmentsEntityList);
+        resultDTO.setData(userEnrolmentsDTOList);
         return ResponseEntity.ok(resultDTO);
     }
 

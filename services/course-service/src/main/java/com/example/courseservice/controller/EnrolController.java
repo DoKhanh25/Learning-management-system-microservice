@@ -1,6 +1,6 @@
 package com.example.courseservice.controller;
 
-import com.example.courseservice.dto.EnrolCreateDTO;
+import com.example.courseservice.dto.EnrolDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.services.EnrolService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,8 @@ public class EnrolController {
     }
 
     @PostMapping("/createSelfEnrol")
-    public ResponseEntity<ResultDTO> createSelfEnrol(@RequestBody EnrolCreateDTO enrolCreateDTO){
-        return enrolService.createSelfEnrol(enrolCreateDTO);
+    public ResponseEntity<ResultDTO> createSelfEnrol(@RequestBody EnrolDTO enrolDTO){
+        return enrolService.createSelfEnrol(enrolDTO);
     }
 
     @PostMapping("/addEnrolmentsByCohort")

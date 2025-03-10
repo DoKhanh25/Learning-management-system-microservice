@@ -3,10 +3,7 @@ package com.example.courseservice.services;
 import com.example.courseservice.dto.CourseCreateDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.entity.CourseEntity;
-import com.example.courseservice.entity.UserEnrolmentsEntity;
 import com.example.courseservice.repository.CourseRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -65,6 +62,20 @@ public class CourseService {
 
         resultDTO.setStatus(1);
         resultDTO.setData(courseEntityOptional.get());
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> deleteCourseById(Long id){
+        ResultDTO resultDTO = new ResultDTO();
+        Optional<CourseEntity> courseEntityOptional = courseRepository.findById(id);
+        if(courseEntityOptional.isEmpty()){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("No data");
+            return ResponseEntity.ok(resultDTO);
+        }
+        courseRepository.deleteById(id);
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("Success");
         return ResponseEntity.ok(resultDTO);
     }
 

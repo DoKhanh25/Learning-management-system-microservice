@@ -1,7 +1,7 @@
 package com.example.courseservice.services;
 
 import com.example.commondto.dto.CohortMemberDTO;
-import com.example.courseservice.dto.EnrolCreateDTO;
+import com.example.courseservice.dto.EnrolDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.entity.CourseEntity;
 import com.example.courseservice.entity.EnrolEntity;
@@ -12,6 +12,8 @@ import com.example.courseservice.feign.UserServiceClient;
 import com.example.courseservice.repository.CourseRepository;
 import com.example.courseservice.repository.EnrolRepository;
 import com.example.courseservice.repository.UserEnrolmentsRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +37,13 @@ public class EnrolService {
 
     @Autowired
     UserServiceClient userServiceClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ResponseEntity<ResultDTO> createSelfEnrol(EnrolCreateDTO enrolCreateDTO){
+    public ResponseEntity<ResultDTO> createSelfEnrol(EnrolDTO enrolDTO){
         ResultDTO resultDTO = new ResultDTO();
         EnrolEntity enrolEntity = new EnrolEntity();
 
-        Optional<CourseEntity> courseEntityOptional = courseRepository.findById(enrolCreateDTO.getCourse());
+        Optional<CourseEntity> courseEntityOptional = courseRepository.findById(enrolDTO.getCourse());
         if(courseEntityOptional.isEmpty()){
             resultDTO.setStatus(2);
             resultDTO.setMessage("course does not exist");
@@ -50,11 +53,11 @@ public class EnrolService {
         enrolEntity.setCourse(courseEntityOptional.get());
         enrolEntity.setStatus((short) 1);
         enrolEntity.setEnrolType(EnrolType.SELF);
-        enrolEntity.setName(enrolCreateDTO.getName());
-        enrolEntity.setPassword(enrolCreateDTO.getPassword());
-        enrolEntity.setEnrolStartDate(enrolCreateDTO.getEnrolStartDate());
-        enrolEntity.setEnrolEndDate(enrolCreateDTO.getEnrolEndDate());
-        enrolEntity.setCourseRole(CourseRole.valueOf(enrolCreateDTO.getCourseRole()));
+        enrolEntity.setName(enrolDTO.getName());
+        enrolEntity.setPassword(enrolDTO.getPassword());
+        enrolEntity.setEnrolStartDate(enrolDTO.getEnrolStartDate());
+        enrolEntity.setEnrolEndDate(enrolDTO.getEnrolEndDate());
+        enrolEntity.setCourseRole(enrolDTO.getCourseRole());
 
         EnrolEntity enrolResult = enrolRepository.save(enrolEntity);
         resultDTO.setStatus(1);
@@ -77,28 +80,25 @@ public class EnrolService {
 
         if (response.getStatusCode().is2xxSuccessful()) {
             ResultDTO resultDTOResponse =  response.getBody();
-            List<CohortMemberDTO> cohortMemberDTOList = new ArrayList<>();
-            List<String> keycloakIds = new ArrayList<>();
             EnrolEntity enrolEntity = new EnrolEntity();
 
-            if(resultDTOResponse == null){
+            if(resultDTOResponse == null || resultDTOResponse.getData() == null){
                 resultDTO.setStatus(2);
                 resultDTO.setMessage("No Cohort Found");
                 return ResponseEntity.ok(resultDTO);
             }
+            List<?> data = (List<?>) resultDTOResponse.getData();
+            List<String> keycloakIds = new ArrayList<>();
+            List<CohortMemberDTO> cohortMemberDTOList = objectMapper.convertValue(data, new TypeReference<List<CohortMemberDTO>>() {});
 
-            List<?> rawList = (List<?>) resultDTOResponse.getData();
-            if(rawList.isEmpty()){
+            if (cohortMemberDTOList.isEmpty()){
                 resultDTO.setStatus(2);
-                resultDTO.setMessage("Cohort is Empty");
+                resultDTO.setMessage("No cohort Member");
                 return ResponseEntity.ok(resultDTO);
             }
 
-            for (Object item : rawList) {
-                log.info(String.valueOf(item instanceof CohortMemberDTO));
-                if (item instanceof CohortMemberDTO) {
-                    cohortMemberDTOList.add((CohortMemberDTO) item);
-                }
+            for (CohortMemberDTO cohortMemberDTO: cohortMemberDTOList){
+                keycloakIds.add(cohortMemberDTO.getKeycloakId());
             }
 
             Optional<CourseEntity> courseEntityOptional = courseRepository.findById(courseId);
@@ -125,12 +125,13 @@ public class EnrolService {
                 userEnrolments.setTimeStart(new Date());
                 userEnrolments.setEnrol(enrolEntity);
                 userEnrolments.setTimeEnd(courseEntityOptional.get().getEndDate());
-                keycloakIds.add(cohortMemberDTO.getKeycloakId());
                 userEnrolmentsEntityList.add(userEnrolments);
             }
             // check User is already in Enrolment
-            List<UserEnrolmentsEntity> userEnrolmentsEntities = userEnrolmentsRepository.getAllUserEnrolmentsByCourseId(cohortId);
+            List<UserEnrolmentsEntity> userEnrolmentsEntities = userEnrolmentsRepository.getAllUserEnrolmentsByCourseId(courseId);
+            log.info(String.valueOf(userEnrolmentsEntities.size()));
             for (UserEnrolmentsEntity u: userEnrolmentsEntities){
+                log.info(u.getUserId());
                 if (keycloakIds.contains(u.getUserId())){
                     resultDTO.setStatus(2);
                     resultDTO.setMessage("Đã tồn tại người dùng trong khóa học");
@@ -162,4 +163,5 @@ public class EnrolService {
         resultDTO.setData("Không thể kết nối tới User-service");
         return ResponseEntity.ok(resultDTO);
     }
+
 }

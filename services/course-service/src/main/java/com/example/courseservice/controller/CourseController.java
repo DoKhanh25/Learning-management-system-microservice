@@ -28,4 +28,10 @@ public class CourseController {
         log.info("getCourseById: " + id);
         return courseService.getCourseById(id);
     }
+
+    @DeleteMapping("/deleteCourseById")
+    public ResponseEntity<ResultDTO> deleteCourseById(@RequestParam Long id) {
+        log.info("deleteCourseById: " + id);
+        return courseService.deleteCourseById(id);
+    }
 }

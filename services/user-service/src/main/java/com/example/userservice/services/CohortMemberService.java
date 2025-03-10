@@ -1,8 +1,11 @@
 package com.example.userservice.services;
 
+import com.example.commondto.dto.CohortDTO;
+import com.example.commondto.dto.CohortMemberDTO;
 import com.example.userservice.dto.ResultDTO;
 import com.example.userservice.entity.CohortEntity;
 import com.example.userservice.entity.CohortMemberEntity;
+import com.example.userservice.mapper.CohortMapper;
 import com.example.userservice.repository.CohortMemberRepository;
 import com.example.userservice.repository.CohortRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,9 @@ public class CohortMemberService {
 
     @Autowired
     CohortRepository cohortRepository;
+
+    @Autowired
+    CohortMapper cohortMapper;
 
     public ResponseEntity<ResultDTO> addCohortMembersToCohort(List<String> keycloakIds, Long cohortId){
         Optional<CohortEntity> cohortEntityOptional = cohortRepository.findById(cohortId);
@@ -58,8 +64,13 @@ public class CohortMemberService {
     public ResponseEntity<ResultDTO> getCohortMemberEntitiesByCohortId(Long cohortId){
         ResultDTO resultDTO = new ResultDTO();
         List<CohortMemberEntity> cohortMemberEntityList = cohortMemberRepository.getCohortMemberEntitiesByCohortId(cohortId);
+        List<CohortMemberDTO> cohortDTOList = new ArrayList<>();
+        for (CohortMemberEntity cohortMember: cohortMemberEntityList){
+            cohortDTOList.add(cohortMapper.toDto(cohortMember));
+        }
+
         resultDTO.setStatus(1);
-        resultDTO.setData(cohortMemberEntityList);
+        resultDTO.setData(cohortDTOList);
         return ResponseEntity.ok(resultDTO);
     }
 

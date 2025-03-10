@@ -1,9 +1,10 @@
 package com.example.userservice.services;
 
-import com.example.userservice.dto.CohortDTO;
+import com.example.userservice.dto.CohortPostDTO;
 import com.example.userservice.dto.ResultDTO;
 import com.example.userservice.entity.CohortEntity;
 import com.example.userservice.entity.CohortMemberEntity;
+import com.example.userservice.mapper.CohortMapper;
 import com.example.userservice.repository.CohortMemberRepository;
 import com.example.userservice.repository.CohortRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import java.util.Optional;
 public class CohortService {
     @Autowired
     private CohortRepository cohortRepository;
+    @Autowired
+    private CohortMapper cohortMapper;
 
     @Autowired
     private CohortMemberRepository cohortMemberRepository;
@@ -41,21 +44,21 @@ public class CohortService {
         }
 
         resultDTO.setStatus(1);
-        resultDTO.setData(optionalCohort.get());
+        resultDTO.setData(cohortMapper.toDto(optionalCohort.get()));
         return ResponseEntity.ok(resultDTO);
     }
 
-    public ResponseEntity<ResultDTO> addCohort(CohortDTO cohortDTO){
+    public ResponseEntity<ResultDTO> addCohort(CohortPostDTO cohortPostDTO){
         ResultDTO resultDTO = new ResultDTO();
 
         CohortEntity cohortEntity = new CohortEntity();
         cohortEntity.setAvailable((short) 1);
-        cohortEntity.setName(cohortDTO.getName());
-        cohortEntity.setDescription(cohortDTO.getDescription());
+        cohortEntity.setName(cohortPostDTO.getName());
+        cohortEntity.setDescription(cohortPostDTO.getDescription());
         cohortEntity.setCreatedTime(new Date());
 
 
-        Optional<CohortEntity> cohort = cohortRepository.findCohortEntityByName(cohortDTO.getName());
+        Optional<CohortEntity> cohort = cohortRepository.findCohortEntityByName(cohortPostDTO.getName());
         if(cohort.isPresent()){
             resultDTO.setStatus(2);
             resultDTO.setData(null);
@@ -66,7 +69,7 @@ public class CohortService {
         CohortEntity cohortResult = cohortRepository.save(cohortEntity);
 
         List<CohortMemberEntity> cohortMemberEntityList = new ArrayList<>();
-        for (String id: cohortDTO.getUserIds()){
+        for (String id: cohortPostDTO.getUserIds()){
             CohortMemberEntity cohortMemberEntity = new CohortMemberEntity();
             cohortMemberEntity.setCohort(cohortResult);
             cohortMemberEntity.setAvailable((short) 1);
@@ -83,9 +86,9 @@ public class CohortService {
         return ResponseEntity.ok(resultDTO);
     }
 
-    public ResponseEntity<ResultDTO> updateCohort(CohortDTO cohortDTO){
+    public ResponseEntity<ResultDTO> updateCohort(CohortPostDTO cohortPostDTO){
         ResultDTO resultDTO = new ResultDTO();
-        Optional<CohortEntity> cohortEntityOptional = cohortRepository.findById(cohortDTO.getId());
+        Optional<CohortEntity> cohortEntityOptional = cohortRepository.findById(cohortPostDTO.getId());
         if(cohortEntityOptional.isEmpty()){
             resultDTO.setStatus(2);
             resultDTO.setMessage("Dont exist");
@@ -97,13 +100,13 @@ public class CohortService {
 
         List<CohortMemberEntity> cohortMemberEntityList = cohort.getCohortMembers();
         List<String> existUserIds = new ArrayList<>();
-        List<String> updateIds = cohortDTO.getUserIds();
+        List<String> updateIds = cohortPostDTO.getUserIds();
 
         if(updateIds == null || updateIds.isEmpty()){
             cohort.getCohortMembers().clear();
             cohort.setUpdatedTime(new Date());
-            cohort.setAvailable(cohortDTO.getAvailable());
-            cohort.setDescription(cohortDTO.getDescription());
+            cohort.setAvailable(cohortPostDTO.getAvailable());
+            cohort.setDescription(cohortPostDTO.getDescription());
 
             CohortEntity cohortEntityResult = cohortRepository.save(cohort);
             resultDTO.setStatus(1);
@@ -132,8 +135,8 @@ public class CohortService {
 
         cohort.setCohortMembers(cohortMemberEntityList);
         cohort.setUpdatedTime(new Date());
-        cohort.setAvailable(cohortDTO.getAvailable());
-        cohort.setDescription(cohortDTO.getDescription());
+        cohort.setAvailable(cohortPostDTO.getAvailable());
+        cohort.setDescription(cohortPostDTO.getDescription());
 
         CohortEntity cohortEntityResult = cohortRepository.save(cohort);
         resultDTO.setStatus(1);

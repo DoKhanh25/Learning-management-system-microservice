@@ -3,6 +3,7 @@ package com.example.courseservice.entity;
 import com.example.courseservice.enums.CourseRole;
 import com.example.courseservice.enums.EnrolType;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;

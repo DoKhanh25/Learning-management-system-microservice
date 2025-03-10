@@ -1,6 +1,6 @@
 package com.example.userservice.controller;
 
-import com.example.userservice.dto.CohortDTO;
+import com.example.userservice.dto.CohortPostDTO;
 import com.example.userservice.dto.ResultDTO;
 import com.example.userservice.services.CohortMemberService;
 import com.example.userservice.services.CohortService;
@@ -32,13 +32,13 @@ public class CohortController {
     }
 
     @PostMapping("/addCohort")
-    public ResponseEntity<ResultDTO> addCohort(@RequestBody CohortDTO cohortDTO){
-        return cohortService.addCohort(cohortDTO);
+    public ResponseEntity<ResultDTO> addCohort(@RequestBody CohortPostDTO cohortPostDTO){
+        return cohortService.addCohort(cohortPostDTO);
     }
 
     @PostMapping("/updateCohort")
-    public ResponseEntity<ResultDTO> updateCohort(@RequestBody CohortDTO cohortDTO){
-        return cohortService.updateCohort(cohortDTO);
+    public ResponseEntity<ResultDTO> updateCohort(@RequestBody CohortPostDTO cohortPostDTO){
+        return cohortService.updateCohort(cohortPostDTO);
     }
 
     @PostMapping("/deleteCohorts")
