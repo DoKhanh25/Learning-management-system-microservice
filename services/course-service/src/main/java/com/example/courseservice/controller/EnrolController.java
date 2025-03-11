@@ -20,6 +20,8 @@ public class EnrolController {
         return enrolService.getEnrolByCourseAndEnrolType(id, enrolType);
     }
 
+
+
     @PostMapping("/createSelfEnrol")
     public ResponseEntity<ResultDTO> createSelfEnrol(@RequestBody EnrolDTO enrolDTO){
         return enrolService.createSelfEnrol(enrolDTO);

@@ -12,4 +12,5 @@ public interface UserEnrolmentsRepository extends JpaRepository<UserEnrolmentsEn
     List<UserEnrolmentsEntity> getAllUserEnrolmentsByCourseId(@Param("id") Long courseId);
 
 
+
 }

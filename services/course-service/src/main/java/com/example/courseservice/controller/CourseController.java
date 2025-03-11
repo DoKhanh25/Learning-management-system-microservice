@@ -18,6 +18,12 @@ public class CourseController {
     public ResponseEntity<ResultDTO> getAllCourses() {
         return courseService.getAllCourses();
     }
+
+    @GetMapping("/getAllTeacherCoursesByUserId")
+    public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(@RequestParam String userId){
+        return courseService.getAllTeacherCoursesByUserId(userId);
+    }
+
     @PostMapping("/addCourse")
     public ResponseEntity<ResultDTO> addCourse(@RequestBody CourseCreateDTO courseCreateDTO){
         return courseService.addCourse(courseCreateDTO);

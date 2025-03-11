@@ -79,5 +79,13 @@ public class CourseService {
         return ResponseEntity.ok(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(String userId){
+        ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setStatus(1);
+        List<CourseEntity> courseEntities = courseRepository.getAllTeacherCoursesByUserId(userId);
+        resultDTO.setData(courseEntities);
+        return ResponseEntity.ok(resultDTO);
+    }
+
 
 }

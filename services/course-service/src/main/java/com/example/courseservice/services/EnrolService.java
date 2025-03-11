@@ -156,6 +156,8 @@ public class EnrolService {
         }
     }
 
+
+
     public ResponseEntity<ResultDTO> fallbackCohort(Long cohortId, Long courseId, String courseRole, Throwable t) {
         ResultDTO resultDTO = new ResultDTO();
         resultDTO.setStatus(0);
