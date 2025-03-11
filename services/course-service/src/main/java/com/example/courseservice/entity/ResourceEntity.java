@@ -28,11 +28,8 @@ public class ResourceEntity {
     @JoinColumn(name = "course_id", nullable = false)
     CourseEntity course;
 
-
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "files_id", referencedColumnName = "id")
     FilesEntity files;
-
-
 
 }

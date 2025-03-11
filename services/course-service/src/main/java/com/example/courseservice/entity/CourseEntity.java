@@ -19,15 +19,15 @@ public class CourseEntity {
     Long id;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
+//    @JsonIgnore
     List<CourseSectionsEntity> courseSections;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
+//    @JsonIgnore
     List<EnrolEntity> enrols;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
+//    @JsonIgnore
     List<ResourceEntity> resources;
 
     @Column(name = "name", nullable = false)

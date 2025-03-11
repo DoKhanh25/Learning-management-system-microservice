@@ -19,10 +19,6 @@ public class CourseController {
         return courseService.getAllCourses();
     }
 
-    @GetMapping("/getAllTeacherCoursesByUserId")
-    public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(@RequestParam String userId){
-        return courseService.getAllTeacherCoursesByUserId(userId);
-    }
 
     @PostMapping("/addCourse")
     public ResponseEntity<ResultDTO> addCourse(@RequestBody CourseCreateDTO courseCreateDTO){
@@ -31,7 +27,6 @@ public class CourseController {
 
     @GetMapping("/getCourseById")
     public ResponseEntity<ResultDTO> getCourseById(@RequestParam Long id){
-        log.info("getCourseById: " + id);
         return courseService.getCourseById(id);
     }
 
@@ -39,5 +34,16 @@ public class CourseController {
     public ResponseEntity<ResultDTO> deleteCourseById(@RequestParam Long id) {
         log.info("deleteCourseById: " + id);
         return courseService.deleteCourseById(id);
+    }
+
+
+    @GetMapping("/teacher/getAllCoursesByUserId")
+    public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(@RequestParam String userId){
+        return courseService.getAllTeacherCoursesByUserId(userId);
+    }
+
+    @GetMapping("/teacher/getCourseById")
+    public ResponseEntity<ResultDTO> getTeacherCourseById(@RequestParam Long id){
+        return courseService.getTeacherCourseById(id);
     }
 }

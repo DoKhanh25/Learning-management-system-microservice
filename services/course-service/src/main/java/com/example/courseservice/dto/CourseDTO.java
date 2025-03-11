@@ -15,9 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseDTO {
     Long id;
-    List<CourseSectionsEntity> courseSections;
+    List<CourseSectionsDTO> courseSections;
     List<EnrolDTO> enrols;
-//    List<ResourceEntity> resources;
+    List<ResourceDTO> resources;
     String name;
     String summary;
     short showGrades;

@@ -1,13 +1,21 @@
 package com.example.courseservice.services;
 
-import com.example.courseservice.dto.CourseCreateDTO;
-import com.example.courseservice.dto.ResultDTO;
+import com.example.courseservice.context.CycleAvoidingMappingContext;
+import com.example.courseservice.dto.*;
 import com.example.courseservice.entity.CourseEntity;
+import com.example.courseservice.entity.CourseSectionsEntity;
+import com.example.courseservice.entity.LessonEntity;
+import com.example.courseservice.mapper.CourseMapper;
+import com.example.courseservice.mapper.LessonMapper;
 import com.example.courseservice.repository.CourseRepository;
+import com.example.courseservice.repository.CourseSectionsRepository;
+import com.example.courseservice.repository.LessonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +23,17 @@ import java.util.Optional;
 public class CourseService {
     @Autowired
     CourseRepository courseRepository;
+
+    @Autowired
+    LessonRepository lessonRepository;
+
+    @Autowired
+    CourseSectionsRepository courseSectionsRepository;
+
+    @Autowired
+    CourseMapper courseMapper;
+    @Autowired
+    private LessonMapper lessonMapper;
 
     public ResponseEntity<ResultDTO> getAllCourses(){
         ResultDTO resultDTO = new ResultDTO();
@@ -61,7 +80,7 @@ public class CourseService {
         }
 
         resultDTO.setStatus(1);
-        resultDTO.setData(courseEntityOptional.get());
+        resultDTO.setData(courseMapper.toDto(courseEntityOptional.get(), new CycleAvoidingMappingContext()));
         return ResponseEntity.ok(resultDTO);
     }
 
@@ -83,7 +102,42 @@ public class CourseService {
         ResultDTO resultDTO = new ResultDTO();
         resultDTO.setStatus(1);
         List<CourseEntity> courseEntities = courseRepository.getAllTeacherCoursesByUserId(userId);
-        resultDTO.setData(courseEntities);
+        List<CourseDTO> courseDTOList = new ArrayList<>();
+        for (CourseEntity c: courseEntities){
+            c.setShowGrades((short) courseRepository.countAllByCourseIdAndCourseRoleStudent(c.getId()));
+            courseDTOList.add(courseMapper.toSimpleDto(c, new CycleAvoidingMappingContext()));
+        }
+
+        resultDTO.setData(courseDTOList);
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getTeacherCourseById(Long id){
+        ResultDTO resultDTO = new ResultDTO();
+        Optional<CourseEntity> courseEntityOptional = courseRepository.findById(id);
+
+        if(courseEntityOptional.isEmpty()){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("No data");
+            return ResponseEntity.ok(resultDTO);
+        }
+
+        CourseEntity courseEntity = courseEntityOptional.get();
+
+        CourseDTO courseDTO = courseMapper.toDto(courseEntity, new CycleAvoidingMappingContext());
+        List<CourseSectionsDTO> courseSectionsDTOList = courseDTO.getCourseSections();
+
+        for (CourseSectionsDTO courseSectionsDTO: courseSectionsDTOList){
+            List<LessonEntity> lessonEntities = lessonRepository.findLessonEntitiesBySectionId(courseSectionsDTO.getId());
+            List<LessonDTO> lessonDTOS = new ArrayList<>();
+            for (LessonEntity lessonEntity: lessonEntities){
+                lessonDTOS.add(lessonMapper.toDto(lessonEntity, new CycleAvoidingMappingContext()));
+            }
+            courseSectionsDTO.setLessons(lessonDTOS);
+        }
+        courseDTO.setCourseSections(courseSectionsDTOList);
+        resultDTO.setData(courseDTO);
+        resultDTO.setStatus(1);
         return ResponseEntity.ok(resultDTO);
     }
 

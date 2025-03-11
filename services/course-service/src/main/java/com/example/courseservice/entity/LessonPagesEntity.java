@@ -21,7 +21,6 @@ public class LessonPagesEntity {
     @JoinColumn(name = "lesson_id", nullable = false)
     LessonEntity lesson;
 
-
     @OneToMany(mappedBy = "lessonPages", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<LessonAttemptsEntity> lessonAttempts;
 
