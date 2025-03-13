@@ -33,6 +33,7 @@ public class CourseEntity {
     @Column(name = "name", nullable = false)
     String name;
 
+    @Lob
     @Column(name = "summary")
     String summary;
 

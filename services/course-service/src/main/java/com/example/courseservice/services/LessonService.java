@@ -44,6 +44,19 @@ public class LessonService {
         return ResponseEntity.ok(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> getLessonById(Long id){
+        ResultDTO resultDTO = new ResultDTO();
+        Optional<LessonEntity> lessonEntityOptional = lessonRepository.findById(id);
+        if(lessonEntityOptional.isEmpty()){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("No data");
+            return ResponseEntity.ok(resultDTO);
+        }
+        resultDTO.setStatus(1);
+        resultDTO.setData(lessonMapper.toDto(lessonEntityOptional.get(), new CycleAvoidingMappingContext()));
+        return ResponseEntity.ok(resultDTO);
+    }
+
     
     public ResponseEntity<ResultDTO> addLesson(LessonDTO lessonDTO) {
         ResultDTO resultDTO = new ResultDTO();
@@ -70,8 +83,9 @@ public class LessonService {
         resultDTO.setData(lessonEntity);
         resultDTO.setStatus(1);
         return ResponseEntity.ok(resultDTO);
-
     }
+
+
     
 
 }

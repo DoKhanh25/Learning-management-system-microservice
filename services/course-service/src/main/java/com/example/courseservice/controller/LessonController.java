@@ -26,6 +26,11 @@ public class LessonController {
         return lessonService.findLessonEntitiesByCourseId(courseId);
     }
 
+    @GetMapping("/getLessonById")
+    public ResponseEntity<ResultDTO> getLessonById(@RequestParam Long id){
+        return lessonService.getLessonById(id);
+    }
+
     @PostMapping("/addLesson")
     public ResponseEntity<ResultDTO> addLesson(@RequestBody LessonDTO lessonDTO){
         return lessonService.addLesson(lessonDTO);

@@ -36,7 +36,7 @@ public class LessonPagesEntity {
     @Column(name = "title")
     String title;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "LONGTEXT")
     String content;
 
     @Column(name = "created_time")

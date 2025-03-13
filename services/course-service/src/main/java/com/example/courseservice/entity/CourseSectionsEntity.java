@@ -27,6 +27,7 @@ public class CourseSectionsEntity {
     @Column(name = "name")
     String name;
 
+    @Lob
     @Column(name = "summary")
     String summary;
 

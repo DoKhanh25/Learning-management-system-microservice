@@ -2,20 +2,24 @@ package com.example.courseservice.mapper;
 
 import com.example.courseservice.context.CycleAvoidingMappingContext;
 import com.example.courseservice.dto.LessonDTO;
+import com.example.courseservice.dto.LessonPagesDTO;
 import com.example.courseservice.entity.CourseSectionsEntity;
 import com.example.courseservice.entity.LessonEntity;
+import com.example.courseservice.entity.LessonPagesEntity;
 import org.mapstruct.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {CourseSectionsMapper.class})
+        uses = {CourseSectionsMapper.class, LessonPagesMapper.class})
 public interface LessonMapper {
 
     @Named("toDto")
     @Mapping(target = "section", source = "section", qualifiedByName = "simple")
     @Mapping(target = "sectionId", source = "section.id")
+    @Mapping(target = "lessonPages", source = "lessonPages", qualifiedByName = "toSimpleLessonPagesDto")
     LessonDTO toDto(LessonEntity entity, @Context CycleAvoidingMappingContext context);
 
     @Named("simple")
@@ -27,6 +31,27 @@ public interface LessonMapper {
 
     default Long map(CourseSectionsEntity value) {
         return value == null ? null : value.getId();
+    }
+
+    @Named("toSimpleLessonPagesDto")
+    default List<LessonPagesDTO> toSimpleLessonPagesDto(List<LessonPagesEntity> entities) {
+        if (entities == null) {
+            return null;
+        }
+
+        return entities.stream().map(entity -> {
+            com.example.courseservice.dto.LessonPagesDTO dto = new com.example.courseservice.dto.LessonPagesDTO();
+            dto.setId(entity.getId());
+            dto.setLessonId(entity.getLesson().getId());
+            dto.setPosition(entity.getPosition());
+            dto.setQType(String.valueOf(entity.getQType()));
+            dto.setTitle(entity.getTitle());
+            dto.setContent(entity.getContent());
+            dto.setCreatedTime(entity.getCreatedTime());
+            dto.setUpdatedTime(entity.getUpdatedTime());
+            // Don't set the lesson property to avoid circular reference
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Named("toDtoWithoutContext")
