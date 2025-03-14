@@ -14,4 +14,5 @@ public interface LessonRepository extends JpaRepository<LessonEntity, Long> {
     @Query("SELECT l FROM lesson l WHERE l.section.course.id = :courseId")
     List<LessonEntity> findLessonEntitiesByCourseId(Long courseId);
 
+
 }

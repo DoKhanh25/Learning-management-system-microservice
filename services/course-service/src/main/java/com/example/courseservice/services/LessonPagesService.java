@@ -15,10 +15,16 @@ import com.example.courseservice.repository.LessonPagesRepository;
 import com.example.courseservice.repository.LessonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,6 +52,111 @@ public class LessonPagesService {
 
     @Autowired
     LessonPagesMapper lessonPagesMapper;
+
+    private static final String UPLOAD_DIR = "uploads";
+
+
+    public ResponseEntity<ResultDTO> getLessonPagesByLessonId(Long lessonId){
+        ResultDTO resultDTO = new ResultDTO();
+        List<LessonPagesEntity> lessonPagesEntityList = lessonPagesRepository.findLessonPagesEntitiesByLessonId(lessonId);
+        resultDTO.setData(lessonPagesMapper.toDtoList(lessonPagesEntityList));
+        resultDTO.setStatus(1);
+        return ResponseEntity.ok(resultDTO);
+
+    }
+
+    public ResponseEntity<Resource> getDocumentFileByLessonPagesId(Long id){
+        Optional<LessonPagesEntity> lessonPagesEntityOptional = lessonPagesRepository.findById(id);
+
+        if(lessonPagesEntityOptional.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        LessonPagesEntity lessonPagesEntity = lessonPagesEntityOptional.get();
+        String file = lessonPagesEntity.getContent();
+        String fileName = file.substring(file.lastIndexOf("/") + 1);
+
+        if(!QType.DOCUMENT.equals(lessonPagesEntity.getQType())){
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            Path filePath = Paths.get(file);
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if(resource.exists() && resource.isReadable()){
+                String contentType = determineContentType(fileName);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+
+        } catch (IOException e) {
+            log.error("Error getting document file: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    public ResponseEntity<StreamingResponseBody> getVideoFileLessonPagesById(Long id, String rangeHeader){
+        Optional<LessonPagesEntity> lessonPagesEntityOptional = lessonPagesRepository.findById(id);
+
+        if(lessonPagesEntityOptional.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        LessonPagesEntity lessonPagesEntity = lessonPagesEntityOptional.get();
+        String file = lessonPagesEntity.getContent();
+        String fileName = file.substring(file.lastIndexOf("/") + 1);
+
+        try {
+            Path videoPath = Paths.get(file);
+            long fileSize = Files.size(videoPath);
+
+            if (!Files.exists(videoPath)) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Xử lý Range Header
+            long start = 0;
+            long end = fileSize - 1;
+            if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
+                String[] ranges = rangeHeader.substring("bytes=".length()).split("-");
+                start = Long.parseLong(ranges[0]);
+                if (ranges.length > 1 && !ranges[1].isEmpty()) {
+                    end = Long.parseLong(ranges[1]);
+                }
+            }
+
+            final long finalStart = start;
+            final long finalEnd = end;
+            final long contentLength = finalEnd - finalStart + 1;
+
+            StreamingResponseBody stream = outputStream -> {
+                try (var inputStream = Files.newInputStream(videoPath)) {
+                    inputStream.skip(finalStart); // Sử dụng biến final
+                    byte[] buffer = new byte[4096];
+                    long bytesRemaining = contentLength;
+                    int bytesRead;
+                    while (bytesRemaining > 0 && (bytesRead = inputStream.read(buffer, 0, (int) Math.min(buffer.length, bytesRemaining))) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                        bytesRemaining -= bytesRead;
+                    }
+                    outputStream.flush();
+                }
+            };
+            String contentType = determineContentType(fileName);
+
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                    .header(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileSize)
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength))
+                    .body(stream);
+        } catch (IOException e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     public ResponseEntity<ResultDTO> addContentLessonPage(LessonPagesDTO lessonPagesDTO){
         ResultDTO resultDTO = new ResultDTO();
@@ -343,5 +455,21 @@ public class LessonPagesService {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return uploadDir + "/" + fileName;
+    }
+
+    private String determineContentType(String filename) {
+        if (filename.endsWith(".pdf")) {
+            return "application/pdf";
+        } else if (filename.endsWith(".docx")) {
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        } else if (filename.endsWith(".pptx")) {
+            return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        } else if (filename.endsWith(".mp4")) {
+            return "video/mp4";
+        } else if (filename.endsWith(".webm")) {
+            return "video/webm";
+        } else {
+            return "application/octet-stream"; // Mặc định
+        }
     }
 }
