@@ -20,3 +20,19 @@ services:
       - MYSQL_DATABASE=course_service
     volumes:
       - D:/LMS-Microservice/database/course_service:/var/lib/mysql
+  cassandra:
+    image: cassandra:latest
+    container_name: chat_service_db
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=lms_cluster
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - CASSANDRA_DC=datacenter1
+    volumes:
+      - D:/LMS-Microservice/database/chat_service:/var/lib/cassandra
+    healthcheck:
+      test: [ "CMD", "cqlsh", "-e", "describe keyspaces" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10

@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @NoArgsConstructor
@@ -84,6 +85,25 @@ public class UserService {
         }
 
         return ResponseEntity.ok(userInfoGetDTOS);
+    }
+
+    public ResponseEntity<ResultDTO> searchUserByUsernameOrEmail(String searchQuery){
+        Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+        List<UserRepresentation> userRepresentationList;
+        List<UserInfoGetDTO> userInfoGetDTOS = new ArrayList<>();
+        userRepresentationList = keycloak.realm(realm).users().search(searchQuery, false)
+                .stream()
+                .filter((userRepresentation -> userRepresentation.getEmail() != null && userRepresentation.isEnabled())).toList();
+
+        for (UserRepresentation userKeycloak: userRepresentationList){
+            UserInfoGetDTO userInfoGetDTO = UserInfoMapper.toUserDTO(userKeycloak);
+            userInfoGetDTOS.add(userInfoGetDTO);
+        }
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("success");
+        resultDTO.setData(userInfoGetDTOS);
+        return ResponseEntity.ok(resultDTO);
     }
 
 
@@ -179,6 +199,18 @@ public class UserService {
     public ResponseEntity<ResultDTO> createUser(UserInfoPostDTO userInfoPostDTO){
         Keycloak keycloak = keycloakProvider.getInstance();
         ResultDTO resultDTO = new ResultDTO();
+
+        if(userInfoPostDTO.getEmail() == null){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("email is required");
+            return ResponseEntity.ok(resultDTO);
+        }
+
+        if(userInfoPostDTO.getFirstName() == null || userInfoPostDTO.getLastName() == null || userInfoPostDTO.getUsername() == null){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("name is required");
+            return ResponseEntity.ok(resultDTO);
+        }
 
         UserRepresentation user = new UserRepresentation();
         user.setUsername(userInfoPostDTO.getUsername());
@@ -332,6 +364,7 @@ public class UserService {
                 }
             }
 
+
             userRepresentation.setEnabled(true);
             userRepresentation.setAttributes(attributes);
 
@@ -339,6 +372,13 @@ public class UserService {
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setValue(password);
             credential.setTemporary(false);
+
+            if(userRepresentation.getUsername() != null){
+                return ResponseEntity.badRequest().body(null);
+            }
+            if(userRepresentation.getEmail() != null){
+                return ResponseEntity.badRequest().body(null);
+            }
 
             Response response = keycloak.realm(realm).users().create(userRepresentation);
 

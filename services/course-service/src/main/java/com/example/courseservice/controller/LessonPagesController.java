@@ -31,7 +31,7 @@ public class LessonPagesController {
 
     @GetMapping("/getVideoFileLessonPagesById")
     public ResponseEntity<StreamingResponseBody> getVideoFileByLessonPagesId(@RequestParam Long id,
-                                                                             @RequestHeader(value = "Range", required = false) String rangeHeader){
+                                                                             @RequestHeader(value = "range", required = false) String rangeHeader){
         return lessonPagesService.getVideoFileLessonPagesById(id, rangeHeader);
     }
 

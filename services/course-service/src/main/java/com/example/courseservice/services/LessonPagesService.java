@@ -210,11 +210,21 @@ public class LessonPagesService {
                 resultDTO.setMessage("Invalid data");
                 return ResponseEntity.badRequest().body(resultDTO);
             }
+            
 
             // Validate file
             if (file == null || file.isEmpty()) {
                 resultDTO.setStatus(2);
                 resultDTO.setMessage("Document file is required");
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || !(originalFilename.toLowerCase().endsWith(".pdf") ||
+                    originalFilename.toLowerCase().endsWith(".doc") ||
+                    originalFilename.toLowerCase().endsWith(".docx"))) {
+                resultDTO.setStatus(2);
+                resultDTO.setMessage("Only PDF, DOC, DOCX, PPT, or PPTX files are allowed");
                 return ResponseEntity.badRequest().body(resultDTO);
             }
 

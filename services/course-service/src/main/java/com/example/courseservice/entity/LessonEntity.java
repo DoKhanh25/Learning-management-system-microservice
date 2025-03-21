@@ -28,6 +28,9 @@ public class LessonEntity {
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<LessonTimerEntity> lessonTimers;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    AIChatSessionEntity session;
+
     @Column(name = "created_time")
     Date createdTime;
 

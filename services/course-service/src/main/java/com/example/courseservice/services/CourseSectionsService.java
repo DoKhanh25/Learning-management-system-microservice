@@ -39,6 +39,7 @@ public class CourseSectionsService {
         return ResponseEntity.ok(resultDTO);
     }
 
+
     public ResponseEntity<ResultDTO> addCourseSection(CourseSectionsDTO courseSectionsDTO){
         ResultDTO resultDTO = new ResultDTO();
 

@@ -15,8 +15,8 @@ public class CourseController {
     @Autowired
     CourseService courseService;
     @GetMapping("/getAllCourses")
-    public ResponseEntity<ResultDTO> getAllCourses() {
-        return courseService.getAllCourses();
+    public ResponseEntity<ResultDTO> getAllCourses(@RequestHeader("X-Roles") String roles) {
+        return courseService.getAllCourses(roles);
     }
 
 
@@ -32,7 +32,6 @@ public class CourseController {
 
     @DeleteMapping("/deleteCourseById")
     public ResponseEntity<ResultDTO> deleteCourseById(@RequestParam Long id) {
-        log.info("deleteCourseById: " + id);
         return courseService.deleteCourseById(id);
     }
 

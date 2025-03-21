@@ -35,7 +35,7 @@ public class CourseService {
     @Autowired
     private LessonMapper lessonMapper;
 
-    public ResponseEntity<ResultDTO> getAllCourses(){
+    public ResponseEntity<ResultDTO> getAllCourses(String roles){
         ResultDTO resultDTO = new ResultDTO();
         List<CourseEntity> courseEntities = courseRepository.findAll();
         resultDTO.setData(courseEntities);

@@ -23,10 +23,10 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-//    @GetMapping("/searchUsers")
-//    public ResponseEntity<List<UserInfoGetDTO>> searchUser(@RequestParam String id){
-//        return userService.searchUserListByUsernameOrEmail(id);
-//    }
+    @GetMapping("/searchUsers")
+    public ResponseEntity<ResultDTO> searchUser(@RequestParam("searchQuery") String searchQuery){
+        return userService.searchUserByUsernameOrEmail(searchQuery);
+    }
 
     @GetMapping("/getUser")
     public ResponseEntity<UserInfoGetDTO> getUser(@RequestParam String id){
