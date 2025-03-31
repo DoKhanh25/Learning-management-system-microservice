@@ -1,0 +1,8 @@
+
+.idea/
+.vscode/
+database/
+uploads/
+
+LMS-Microservice.vpp*
+myapp.log*
