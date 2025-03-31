@@ -1,18 +1,20 @@
 package com.example.courseservice.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
+import java.util.Date;
+
 @AllArgsConstructor
-public class LessonBranchDTO {
-    Long id;
-    LessonPagesDTO lessonPages;
+@NoArgsConstructor
+@Data
+public class StudentProgressDTO {
+    Long lessonBranchId;
     Long lessonId;
-    String userId;
-    Long timeSeen;
     Long lessonPagesId;
+    String title;
+    String userId;
+    short completed;
+    Date startTime;
 }

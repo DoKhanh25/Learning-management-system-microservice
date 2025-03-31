@@ -29,6 +29,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -59,6 +61,26 @@ public class UserService {
         for(UserRepresentation userKeycloak: userKeycloakList){
             UserInfoGetDTO userInfoGetDTO = UserInfoMapper.toUserDTO(userKeycloak);
             userInfoGetDTOS.add(userInfoGetDTO);
+        }
+
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("success");
+        resultDTO.setData(userInfoGetDTOS);
+
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getUsersByIds(List<String> userIds) {
+        Keycloak keycloak = keycloakProvider.getInstance();
+        ResultDTO resultDTO = new ResultDTO();
+
+        List<UserRepresentation> userKeycloakList = keycloak.realm(realm).users().list();
+        List<UserInfoGetDTO> userInfoGetDTOS = new ArrayList<>();
+        for(UserRepresentation userKeycloak: userKeycloakList){
+            UserInfoGetDTO userInfoGetDTO = UserInfoMapper.toUserDTO(userKeycloak);
+            if(userIds.contains(userInfoGetDTO.getUserId())){
+                userInfoGetDTOS.add(userInfoGetDTO);
+            }
         }
 
         resultDTO.setStatus(1);

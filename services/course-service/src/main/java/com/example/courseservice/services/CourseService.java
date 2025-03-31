@@ -35,7 +35,7 @@ public class CourseService {
     @Autowired
     private LessonMapper lessonMapper;
 
-    public ResponseEntity<ResultDTO> getAllCourses(String roles){
+    public ResponseEntity<ResultDTO> getAllCourses(){
         ResultDTO resultDTO = new ResultDTO();
         List<CourseEntity> courseEntities = courseRepository.findAll();
         resultDTO.setData(courseEntities);
@@ -110,6 +110,26 @@ public class CourseService {
 
         resultDTO.setData(courseDTOList);
         return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getAllStudentCoursesByUserId(String userId){
+        ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setStatus(1);
+        List<CourseEntity> courseEntities = courseRepository.getAllStudentCoursesByUserId(userId);
+        List<CourseDTO> courseDTOList = new ArrayList<>();
+
+        for (CourseEntity c: courseEntities){
+            courseDTOList.add(courseMapper.toSimpleDto(c, new CycleAvoidingMappingContext()));
+        }
+
+        for (CourseDTO c: courseDTOList){
+            c.setEnrols(null);
+            c.setResources(null);
+        }
+
+        resultDTO.setData(courseDTOList);
+        return ResponseEntity.ok(resultDTO);
+
     }
 
     public ResponseEntity<ResultDTO> getTeacherCourseById(Long id){

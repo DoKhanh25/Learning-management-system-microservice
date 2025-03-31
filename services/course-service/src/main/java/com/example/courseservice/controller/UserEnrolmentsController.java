@@ -16,8 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserEnrolmentsController {
     @Autowired
     UserEnrolmentsService userEnrolmentsService;
+
     @GetMapping("/getAllUserEnrolmentsByCourseId")
     public ResponseEntity<ResultDTO> getAllUserEnrolmentsByCourseId(@RequestParam Long id){
         return userEnrolmentsService.getAllUserEnrolmentsByCourseId(id);
+    }
+
+    @GetMapping("/getAllStudentEnrolmentsByCourseId")
+    public ResponseEntity<ResultDTO> getAllStudentEnrolmentsByCourseId(@RequestParam Long id){
+        return userEnrolmentsService.getAllStudentEnrolmentsByCourseId(id);
     }
 }

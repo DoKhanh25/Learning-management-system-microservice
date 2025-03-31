@@ -89,11 +89,28 @@ public class ChatService {
             resultDTO.setStatus(0);
             return new ResponseEntity<>(resultDTO, HttpStatus.BAD_REQUEST);
         }
-        if(!chatId.contains(userId)){
-            resultDTO.setStatus(0);
-            resultDTO.setMessage("You are not authorized to view this chat.");
-            return new ResponseEntity<>(resultDTO, HttpStatus.UNAUTHORIZED);
+        // validate
+        if(chatId.contains("one_")){
+            if(!chatId.contains(userId)){
+                resultDTO.setStatus(0);
+                resultDTO.setMessage("You are not authorized to view this chat.");
+                return new ResponseEntity<>(resultDTO, HttpStatus.UNAUTHORIZED);
+            }
+        } else {
+            ChatGroupEntity chatGroupEntity = chatGroupRepository.findByChatId(chatId);
+            if(chatGroupEntity == null){
+                resultDTO.setStatus(0);
+                resultDTO.setMessage("You are not authorized to view this chat.");
+                return new ResponseEntity<>(resultDTO, HttpStatus.UNAUTHORIZED);
+            }
+            Set<UUID> memberIds = chatGroupEntity.getMemberIds();
+            if(!memberIds.contains(UUID.fromString(userId))){
+                resultDTO.setStatus(0);
+                resultDTO.setMessage("You are not authorized to view this chat.");
+                return new ResponseEntity<>(resultDTO, HttpStatus.UNAUTHORIZED);
+            }
         }
+
         List<MessageEntity> messages;
         if (lastMessageId == null) {
             // First page
@@ -102,7 +119,6 @@ public class ChatService {
             // Subsequent pages
             messages = messageRepository.findMessagesByChatIdAndMessageIdLessThan(chatId, UUID.fromString(lastMessageId), pageSize);
         }
-
 
         resultDTO.setStatus(1);
         resultDTO.setData(messages);
@@ -160,6 +176,25 @@ public class ChatService {
         resultDTO.setMessage("Success");
         resultDTO.setData(chatId);
 
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getGroupDetails(String chatId, String userId) {
+        ResultDTO resultDTO = new ResultDTO();
+        ChatGroupEntity group = chatGroupRepository.findById(chatId).orElse(null);
+        if(group == null){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("No such chat group.");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+        Set<UUID> memberIds = group.getMemberIds();
+        if(memberIds.isEmpty() || !memberIds.contains(UUID.fromString(userId))){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("You are not authorized to view this chat.");
+            return new ResponseEntity<>(resultDTO, HttpStatus.UNAUTHORIZED);
+        }
+        resultDTO.setStatus(1);
+        resultDTO.setData(group);
         return ResponseEntity.ok(resultDTO);
     }
 

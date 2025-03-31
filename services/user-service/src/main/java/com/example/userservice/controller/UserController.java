@@ -42,6 +42,11 @@ public class UserController {
 //        return userService.getRolesKeycloak();
 //    }
 
+    @PostMapping("/getUsersByIds")
+    public ResponseEntity<ResultDTO> getUsersByIds(@RequestBody List<String> userIds){
+        return userService.getUsersByIds(userIds);
+    }
+
     @PostMapping("/createUser")
     public ResponseEntity<ResultDTO> createUser(@RequestBody UserInfoPostDTO userInfoPostDTO){
         return userService.createUser(userInfoPostDTO);

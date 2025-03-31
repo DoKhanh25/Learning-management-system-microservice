@@ -15,8 +15,8 @@ public class CourseController {
     @Autowired
     CourseService courseService;
     @GetMapping("/getAllCourses")
-    public ResponseEntity<ResultDTO> getAllCourses(@RequestHeader("X-Roles") String roles) {
-        return courseService.getAllCourses(roles);
+    public ResponseEntity<ResultDTO> getAllCourses(){
+        return courseService.getAllCourses();
     }
 
 
@@ -37,12 +37,18 @@ public class CourseController {
 
 
     @GetMapping("/teacher/getAllCoursesByUserId")
-    public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(@RequestParam String userId){
+    public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(@RequestHeader("X-User-Id") String userId){
         return courseService.getAllTeacherCoursesByUserId(userId);
+    }
+
+    @GetMapping("/student/getAllCoursesByUserId")
+    public ResponseEntity<ResultDTO> getAllStudentCoursesByUserId(@RequestHeader("X-User-Id") String userId){
+        return courseService.getAllStudentCoursesByUserId(userId);
     }
 
     @GetMapping("/teacher/getCourseById")
     public ResponseEntity<ResultDTO> getTeacherCourseById(@RequestParam Long id){
         return courseService.getTeacherCourseById(id);
     }
+
 }

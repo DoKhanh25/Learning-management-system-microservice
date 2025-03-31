@@ -16,13 +16,21 @@ public class CourseSectionsController {
     CourseSectionsService courseSectionsService;
 
     @PostMapping("/addCourseSection")
-    public ResponseEntity<ResultDTO> addCourseSection(@RequestBody CourseSectionsDTO courseSectionsDTO){
-            return courseSectionsService.addCourseSection(courseSectionsDTO);
+    public ResponseEntity<ResultDTO> addCourseSection(@RequestBody CourseSectionsDTO courseSectionsDTO,
+                                                      @RequestHeader("X-User-Id") String userId){
+            return courseSectionsService.addCourseSection(courseSectionsDTO, userId);
+    }
+
+    @PutMapping("/updateCourseSection")
+    public ResponseEntity<ResultDTO> updateCourseSection(@RequestBody CourseSectionsDTO courseSectionsDTO,
+                                                         @RequestHeader("X-User-Id") String userId){
+        return courseSectionsService.updateCourseSection(courseSectionsDTO, userId);
     }
 
     @DeleteMapping("/deleteCourseSectionById")
-    public ResponseEntity<ResultDTO> deleteCourseSectionById(@RequestParam Long id){
-        return courseSectionsService.deleteCourseSectionById(id);
+    public ResponseEntity<ResultDTO> deleteCourseSectionById(@RequestParam Long id,
+                                                             @RequestHeader("X-User-Id") String userId){
+        return courseSectionsService.deleteCourseSectionById(id, userId);
     }
 
 }

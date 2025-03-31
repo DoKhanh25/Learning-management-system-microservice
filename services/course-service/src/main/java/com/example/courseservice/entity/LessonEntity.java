@@ -29,6 +29,7 @@ public class LessonEntity {
     List<LessonTimerEntity> lessonTimers;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "session_id")
     AIChatSessionEntity session;
 
     @Column(name = "created_time")

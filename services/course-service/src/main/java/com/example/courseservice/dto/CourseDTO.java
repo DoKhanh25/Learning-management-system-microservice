@@ -1,12 +1,8 @@
 package com.example.courseservice.dto;
 
-import com.example.courseservice.entity.CourseSectionsEntity;
-import com.example.courseservice.entity.EnrolEntity;
-import com.example.courseservice.entity.ResourceEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.Date;
 import java.util.List;
 

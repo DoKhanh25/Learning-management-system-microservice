@@ -1,5 +1,6 @@
 package com.example.courseservice.repository;
 
+import com.example.courseservice.entity.CourseEntity;
 import com.example.courseservice.entity.LessonEntity;
 import com.example.courseservice.entity.LessonPagesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +19,8 @@ public interface LessonRepository extends JpaRepository<LessonEntity, Long> {
 
     @Query("select l.lessonPages from lesson l where l.id = :lessonId")
     List<LessonPagesEntity> findLessonPagesEntitiesByLessonId(@Param("lessonId") Long lessonId);
+
+    @Query("select l.section.course from lesson l where l.id = :lessonId")
+    CourseEntity findCourseEntityByLessonId(@Param("lessonId") Long lessonId);
 
 }

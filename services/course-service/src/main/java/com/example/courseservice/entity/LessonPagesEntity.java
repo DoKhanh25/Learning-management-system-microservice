@@ -28,6 +28,7 @@ public class LessonPagesEntity {
     List<LessonBranchEntity> lessonBranch;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+            @JoinColumn(name = "lessonPages_id")
     LessonNoteEntity lessonNotes;
 
     @Column(name = "position")

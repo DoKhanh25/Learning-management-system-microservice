@@ -36,6 +36,12 @@ public class ChatController {
         return chatService.getUserChatList(UUID.fromString(userId));
     }
 
+    @GetMapping("/chat/group/{chatId}")
+    public ResponseEntity<ResultDTO> getGroupDetails(@PathVariable String chatId,
+                                                     @RequestHeader("X-User-Id") String userId) {
+        return chatService.getGroupDetails(chatId, userId);
+    }
+
     @PostMapping("/chat/addPrivateChat")
     public ResponseEntity<ResultDTO> addPrivateChat(@RequestBody PrivateChatDTO privateChatDTO) {
         log.info("Add private chat: {}", privateChatDTO.toString());

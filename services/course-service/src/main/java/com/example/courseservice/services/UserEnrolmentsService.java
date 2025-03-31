@@ -42,6 +42,21 @@ public class UserEnrolmentsService {
         return ResponseEntity.ok(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> getAllStudentEnrolmentsByCourseId(Long id){
+        ResultDTO resultDTO = new ResultDTO();
+        List<UserEnrolmentsDTO> userEnrolmentsDTOList = new ArrayList<>();
+        List<UserEnrolmentsEntity> userEnrolmentsEntityList = userEnrolmentsRepository.getAllStudentEnrolmentsByCourseId(id);
+        for (UserEnrolmentsEntity u: userEnrolmentsEntityList){
+            userEnrolmentsDTOList.add(enrolMapper.toDto(u, new CycleAvoidingMappingContext()));
+        }
+
+        resultDTO.setStatus(1);
+        resultDTO.setData(userEnrolmentsDTOList);
+        return ResponseEntity.ok(resultDTO);
+    }
+
+
+
     public ResponseEntity<ResultDTO> updateUserEnrolmentsManual(Long courseId, List<String> userIds){
         List<UserEnrolmentsEntity> userEnrolmentsEntityList = userEnrolmentsRepository.getAllUserEnrolmentsByCourseId(courseId);
         Optional<CourseEntity> courseEntityOptional = courseRepository.findById(courseId);
