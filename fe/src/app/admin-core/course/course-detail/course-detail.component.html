@@ -1,0 +1,241 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+
+<div class="container-fluid mt-2 p-4">
+  <p-tabView>
+    <p-tabPanel header="Thông tin chung">
+      <form [formGroup]="courseUpdateForm" (ngSubmit)="onUpdateCourse()">
+        <div class="flex items-center gap-2 align-items-center mb-4">
+          <label for="name" class="font-semibold w-8rem">Tên khóa học</label>
+          <input pInputText id="name" class="flex-auto" formControlName="name"/>
+          <small class="p-error" *ngIf="courseUpdateForm.get('name')?.invalid && courseUpdateForm.get('name')?.touched">
+            Tên khóa học là bắt buộc và phải có ít nhất 3 ký tự
+          </small>
+        </div>
+        <div class="flex items-center gap-2 align-items-center mb-4">
+          <label for="summary" class="font-semibold w-8rem">Mô tả</label>
+          <textarea pInputTextarea id="summary" class="flex-auto" formControlName="summary" rows="3"></textarea>
+        </div>
+        <div class="flex items-center gap-2 align-items-center mb-4">
+          <label for="startDate" class="font-semibold w-8rem">Ngày bắt đầu</label>
+          <p-calendar id="startDate" formControlName="startDate" [dateFormat]="'dd/mm/yy'"  />
+        </div>
+        <div class="flex items-center gap-2 align-items-center mb-4">
+          <label for="endDate" class="font-semibold w-8rem">Ngày kết thúc</label>
+          <p-calendar id="endDate" formControlName="endDate" [dateFormat]="'dd/mm/yy'"  />
+        </div>
+        <div class="text-center">
+          <p-button type="submit" label="Lưu" [loading]="saving" severity="primary" />
+        </div>
+      </form>
+    </p-tabPanel>
+
+
+
+    <!-- <p-tabPanel header="Danh sách thành viên">
+      <div>
+        <p-progressBar *ngIf="loading" mode="indeterminate" [style]="{ height: '6px' }"></p-progressBar>
+        <p-pickList
+          [source]="sourceUsers"
+          [target]="targetUsers"
+          sourceHeader="Người dùng có sẵn"
+          targetHeader="Người dùng đã ghi danh"
+          [dragdrop]="true"
+          [responsive]="true"
+          [sourceStyle]="{'height':'30rem'}"
+          [targetStyle]="{'height':'30rem'}"
+          filterBy="name"
+          sourceFilterPlaceholder="Tìm kiếm người dùng"
+          targetFilterPlaceholder="Tìm kiếm người đã ghi danh"
+         >
+          <ng-template let-user pTemplate="item">
+            <div class="flex flex-wrap p-2 align-items-center gap-3">
+              <div class="flex-1 flex flex-column gap-2">
+                <span class="font-bold">{{user.name}}</span>
+                <span class="text-sm">{{user.email}}</span>
+              </div>
+              <span class="pi" [class.pi-check-circle]="user.available === 1"
+                             [class.pi-times-circle]="user.available === 0"
+                             [class.text-green-500]="user.available === 1"
+                             [class.text-red-500]="user.available === 0">
+              </span>
+            </div>
+          </ng-template>
+        </p-pickList>
+      </div>
+      <div class="text-center mt-5">
+        <p-button type="submit" label="Lưu" [loading]="saving" severity="primary"  />
+      </div>
+    </p-tabPanel> -->
+
+    <p-tabPanel header="Mã tham gia">
+
+      <p-table [value]="enrolments" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Tên</th>
+                <th>mật khẩu</th>
+                <th>Vai trò</th>
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Trạng thái</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-enrolment>
+            <tr>
+                <td>{{ enrolment.name }}</td>
+                <td>{{ enrolment.password }}</td>
+                <td>{{ enrolment.courseRole }}</td>
+                <td>{{enrolment.enrolStartDate | date: 'dd/MM/yyyy'}}</td>
+                <td>{{enrolment.enrolEndDate | date: 'dd/MM/yyyy'}}</td>
+                <td>
+                  <p-message *ngIf="isExpired(enrolment.enrolEndDate)" severity="error" text="Expired"></p-message>
+                  <p-message *ngIf="!isExpired(enrolment.enrolEndDate)" severity="success" text="Active"></p-message>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <p-button label="Thêm mã tham gia" (click)="addEnrolmentDialog = true" />
+        </ng-template>
+    </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Thêm nhóm">
+      <form [formGroup]="cohortAddEnrolForm" class="mt-3" (ngSubmit)="onCohortAddSubmit()" >
+        <div class="flex items-center gap-2 align-items-center mb-4">
+          <label for="courseRole" class="font-semibold w-8rem">Vai trò</label>
+          <p-dropdown  id="courseRole" class="flex-auto" [style]="{'minWidth':'50%'}" formControlName="courseRole" [options]="courseRolesCohort" optionLabel="name" optionValue="value" />
+        </div>
+        <div class="flex items-center gap-2 align-items-center mb-4">
+          <label for="cohort" class="font-semibold w-8rem">Nhóm</label>
+          <p-dropdown id="cohort" class="flex-auto" [style]="{'minWidth':'50%'}" formControlName="cohort" [options]="cohorts" optionLabel="name" optionValue="id" />
+        </div>
+        <div class="text-center">
+          <p-button type="submit" label="Lưu" [loading]="saving" severity="primary" />
+        </div>
+      </form>
+
+    </p-tabPanel>
+
+    <p-tabPanel header="Danh sách người tham gia">
+      <p-table
+      #dt
+      [value]="usersInCourse"
+      [scrollable]="true"
+      [paginator]="true"
+      [rows]="10"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      [(selection)]="selectedUsers"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onPage)="pageChange($event)"
+      [rowsPerPageOptions]="[10, 20, 30]"
+      [globalFilterFields]="['username', 'email', 'firstName', 'lastName']"
+
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <p-iconField iconPosition="left" class="ml-auto">
+            <p-inputIcon>
+              <i class="pi pi-search" (click)="dt.filterGlobal(searchQuery, 'contains')"></i>
+            </p-inputIcon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchQuery"
+              (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')"
+              placeholder="Tìm kiếm"
+            />
+          </p-iconField>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" >
+        <tr>
+          <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+          <th style="min-width: 200px">id</th>
+          <th style="min-width: 150px">Tài khoản</th>
+          <th style="min-width: 200px">Email</th>
+          <th style="min-width: 200px">Tên</th>
+          <th style="min-width: 100px">Trạng thái</th>
+          <th style="min-width: 100px">Vai trò</th>
+        </tr>
+      </ng-template>
+      <ng-template  pTemplate="body"  let-user>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="user" />
+          </td>
+          <td>{{ user.userId }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.lastName + " " + user.firstName }}</td>
+          <td>
+            <p-message *ngIf="user.enable == true" severity="success" text="Hoạt động">Hoạt động</p-message>
+            <p-message *ngIf="user.enable == false" severity="error" text="Không hoạt động"></p-message>
+          </td>
+          <td>{{user.courseRole}}</td>
+
+        </tr>
+      </ng-template>
+      <!-- <ng-template pTemplate="paginatorleft">
+        <p-button type="button" icon="pi pi-plus" pTooltip="Tạo tài khoản" tooltipPosition="right" (onClick)="clickAddAccount()"/>
+      </ng-template>
+      <ng-template  pTemplate="paginatorright">
+        <p-button type="button" icon="pi pi-trash" pTooltip="Dừng tài khoản" tooltipPosition="left" (onClick)="clickDeleteAccount()" severity="danger"/>
+      </ng-template> -->
+    </p-table>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<p-dialog header="Tạo mã tham gia" [(visible)]="addEnrolmentDialog" [style]="{ width: '30rem', border: '1px solid #ccc' }">
+  <form [formGroup]="enrolKeyUpdateForm" class="mt-3">
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="courseRole" class="font-semibold w-8rem">Vai trò</label>
+      <p-dropdown id="courseRole" class="flex-auto" formControlName="courseRole" [options]="courseRoles" optionLabel="name" optionValue="value" />
+    </div>
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="name" class="font-semibold w-8rem">Tên</label>
+      <input pInputText id="name" class="flex-auto" formControlName="name"/>
+    </div>
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="password" class="font-semibold w-8rem">Mật khẩu</label>
+      <input pInputText id="password" class="flex-auto" formControlName="password"/>
+    </div>
+
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="startDate" class="font-semibold w-8rem">Ngày bắt đầu</label>
+      <p-calendar required  id="startDate" class="flex-auto" [dateFormat]="'dd/mm/yy'"  [appendTo]="'body'" formControlName="enrolStartDate" />
+    </div>
+
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="endDate" class="font-semibold w-8rem">Ngày kết thúc</label>
+      <p-calendar required id="endDate" class="flex-auto" [dateFormat]="'dd/mm/yy'" [appendTo]="'body'"  formControlName="enrolEndDate" />
+    </div>
+
+    <div class="flex justify-end gap-2 mt-5">
+      <p-button label="Lưu" (click)="onUpdateEnrolment()" />
+      <p-button label="Hủy" severity="secondary" (click)="addEnrolmentDialog = false" />
+    </div>
+    <!-- <div class="text-center">
+
+      <p-button type="submit" label="Cập nhật" (onClick)="onUpdateEnrolment()" severity="primary" />
+    </div> -->
+  </form>
+</p-dialog>

@@ -1,0 +1,154 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="lesson-container" *ngIf="lesson && !loading">
+  <!-- Lesson Header with animated progress -->
+  <div class="lesson-header p-3 mb-3 surface-card shadow-2 border-round">
+    <div class="flex flex-column md:flex-row justify-content-between align-items-center gap-3">
+      <div>
+        <span class="text-500 text-sm">Course Module</span>
+        <h1 class="my-2">{{lesson.name}}</h1>
+      </div>
+      <div class="progress-container">
+        <div class="flex align-items-center gap-2 mb-2">
+          <span class="text-500">Your Progress</span>
+          <span class="text-primary font-bold">{{getLessonProgress()}}%</span>
+        </div>
+        <p-progressBar [value]="getLessonProgress()" styleClass="md:w-12rem" [showValue]="false"></p-progressBar>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content grid -->
+  <div class="grid">
+    <!-- Lesson Navigation Sidebar -->
+    <div class="col-12 md:col-3">
+      <p-card styleClass="h-full">
+        <ng-template pTemplate="header">
+          <div class="p-3 bg-primary text-white font-medium">
+            Lesson Contents
+          </div>
+        </ng-template>
+        <div class="lesson-nav-container">
+          <ul class="lesson-nav">
+            <li *ngFor="let page of lessonPages; let i = index"
+                [ngClass]="{
+                  'active': i === currentPageIndex,
+                  'completed': isPageCompleted(page.id)
+                }"
+                (click)="navigateToPage(i)" class="p-ripple">
+              <div class="flex align-items-center gap-2">
+                <div class="status-icon">
+                  <i *ngIf="isPageCompleted(page.id)" class="pi pi-check-circle"></i>
+                  <i *ngIf="!isPageCompleted(page.id)" class="pi pi-circle"></i>
+                </div>
+                <div class="flex-grow-1">{{page.title}}</div>
+                <p-tag [value]="page.qType" [severity]="getTagSeverity(page.qType)" styleClass="text-xs"></p-tag>
+              </div>
+              <div pRipple></div>
+            </li>
+          </ul>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Content Area -->
+    <div class="col-12 md:col-9">
+      <!-- Loading state -->
+      <div *ngIf="loading" class="loading-container">
+        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4"></p-progressSpinner>
+        <span>Loading content...</span>
+      </div>
+
+      <!-- Page Content Card -->
+      <p-card *ngIf="!loading && getCurrentPage()" styleClass="h-full content-card">
+        <ng-template pTemplate="header">
+          <div class="p-3 bg-gray-50 flex justify-content-between align-items-center">
+            <div>
+              <h2 class="m-0 text-lg">{{getCurrentPage().title}}</h2>
+              <p-tag [value]="getCurrentPage().qType" [severity]="getTagSeverity(getCurrentPage().qType)" styleClass="mt-2"></p-tag>
+            </div>
+            <p-button icon="pi pi-bookmark" styleClass="p-button-rounded p-button-text" pTooltip="Bookmark this page"></p-button>
+          </div>
+        </ng-template>
+
+        <!-- Content based on page type -->
+        <div class="content-wrapper my-3">
+          <div [ngSwitch]="getCurrentPage().qType">
+            <!-- Text Content -->
+            <div *ngSwitchCase="'CONTENT'" class="content-container p-2" [innerHTML]="getCurrentPage().content"></div>
+
+            <!-- Video Content -->
+            <div *ngSwitchCase="'VIDEO'" class="video-container">
+              <app-multiple-video-player [lessonPages]="getCurrentPage()"></app-multiple-video-player>
+            </div>
+
+            <!-- Document Content -->
+            <div *ngSwitchCase="'DOCUMENT'" class="document-container">
+              <app-document-viewer [lessonPages]="getCurrentPage()"></app-document-viewer>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="notes-section mt-4 p-3 surface-ground border-round">
+          <div class="flex justify-content-between align-items-center mb-3">
+            <h3 class="m-0"><i class="pi pi-pencil mr-2"></i>My Notes</h3>
+            <div class="flex gap-2">
+              <p-button label="Save" icon="pi pi-save" [disabled]="!hasNoteChanges" (onClick)="saveNotes()"></p-button>
+              <p-button label="Clear" icon="pi pi-trash" styleClass="p-button-danger p-button-text" (onClick)="clearNotes()"></p-button>
+            </div>
+          </div>
+          <p-editor [(ngModel)]="currentPageNotes"
+                    (onTextChange)="onNotesChanged($event)"
+                    [style]="{'height':'200px'}"
+                    placeholder="Take notes here...">
+          </p-editor>
+        </div>
+
+        <!-- Navigation Buttons -->
+<!--        <ng-template pTemplate="footer">-->
+<!--          <div class="flex justify-content-between mt-3">-->
+<!--            <p-button label="Previous" icon="pi pi-arrow-left"-->
+<!--                      [disabled]="currentPageIndex === 0"-->
+<!--                      (onClick)="prevPage()"-->
+<!--                      styleClass="p-button-secondary"></p-button>-->
+
+<!--            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"-->
+<!--                      [disabled]="currentPageIndex === lessonPages.length - 1"-->
+<!--                      (onClick)="nextPage()"-->
+<!--                      styleClass="p-button-primary"></p-button>-->
+<!--          </div>-->
+<!--        </ng-template>-->
+      </p-card>
+    </div>
+
+    <button pButton
+            icon="pi pi-comments"
+            label="Trợ lý AI"
+            class="chat-toggle-btn"
+            (click)="toggleChat()"
+            [ngClass]="{'p-button-outlined': !showChat}"
+            pTooltip="Ask AI about this lesson">
+    </button>
+
+    <div class="floating-chat-panel" *ngIf="showChat">
+      <app-ai-chat-assistant
+        [lessonData]="lesson"
+        [currentPage]="getCurrentPage()"
+        [lessonId]="lessonId!">
+      </app-ai-chat-assistant>
+    </div>
+
+
+
+</div>
+
+<!-- Global loading state -->
+<div *ngIf="loading && !lesson" class="loading-container center-screen">
+  <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4"></p-progressSpinner>
+  <span class="mt-3 text-lg">Loading lesson...</span>
+</div>
+
+
+
+</div>

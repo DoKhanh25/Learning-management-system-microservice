@@ -1,0 +1,51 @@
+<div class="ai-chat-container">
+    <div class="chat-header">
+      <div class="flex align-items-center">
+        <i class="pi pi-comments mr-2"></i>
+        <h3>Trợ lý AI</h3>
+      </div>
+      <div>
+        <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-sm"
+                pTooltip="Clear chat" tooltipPosition="left" (click)="clearChat()"></button>
+      </div>
+    </div>
+
+    <div class="chat-messages" #chatContainer>
+      <div *ngFor="let msg of messages"
+           [ngClass]="{'user-message': msg.sender === 'user', 'ai-message': msg.sender === 'ai'}"
+           class="message-bubble">
+        <div *ngIf="msg.sender === 'ai'" class="message-with-avatar">
+          <div class="ai-avatar">AI</div>
+          <div>
+            <div class="message-content" [innerHTML]="msg.content | boldMarkdown"></div>
+            <div class="message-timestamp">{{ msg.timestamp | date:'shortTime' }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="msg.sender === 'user'">
+          <div class="message-content">{{ msg.content }}</div>
+          <div class="message-timestamp">{{ msg.timestamp | date:'shortTime' }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="isTyping" class="ai-message typing-indicator">
+        <div class="ai-avatar">AI</div>
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="chat-input">
+      <span class="p-input-icon-right w-full">
+        <i class="pi pi-send" (click)="sendMessage()"></i>
+        <input type="text" pInputText class="w-full"
+               placeholder="Ask anything about this lesson..."
+               [(ngModel)]="newMessage"
+               (keyup.enter)="sendMessage()">
+      </span>
+    </div>
+  </div>

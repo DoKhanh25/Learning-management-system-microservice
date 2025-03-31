@@ -1,0 +1,98 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+<div class="container-fluid mt-4 p-4">
+  <div class="card">
+    <p-progressBar *ngIf="loading" mode="indeterminate" [style]="{ height: '6px' }">
+    </p-progressBar>
+    <p-table
+      #dt
+      [value]="users"
+      [scrollable]="true"
+      [paginator]="true"
+      [rows]="10"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      [(selection)]="selectedUsers"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onPage)="pageChange($event)"
+      [rowsPerPageOptions]="[10, 20, 30]"
+      [globalFilterFields]="['username', 'email', 'firstName', 'lastName']"
+
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <p-iconField iconPosition="left" class="ml-auto">
+            <p-inputIcon>
+              <i class="pi pi-search" (click)="dt.filterGlobal(searchQuery, 'contains')"></i>
+            </p-inputIcon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchQuery"
+              (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')"
+              placeholder="Tìm kiếm"
+            />
+          </p-iconField>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" >
+        <tr>
+          <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+          <th style="min-width: 200px">id</th>
+          <th style="min-width: 150px">Tài khoản</th>
+          <th style="min-width: 200px">Email</th>
+          <th style="min-width: 200px">Tên</th>
+          <th style="min-width: 100px">Trạng thái</th>
+          <th style="min-width: 100px">Thao tác</th>
+        </tr>
+      </ng-template>
+      <ng-template  pTemplate="body"  let-user>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="user" />
+          </td>
+          <td>{{ user.userId }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.lastName + " " + user.firstName }}</td>
+          <td>
+            <p-message *ngIf="user.enable == true" severity="success" text="Hoạt động">Hoạt động</p-message>
+            <p-message *ngIf="user.enable == false" severity="error" text="Không hoạt động"></p-message>
+          </td>
+          <td>
+            <p-button icon="pi pi-user" rounded="true" severity="info" (onClick)="clickUserDetail(user.userId)"/>
+          </td>
+
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="paginatorleft">
+        <p-button type="button" icon="pi pi-plus" pTooltip="Tạo tài khoản" tooltipPosition="right" (onClick)="clickAddAccount()"/>
+      </ng-template>
+      <ng-template  pTemplate="paginatorright">
+        <p-button type="button" icon="pi pi-trash" pTooltip="Dừng tài khoản" tooltipPosition="left" (onClick)="clickDeleteAccount()" severity="danger"/>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>
+
+
+
+
+

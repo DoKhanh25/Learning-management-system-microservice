@@ -1,0 +1,69 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+<div class="container mt-3">
+  <form autocomplete="off" [formGroup]="cohortAddForm">
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="name" class="font-semibold w-8rem">Tên</label>
+      <input pInputText id="name" class="flex-auto" autocomplete="off" formControlName="name"/>
+    </div>
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="description" class="font-semibold w-8rem">Mô tả</label>
+      <input pInputText id="description" class="flex-auto" autocomplete="off" formControlName="description" />
+    </div>
+    <div class="flex items-center gap-2 align-items-center mb-4 mt-5">
+      <label class="font-semibold w-8rem">Thành viên</label>
+      <p-pickList
+        [source]="sourceUsers"
+        [target]="targetUsers"
+        [dragdrop]="true"
+        [responsive]="true"
+        sourceHeader="Người dùng"
+        targetHeader="Thành viên"
+        [sourceStyle]="{ height: '20rem', width: '35rem'}"
+        [targetStyle]="{ height: '20rem', width: '20rem'}"
+        filterBy="email"
+        [style]="{width: '100%'}"
+        sourceFilterPlaceholder="Search by email"
+        targetFilterPlaceholder="Search by email"
+        breakpoint="1400px"
+        scrollHeight="30rem"
+      >
+        <ng-template let-option let-selected="selected" pTemplate="option">
+          <div class="flex flex-wrap p-1 items-center gap-4 w-full">
+            <div class="flex-1 flex flex-col">
+<!--              <span class="font-medium text-sm">{{ option.username }}</span>-->
+              <span
+                [ngClass]="{
+                            'text-surface-500': !selected,
+                            'dark:text-surface-400': !selected,
+                            'text-inherit': selected,
+                        }"
+              >{{ option.email }}</span
+              >
+            </div>
+          </div>
+        </ng-template>
+      </p-pickList>
+    </div>
+
+    <div class="flex items-center gap-2 align-items-center mb-4 mt-5">
+      <p-button label="Lưu" [outlined]="false" severity="primary" (click)="clickAddCohort()" />
+    </div>
+  </form>
+</div>

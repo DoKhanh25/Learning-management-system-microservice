@@ -1,0 +1,15 @@
+.profile-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  text-align: left;
+
+}
+
+.info-item {
+  margin-top: 2px;
+  background: white;
+  padding: 8px;
+  border-radius: 5px;
+  align-content: center;
+}

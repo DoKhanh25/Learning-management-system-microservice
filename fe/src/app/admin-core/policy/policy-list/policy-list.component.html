@@ -1,0 +1,94 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+
+
+
+<div class="container mt-3">
+  <div class="card">
+    <p-progressBar *ngIf="loading" mode="indeterminate" [style]="{ height: '6px' }">
+    </p-progressBar>
+    <p-table
+      #dt
+      [value]="policies"
+      [scrollable]="true"
+      [paginator]="true"
+      [rows]="10"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      [(selection)]="selectedPolicies"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onPage)="pageChange($event)"
+      [rowsPerPageOptions]="[10, 20, 30]"
+      [globalFilterFields]="['username', 'email', 'firstName', 'lastName']"
+
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <p-iconField iconPosition="left" class="ml-auto">
+            <p-inputIcon>
+              <i class="pi pi-search" (click)="dt.filterGlobal(searchQuery, 'contains')"></i>
+            </p-inputIcon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchQuery"
+              (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')"
+              placeholder="Tìm kiếm"
+            />
+          </p-iconField>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" >
+        <tr>
+          <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+          <th style="min-width: 200px">Tên</th>
+          <th style="min-width: 150px">Loại</th>
+          <th style="min-width: 200px">Quyền phụ thuộc</th>
+          <th style="min-width: 200px">Mô tả</th>
+          <th style="min-width: 100px">Thao tác</th>
+        </tr>
+      </ng-template>
+      <ng-template  pTemplate="body"  let-policy>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="policy" />
+          </td>
+          <td>{{ policy.name }}</td>
+          <td>{{ policy.type }}</td>
+          <td>
+            {{ checkDependentPermissions(policy.policies) }}
+            <p-badge *ngIf="policy.policies.length > 1" [value]="policy.policies.length - 1"></p-badge>
+          </td>
+          <td>{{ policy.description }}</td>
+          <td>
+            <p-button icon="pi pi-user" rounded="true" severity="info" (click)="clickPolicyDetail(policy.id)"/>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="paginatorleft">
+        <p-button type="button" icon="pi pi-plus" pTooltip="Tạo chính sách" tooltipPosition="right" (click)="clickAddPolicy()"/>
+      </ng-template>
+      <ng-template  pTemplate="paginatorright">
+        <p-button type="button" icon="pi pi-trash" pTooltip="Xóa chính sách " tooltipPosition="left"  severity="danger" (click)="deletePolicies()"/>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>
+

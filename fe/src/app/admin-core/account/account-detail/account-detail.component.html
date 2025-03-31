@@ -1,0 +1,166 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+
+<div class="container-fluid m-2 grid">
+  <p-card class="col-4 overflow-hidden text-center">
+    <ng-template pTemplate="title">
+      <p-progressBar mode="indeterminate" *ngIf="loading" [style]="{'height': '6px'}"></p-progressBar>
+      <br>
+      Thông tin cá nhân
+    </ng-template>
+    <p-avatar image="assets/image/default_avatar.jpg" size="xlarge" shape="circle"></p-avatar>
+
+    <ng-template pTemplate="content">
+      <div class="profile-info mt-3">
+        <div class="info-item"><strong>Tài khoản:</strong> {{user.username}}</div>
+        <div class="info-item"><strong>Tên:</strong>{{ " " + user.lastName + " " + user.firstName}} </div>
+        <div class="info-item"><strong>Trạng thái:</strong>{{ user.enable == true ? " Hoạt động" : " Không hoạt động"}}</div>
+        <div class="info-item"><strong>Email:</strong>{{" " +user.email}}</div>
+        <div class="info-item"><strong>Điện thoại:</strong>{{user.attributes?.phone?.[0] ? user.attributes?.phone?.[0]: " Không có dữ liệu"}}</div>
+        <div class="info-item"><strong>Địa chỉ:</strong> {{user.attributes?.address?.[0] ? user.attributes?.address?.[0] : " Không có dữ liệu"}}</div>
+        <div class="info-item"><strong>Lĩnh vực:</strong>{{ user.attributes?.department?.[0] ? user.attributes?.department?.[0] : " Không có dữ liệu"}}</div>
+        <div class="info-item"><strong>Trường:</strong> {{ user.attributes?.institution?.[0] ? user.attributes?.institution?.[0] : " Không có dữ liệu"}}</div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="flex gap-4 mt-1">
+        <p-button label="Chỉnh sửa" class="w-full" styleClass="w-full" (onClick)="openUpdateDialog()" />
+      </div>
+    </ng-template>
+  </p-card>
+  <div class="col-8 grid h-20rem">
+    <p-card class="col-6 text-center">
+      <ng-template pTemplate="title">
+        <p-progressBar mode="indeterminate" *ngIf="sessionLoading"  [style]="{'height': '6px'}"></p-progressBar>
+        <br>
+        Phiên hoạt động
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="mt-3 text-center" *ngIf="newestSession!=undefined">
+          <div class="session-item"><strong>Địa chỉ IP</strong>: {{newestSession.ipAddress}}</div>
+          <div class="session-item"><strong>Ngày tạo:</strong>{{newestSession.start}} </div>
+          <div class="session-item"><strong>Truy cập gần đây:</strong>{{newestSession.lastAccess}}</div>
+          <div class="session-item"><strong>Client:</strong>{{newestSession.clients}}</div>
+        </div>
+        <div class="mt-3 text-center" *ngIf="newestSession==undefined">
+          <p>Người dùng chưa từng hoạt động</p>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <p-card class="col-6 text-center">
+      <ng-template pTemplate="title">
+        <br>
+        Khóa học
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="mt-3 text-center">
+          <p>Đang phát triển</p>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <p-card class="col-6 text-center">
+      <ng-template pTemplate="title">
+        <br>
+        Kết quả học tập
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="mt-3 text-center">
+          <p>Đang phát triển</p>
+        </div>
+      </ng-template>
+    </p-card>
+    <p-card class="col-6 text-center">
+      <ng-template pTemplate="title">
+        <br>
+        Kết quả học tập
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="mt-3 text-center">
+          <p>Đang phát triển</p>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>
+
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '40rem' }">
+  <ng-template pTemplate="header">
+    <div class="inline-flex items-center justify-center gap-2 align-items-center">
+      <p-avatar image="assets/image/default_avatar.jpg" shape="circle" />
+      <span class="ml-2 font-bold whitespace-nowrap">{{user.username}}</span>
+    </div>
+  </ng-template>
+  <span class="text-surface-500 dark:text-surface-400 block mb-4">Cập nhật thông tin người dùng</span>
+
+    <form autocomplete="off" [formGroup]="updateInfoForm">
+      <div class="flex items-center gap-2 align-items-center mb-4">
+        <label for="email" class="font-semibold w-8rem">Email</label>
+        <input pInputText id="email" class="flex-auto" autocomplete="off" formControlName="email"/>
+      </div>
+      <div class="flex items-center gap-2 align-items-center mb-4">
+        <label for="firstName" class="font-semibold w-8rem">Tên</label>
+        <input pInputText id="firstName" class="flex-auto" autocomplete="off" formControlName="firstName" />
+      </div>
+      <div class="flex items-center gap-2 align-items-center mb-4">
+        <label for="lastName" class="font-semibold w-8rem">Họ</label>
+        <input pInputText id="lastName" class="flex-auto" autocomplete="off" formControlName="lastName" />
+      </div>
+
+      <div class="flex items-center gap-2 align-items-center mb-4">
+        <label for="enable" class="font-semibold w-8rem">Hoạt động</label>
+        <p-selectButton id="enable" optionValue="value" [options]="stateOptions" formControlName="enable" optionLabel="label" class="flex-auto" >
+        </p-selectButton>
+      </div>
+      <div formGroupName="attributes">
+          <div class="flex items-center gap-2 align-items-center mb-4">
+            <label for="phone" class="font-semibold w-8rem">Số điện thoại</label>
+            <input pInputText id="phone" class="flex-auto" autocomplete="off" formControlName="phone" />
+          </div>
+          <div class="flex items-center gap-2 align-items-center mb-4">
+            <label for="country" class="font-semibold w-8rem">Quốc gia</label>
+            <input pInputText id="country" class="flex-auto" autocomplete="off" formControlName="address"  />
+          </div>
+          <div class="flex items-center gap-2 align-items-center mb-4">
+            <label for="city" class="font-semibold w-8rem">Thành phố</label>
+            <input pInputText id="city" class="flex-auto" autocomplete="off" formControlName="city" />
+          </div>
+          <div class="flex items-center gap-2 align-items-center mb-4">
+            <label for="address" class="font-semibold w-8rem">Địa chỉ</label>
+            <input pInputText id="address" class="flex-auto" autocomplete="off" formControlName="address" />
+          </div>
+
+          <div class="flex items-center gap-2 align-items-center mb-4">
+            <label for="department" class="font-semibold w-8rem">Phòng ban</label>
+            <input pInputText id="department" class="flex-auto" autocomplete="off" formControlName="department" />
+          </div>
+          <div class="flex items-center gap-2 align-items-center mb-4">
+            <label for="institution" class="font-semibold w-8rem">Trường</label>
+            <input pInputText id="institution" class="flex-auto" autocomplete="off" formControlName="institution" />
+          </div>
+      </div>
+    </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Lưu" [outlined]="false" severity="primary" (click)="clickUpdateUser()" />
+    <p-button label="Hủy" [outlined]="true" severity="secondary" (click)="visible = false" />
+  </ng-template>
+</p-dialog>

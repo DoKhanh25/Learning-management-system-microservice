@@ -1,0 +1,187 @@
+.assignment-management {
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 70px);
+  padding: 20px;
+}
+
+/* Breadcrumb Styling */
+:host ::ng-deep .p-breadcrumb {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 0;
+}
+
+/* Header Section */
+.header-section {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.assignment-metadata {
+  margin-top: 10px;
+}
+
+/* Table Styling */
+:host ::ng-deep .p-datatable .p-datatable-header {
+  background-color: #f8f9fa;
+  border: none;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+}
+
+.selected-row {
+  background-color: #e7f2ff !important;
+}
+
+/* Grade Badges */
+.grade-badge {
+  background-color: #22c55e;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.ungraded-badge {
+  background-color: #cbd5e1;
+  color: #475569;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Submission Detail Card */
+.submission-detail-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.submission-header {
+  border-bottom: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.status-badge.graded {
+  background-color: #22c55e;
+  color: white;
+}
+
+.status-badge.ungraded {
+  background-color: #f59e0b;
+  color: white;
+}
+
+/* Section Titles */
+.section-title {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+/* Submitted Text Content */
+.submitted-text {
+  font-family: 'Roboto', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  padding: 1.5rem;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+.submitted-text h1,
+.submitted-text h2,
+.submitted-text h3,
+.submitted-text h4,
+.submitted-text h5,
+.submitted-text h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.submitted-text p {
+  margin-bottom: 1rem;
+}
+
+/* File List Styling */
+.file-list {
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+.file-item {
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.file-item:hover {
+  background-color: #f1f5f9;
+}
+
+/* Grading Section */
+.grading-section {
+  background-color: #ffffff;
+}
+
+:host ::ng-deep .p-inputnumber {
+  width: 100%;
+}
+
+:host ::ng-deep .p-inputtextarea {
+  width: 100%;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .col-lg-5, .col-lg-7 {
+    padding: 0;
+  }
+}
+
+/* Editor styling */
+:host ::ng-deep .editor-container .p-editor-container {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .editor-container .p-editor-container .p-editor-content {
+  height: 200px;
+}
+
+:host ::ng-deep .editor-container .p-editor-toolbar {
+  background-color: #f8f9fa;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+/* InputNumber styling */
+:host ::ng-deep .p-inputnumber {
+  width: 100%;
+}
+
+:host ::ng-deep .p-inputnumber .p-inputtext {
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+}
+
+:host ::ng-deep .p-inputnumber-buttons-horizontal .p-button.p-inputnumber-button {
+  width: 3rem;
+}

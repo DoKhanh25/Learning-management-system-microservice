@@ -1,0 +1,288 @@
+<p-toast/>
+<p-confirmDialog [style]="{width: '450px'}" header="Confirm" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+<div class="flex justify-content-left mb-4">
+  <p-breadcrumb class="w-full" [model]="items"></p-breadcrumb>
+</div>
+
+<div class="course-detail-container">
+  <p-card *ngIf="course" styleClass="mb-4 course-header-card">
+    <ng-template pTemplate="header">
+      <div class="course-header">
+        <h1>{{course.name}}</h1>
+        <div class="course-meta">
+          <span class="date-badge">
+            <i class="pi pi-calendar"></i>
+            {{course.startDate | date:'mediumDate'}} - {{course.endDate | date:'mediumDate'}}
+          </span>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="course-summary" *ngIf="course.summary">
+      <h3>Tổng quan khóa học</h3>
+      <p>{{course.summary}}</p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-content-between">
+        <div>
+          <p-button label="Course Settings" icon="pi pi-cog" styleClass="p-button-outlined mr-2"></p-button>
+<!--          <p-button label="Create Assignment" icon="pi pi-file" styleClass="p-button-outlined" (onClick)="openAssignmentForm()"></p-button>-->
+        </div>
+<!--        <p-button label="Add Section" icon="pi pi-plus" (onClick)="openSectionForm()"></p-button>-->
+      </div>
+    </ng-template>
+  </p-card>
+
+  <p-dialog [(visible)]="showSectionForm" [style]="{width: '500px'}"
+            [header]="isSectionEditMode ? 'Update Section' : 'Add Section'" [modal]="true" styleClass="p-fluid">
+    <form [formGroup]="sectionForm" (ngSubmit)="onSectionSubmit()">
+      <div class="field">
+        <label for="name">Tên section <span class="text-danger">*</span></label>
+        <input id="name" type="text" pInputText class="form-control" formControlName="name">
+        <small class="p-error" *ngIf="sectionForm.get('name')?.invalid && sectionForm.get('name')?.touched">
+          Section name is required
+        </small>
+      </div>
+      <div class="field">
+        <label for="summary">Tổng quan section</label>
+        <textarea id="summary" pInputTextarea class="form-control" formControlName="summary" rows="3"></textarea>
+      </div>
+
+      <div class="flex justify-content-end">
+        <p-button type="button" label="Cancel" icon="pi pi-times" styleClass="p-button-text"
+                  (onClick)="showSectionForm = false" class="mr-2"></p-button>
+        <p-button type="submit" [label]="isSectionEditMode ? 'Update' : 'Create'" icon="pi pi-check"
+                  [disabled]="sectionForm.invalid"></p-button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <p-dialog [(visible)]="showLessonForm" [style]="{width: '600px'}" header="Add New Lesson" [modal]="true" styleClass="p-fluid">
+    <form [formGroup]="lessonForm" (ngSubmit)="onLessonSubmit()">
+      <div class="field">
+        <label for="lessonName">Lesson Name <span class="text-danger">*</span></label>
+        <input id="lessonName" type="text" pInputText formControlName="name">
+        <small class="p-error" *ngIf="lessonForm.get('name')?.invalid && lessonForm.get('name')?.touched">
+          Lesson name is required
+        </small>
+      </div>
+      <div class="field">
+        <label for="lessonSummary">Lesson Summary</label>
+        <textarea id="lessonSummary" pInputTextarea formControlName="intro" rows="2"></textarea>
+      </div>
+
+      <div class="flex justify-content-end">
+        <p-button type="button" label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="showLessonForm = false" class="mr-2"></p-button>
+        <p-button type="submit" label="Create" icon="pi pi-check" [disabled]="lessonForm.invalid"></p-button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Add this after the lesson form dialog -->
+  <p-dialog [(visible)]="showAssignmentForm" [style]="{width: '600px'}"
+            [header]="isEditMode ? 'Update Assignment' : 'Create Assignment'"
+            [modal]="true" styleClass="p-fluid">
+    <form [formGroup]="assignmentForm" (ngSubmit)="onAssignmentSubmit()">
+      <div class="field">
+        <label for="name">Nội dung bài tập <span class="text-danger">*</span></label>
+        <input id="name" type="text" pInputText formControlName="name">
+        <small class="p-error" *ngIf="assignmentForm.get('name')?.invalid && assignmentForm.get('name')?.touched">
+          Title is required
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="description">Instructions <span class="text-danger">*</span></label>
+        <p-editor id="description" formControlName="description" [style]="{'height':'200px'}"></p-editor>
+        <small class="p-error" *ngIf="assignmentForm.get('description')?.invalid && assignmentForm.get('description')?.touched">
+          Instructions are required
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="assignmentType">Hình thức nộp bài</label>
+        <p-dropdown id="assignmentType" [options]="[
+        {label: 'File', value: 'FILE'},
+        {label: 'Text', value: 'TEXT'}
+      ]" formControlName="assignmentType" optionLabel="label" optionValue="value"></p-dropdown>
+      </div>
+
+      <div class="grid">
+        <div class="col-6 field">
+          <label for="startDate">Thời gian bắt đầu <span class="text-danger">*</span></label>
+          <p-calendar
+            id="startDate" formControlName="startDate"
+            [showTime]="true"
+            [showIcon]="true"
+            [appendTo]="'body'"
+          ></p-calendar>
+          <small class="p-error" *ngIf="assignmentForm.get('startDate')?.invalid && assignmentForm.get('startDate')?.touched">
+            Start date is required
+          </small>
+        </div>
+        <div class="col-6 field">
+          <label for="endDate">Thời gian kết thúc <span class="text-danger">*</span></label>
+          <p-calendar id="endDate"
+                      formControlName="endDate"
+                      [showTime]="true"
+                      [showIcon]="true"
+                      [appendTo]="'body'"
+          ></p-calendar>
+          <small class="p-error" *ngIf="assignmentForm.get('endDate')?.invalid && assignmentForm.get('endDate')?.touched">
+            Due date is required
+          </small>
+        </div>
+      </div>
+
+      <div class="field-checkbox">
+        <p-checkbox formControlName="resubmit" [binary]="true" inputId="resubmit"></p-checkbox>
+        <label for="resubmit">Cho phép nộp bài lại</label>
+      </div>
+
+      <div class="field-checkbox">
+        <p-checkbox formControlName="preventLate" [binary]="true" inputId="preventLate"></p-checkbox>
+        <label for="preventLate">Không cho phép nộp muộn</label>
+      </div>
+
+      <div class="flex justify-content-end">
+        <p-button type="button" label="Cancel" icon="pi pi-times" styleClass="p-button-text"
+                  (onClick)="showAssignmentForm = false" class="mr-2"></p-button>
+        <p-button type="submit" [label]="isEditMode ? 'Update' : 'Create'" icon="pi pi-check"
+                  [disabled]="assignmentForm.invalid"></p-button>
+      </div>
+    </form>
+  </p-dialog>
+
+
+  <!-- Add this after the course summary and before the course-content section -->
+  <p-card styleClass="mb-4">
+    <ng-template pTemplate="header">
+      <div class="flex justify-content-between align-items-center p-3">
+        <h2 class="m-0">Assignments</h2>
+        <p-button label="Create Assignment" icon="pi pi-plus" styleClass="p-button-sm" (onClick)="openAssignmentForm()"></p-button>
+      </div>
+    </ng-template>
+
+    <!-- Show when assignments exist -->
+    <p-table *ngIf="assignments && assignments.length > 0" [value]="assignments"
+             styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 30%">Title</th>
+          <th style="width: 20%">Due Date</th>
+          <th style="width: 20%">Type</th>
+          <th style="width: 10%">Late Submission</th>
+          <th style="width: 20%">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-assignment>
+        <tr>
+          <td>
+            <div class="flex align-items-center">
+              <i class="pi pi-file-o mr-2"></i>
+              <span>{{ assignment.name }}</span>
+            </div>
+          </td>
+          <td>{{ assignment.endDate | date:'medium' }}</td>
+          <td>{{ assignment.assignmentType }}</td>
+          <td>
+            <p-tag
+              [value]="assignment.preventLate ? 'Not Allowed' : 'Allowed'"
+              [severity]="assignment.preventLate ? 'danger' : 'success'">
+            </p-tag>
+          </td>
+          <td>
+            <div class="assignment-actions">
+              <button pButton pRipple icon="pi pi-pencil"
+                      class="p-button-rounded p-button-text mr-1"
+                      pTooltip="Edit Assignment"
+                      (click)="openAssignmentFormForEdit(assignment)">
+              </button>
+              <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text mr-1" pTooltip="View Assignment" (click)="clickNavigateAssignment(assignment.id!)"></button>
+              <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" pTooltip="Delete Assignment" (click)="deleteAssignment(assignment.id!)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- No assignments message -->
+    <div *ngIf="!assignments || assignments.length === 0" class="flex flex-column align-items-center p-4">
+      <i class="pi pi-file-o text-5xl mb-3 text-primary"></i>
+      <h3>No Assignments</h3>
+      <p>There are no assignments for this course yet.</p>
+      <p-button label="Create Assignment" icon="pi pi-plus" (onClick)="openAssignmentForm()"></p-button>
+    </div>
+  </p-card>
+
+  <p-card styleClass="mb-4">
+    <ng-template pTemplate="header">
+      <div class="flex justify-content-between align-items-center p-3">
+        <h2 class="m-0">Lessons</h2>
+        <p-button label="Add Section" icon="pi pi-plus" styleClass="p-button-sm" (onClick)="openSectionForm()"></p-button>
+      </div>
+    </ng-template>
+    <div class="course-content" *ngIf="!loading">
+      <div *ngIf="sections.length === 0" class="empty-state">
+        <p>No sections have been created yet. Click "Add Section" to get started!</p>
+      </div>
+
+      <div *ngFor="let section of sections" class="section-container">
+        <p-card styleClass="mb-3">
+          <div class="section-header" (click)="toggleSection(section.id)">
+            <div class="section-title-container">
+              <i class="pi" [ngClass]="expandedSections[section.id] ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              <h2 class="section-title">{{ section.name }}</h2>
+            </div>
+            <div class="section-actions">
+              <p-button icon="pi pi-plus" styleClass="p-button-rounded p-button-text" pTooltip="Add Lesson" (onClick)="openLessonForm(section.id)"></p-button>
+              <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-text"
+                        pTooltip="Edit Section" (onClick)="openSectionFormForEdit(section)"></p-button>
+              <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text p-button-danger" pTooltip="Delete Section" (click)="clickDeleteCourseSection(section.id)"></p-button>
+            </div>
+          </div>
+
+          <p *ngIf="section.summary" class="section-summary">{{ section.summary }}</p>
+
+          <div class="lessons-container" *ngIf="expandedSections[section.id]">
+            <p-divider></p-divider>
+
+            <div *ngIf="!section.lessons || section.lessons.length === 0" class="empty-lessons">
+              <p>No lessons in this section yet.</p>
+            </div>
+
+            <p-table [value]="section.lessons || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 50%">Lesson Name</th>
+                  <th>Summary</th>
+                  <th style="width: 120px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-lesson>
+                <tr>
+                  <td>
+                    <div class="flex align-items-center">
+                      <i class="pi pi-file-o mr-2"></i>
+                      <span>{{ lesson.name }}</span>
+                    </div>
+                  </td>
+                  <td>{{ lesson.intro }}</td>
+                  <td>
+                    <div class="lesson-actions">
+                      <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text mr-1" pTooltip="View Lesson"></button>
+                      <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text" pTooltip="Edit Lesson" (click)="clickNavigateLessonManagement(lesson.id)"></button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </p-card>
+      </div>
+    </div>
+    <p-skeleton *ngIf="loading" width="100%" height="600px"></p-skeleton>
+  </p-card>
+
+</div>

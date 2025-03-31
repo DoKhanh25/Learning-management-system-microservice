@@ -1,0 +1,298 @@
+
+<p-menubar class="show-menu">
+    <ng-template pTemplate="start">
+      <!-- <p-button (onClick)="sidebarVisible = true"  >
+        <img  [src]="logoPath" alt="Logo" height="40" class="mr-2">
+      </p-button> -->
+      <img style="margin-left: 10px;" (click)="sidebarVisible = true" [src]="logoPath" alt="Logo" height="40" class="mr-2">
+
+    </ng-template>
+    <ng-template styleClass="menucus" pTemplate="end">
+      <button pButton
+              class="p-button-rounded p-button-text chat-toggle-button"
+              icon="pi pi-comments"
+              (click)="toggleChat()">
+      </button>
+      <p-menu styleClass="menucus" #menu [model]="items" [popup]="true"></p-menu>
+      <p-button (onClick)="menu.toggle($event)"  icon="pi pi-user" class="p-button-rounded p-button-secondary"></p-button>
+    </ng-template>
+</p-menubar>
+
+<p-sidebar #sidebarRef [(visible)]="sidebarVisible">
+  <ng-template pTemplate="headless">
+      <div class="flex flex-column h-full">
+          <div class="flex align-items-center justify-content-between px-4 pt-3 flex-shrink-0">
+              <span class="inline-flex align-items-center gap-2">
+                  <span class="font-semibold text-2xl text-primary">Chuyên đề</span>
+              </span>
+              <span>
+                  <p-button type="button" (onClick)="closeCallback($event)" icon="pi pi-times" rounded="true" outlined="true" styleClass="h-2rem w-2rem"></p-button>
+              </span>
+          </div>
+          <div *ngIf="role=='ADMIN' " class="overflow-y-auto">
+
+              <ul class="list-none p-3 m-0">
+                  <li>
+                      <div
+                          pRipple
+                          pStyleClass="@next"
+                          enterClass="hidden"
+                          enterActiveClass="slidedown"
+                          leaveToClass="hidden"
+                          leaveActiveClass="slideup"
+                          class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
+                      >
+                          <span class="font-medium">Chức năng</span>
+                          <i class="pi pi-chevron-down"></i>
+                      </div>
+                      <ul class="list-none p-0 m-0 overflow-hidden">
+
+                        <!--Test-->
+                        <li>
+                          <a
+                            pRipple
+                            pStyleClass="@next"
+                            enterClass="hidden"
+                            enterActiveClass="slidedown"
+                            leaveToClass="hidden"
+                            leaveActiveClass="slideup"
+                            class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                          >
+                            <i class="pi pi-chart-line mr-2"></i>
+                            <span class="font-medium">Quản lý xác thực</span>
+                            <i class="pi pi-chevron-down ml-auto"></i>
+                          </a>
+                          <ul class="list-none py-0 pl-3 pr-0 m-0 hidden overflow-y-hidden transition-all transition-duration-400 transition-ease-in-out">
+                            <li>
+                              <a pRipple
+                                 routerLink="/admin/account-management"
+                                 class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span class="font-medium">Quản lý tài khoản</span>
+                              </a>
+
+                            </li>
+
+                            <li>
+                              <a pRipple
+                                 routerLink="/admin/role-management"
+                                 class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span class="font-medium">Quản lý role</span>
+                              </a>
+
+                            </li>
+
+                            <li>
+                              <a pRipple
+                                 routerLink="/admin/resource-management"
+                                 class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span class="font-medium">Quản lý tài nguyên</span>
+                              </a>
+
+                            </li>
+
+                            <li>
+                              <a pRipple
+                                 routerLink="/admin/policy-management"
+                                 class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span class="font-medium">Quản lý chính sách</span>
+                              </a>
+
+                            </li>
+
+                            <li>
+                              <a pRipple
+                                 routerLink="/admin/permission-management"
+                                 class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span class="font-medium">Quản lý quyền</span>
+                              </a>
+
+                            </li>
+                          </ul>
+                        </li>
+
+
+                        <li>
+                          <a
+                            pRipple
+                            pStyleClass="@next"
+                            enterClass="hidden"
+                            enterActiveClass="slidedown"
+                            leaveToClass="hidden"
+                            leaveActiveClass="slideup"
+                            class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                          >
+                            <i class="pi pi-chart-line mr-2"></i>
+                            <span class="font-medium">Quản lý lớp học</span>
+                            <i class="pi pi-chevron-down ml-auto"></i>
+                          </a>
+                          <ul class="list-none py-0 pl-3 pr-0 m-0 hidden overflow-y-hidden transition-all transition-duration-400 transition-ease-in-out">
+                            <li>
+                              <a pRipple
+                                 routerLink="/admin/cohort-management"
+                                 class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span class="font-medium">Quản lý nhóm</span>
+                              </a>
+                            </li>
+                            <li>
+                                <a pRipple
+                                   routerLink="/admin/course-management"
+                                   class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                                  <i class="pi pi-cog mr-2"></i>
+                                  <span class="font-medium">Quản lý khóa học</span>
+                                </a>
+                              </li>
+                          </ul>
+                        </li>
+                          <li>
+                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                              style="text-decoration: none;">
+                                  <i class="pi pi-calendar mr-2"></i>
+                                  <span class="font-medium">Calendar</span>
+                              </a>
+                          </li>
+                          <li>
+                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                              style="text-decoration: none;">
+                                  <i class="pi pi-cog mr-2"></i>
+                                  <span class="font-medium">Settings</span>
+                              </a>
+                          </li>
+                      </ul>
+                  </li>
+              </ul>
+              <ul class="list-none p-3 m-0">
+                  <li>
+                      <div
+                          pRipple
+                          pStyleClass="@next"
+                          enterClass="hidden"
+                          enterActiveClass="slidedown"
+                          leaveToClass="hidden"
+                          leaveActiveClass="slideup"
+                          class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
+                      >
+                          <span class="font-medium">APPLICATION</span>
+                          <i class="pi pi-chevron-down"></i>
+                      </div>
+                      <ul class="list-none p-0 m-0 overflow-hidden">
+                          <li>
+                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                              style="text-decoration: none;">
+                                  <i class="pi pi-folder mr-2"></i>
+                                  <span class="font-medium">Projects</span>
+                              </a>
+                          </li>
+                          <li>
+                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                              style="text-decoration: none;">
+                                  <i class="pi pi-chart-bar mr-2"></i>
+                                  <span class="font-medium">Performance</span>
+                              </a>
+                          </li>
+                          <li>
+                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                              style="text-decoration: none;">
+                                  <i class="pi pi-cog mr-2"></i>
+                                  <span class="font-medium">Settings</span>
+                              </a>
+                          </li>
+                      </ul>
+                  </li>
+              </ul>
+          </div>
+
+        <div *ngIf="role=='TEACHER' " class="overflow-y-auto">
+
+          <ul class="list-none p-3 m-0">
+            <li>
+              <div
+                pRipple
+                pStyleClass="@next"
+                enterClass="hidden"
+                enterActiveClass="slidedown"
+                leaveToClass="hidden"
+                leaveActiveClass="slideup"
+                class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
+              >
+                <span class="font-medium">Chức năng</span>
+                <i class="pi pi-chevron-down"></i>
+              </div>
+              <ul class="list-none p-0 m-0 overflow-hidden">
+
+                <li>
+                  <a
+                    pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                    style="text-decoration: none;"
+                    routerLink="/user/home"
+                  >
+                    <i class="pi pi-calendar mr-2"></i>
+                    <span class="font-medium">Quản lý lớp học</span>
+                  </a>
+                </li>
+                <li>
+                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                     style="text-decoration: none;">
+                    <i class="pi pi-cog mr-2"></i>
+                    <span class="font-medium">Settings</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="list-none p-3 m-0">
+            <li>
+              <div
+                pRipple
+                pStyleClass="@next"
+                enterClass="hidden"
+                enterActiveClass="slidedown"
+                leaveToClass="hidden"
+                leaveActiveClass="slideup"
+                class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
+              >
+                <span class="font-medium">APPLICATION</span>
+                <i class="pi pi-chevron-down"></i>
+              </div>
+              <ul class="list-none p-0 m-0 overflow-hidden">
+                <li>
+                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                     style="text-decoration: none;">
+                    <i class="pi pi-folder mr-2"></i>
+                    <span class="font-medium">Projects</span>
+                  </a>
+                </li>
+                <li>
+                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                     style="text-decoration: none;">
+                    <i class="pi pi-chart-bar mr-2"></i>
+                    <span class="font-medium">Performance</span>
+                  </a>
+                </li>
+                <li>
+                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                     style="text-decoration: none;">
+                    <i class="pi pi-cog mr-2"></i>
+                    <span class="font-medium">Settings</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-auto">
+              <hr class="mb-3 mx-3 border-top-1 border-none surface-border" />
+              <a pRipple class="m-3 flex align-items-center cursor-pointer p-3 gap-2 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+                  <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" />
+                  <span class="font-bold">{{username}}</span>
+              </a>
+          </div>
+      </div>
+  </ng-template>
+</p-sidebar>

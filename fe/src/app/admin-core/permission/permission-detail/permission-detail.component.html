@@ -1,0 +1,82 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+
+<div class="container mt-3">
+  <form autocomplete="off" [formGroup]="permissionForm">
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="name" class="font-semibold w-8rem">Tên</label>
+      <input pInputText id="name" class="flex-auto" autocomplete="off" formControlName="name"/>
+    </div>
+
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="description" class="font-semibold w-8rem">Mô tả</label>
+      <input pInputText id="description" class="flex-auto" autocomplete="off" formControlName="description" />
+    </div>
+
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="resource" class="font-semibold w-8rem">Tài nguyên</label>
+      <select (change)="onResourceChange($event)" id="resource" class="ml-3 form-select flex-auto" formControlName="resource">
+        <option *ngFor="let resource of resources" [value]="resource.name">{{ resource.name }}</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-2 align-content-center mb-4">
+      <label for="scope" class="font-semibold w-8rem">Phạm vi</label>
+      <p-multiSelect [options]="scopes"
+                     formControlName="scopes"
+                     id="scope"
+                     placeholder="Lựa chọn phạm vi"
+                     [maxSelectedLabels]="4"
+                     styleClass="w-full md:w-100" />
+
+    </div>
+
+    <div class="flex items-center gap-2 align-content-center mb-4">
+      <label for="policies" class="font-semibold w-8rem">Chính sách</label>
+      <p-multiSelect [options]="policies"
+                     formControlName="policies"
+                     id="policies"
+                     optionLabel="name"
+                     optionValue="name"
+                     placeholder="Lựa chọn chính sách"
+                     [maxSelectedLabels]="4"
+                     styleClass="w-full md:w-100" />
+
+    </div>
+    <div class="flex items-center gap-2 align-content-center mb-4">
+      <label class="font-semibold w-8rem">Chiến lược</label>
+      <label>
+        <input type="radio" formControlName="decisionStrategy" value="AFFIRMATIVE"> Affirmative
+      </label><br>
+
+      <label>
+        <input type="radio" formControlName="decisionStrategy" value="UNANIMOUS"> Unanimous
+      </label><br>
+
+      <label>
+        <input type="radio" formControlName="decisionStrategy" value="CONSENSUS"> Consensus
+      </label><br>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary w-40">Cập nhật quyền</button>
+    </div>
+  </form>
+
+</div>

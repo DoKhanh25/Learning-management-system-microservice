@@ -1,0 +1,211 @@
+.video-player-container {
+  width: 100%;
+  max-width: 1200px; /* Increased from 800px for PC screens */
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  margin: 1.5rem auto; /* Changed to auto for horizontal centering */
+  position: relative;
+}
+
+.video-title {
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(135deg, #3f51b5 0%, #1a237e 100%);
+  color: white;
+}
+
+.video-title h3 {
+  margin: 0;
+  font-size: 1.5rem; /* Increased for better visibility on PC */
+  font-weight: 500;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px; /* Increased for PC view */
+  background-color: #f0f2f5;
+  color: #637381;
+}
+
+.loading-container p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.error-container {
+  padding: 3rem 1rem;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+  text-align: center;
+  color: #637381;
+  min-height: 500px; /* Match loading container height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-container i {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+}
+
+.error-container p {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.error-container small {
+  color: #9e9e9e;
+}
+
+.embedded-video-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  overflow: hidden;
+  max-height: 675px; /* Increased for PC screens - 1200px width * 0.5625 ratio */
+  background: #000;
+}
+
+.embedded-video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.streamed-video-wrapper {
+  position: relative;
+  max-height: 675px; /* Increased for PC screens */
+  overflow: hidden;
+}
+
+:host ::ng-deep video {
+  width: 100%;
+  max-height: 675px; /* Increased for PC screens */
+}
+
+/* Custom styling for Videogular player */
+:host ::ng-deep vg-player {
+  font-family: 'Roboto', sans-serif;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .vg-controls {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  height: 60px;
+}
+
+:host ::ng-deep vg-time-display {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0 10px;
+}
+
+:host ::ng-deep vg-scrub-bar {
+  height: 5px;
+}
+
+:host ::ng-deep vg-scrub-bar-current-time {
+  background-color: #3f51b5;
+}
+
+/* Custom stream progress bar */
+.stream-progress {
+  padding: 10px 16px;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.progress-bar {
+  height: 6px; /* Slightly taller for better visibility */
+  background-color: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3f51b5 0%, #5c6bc0 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem; /* Slightly larger for PC */
+  color: #637381;
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .video-player-container {
+    max-width: 80%; /* Percentage based for large screens */
+  }
+
+  :host ::ng-deep video {
+    max-height: 600px;
+  }
+}
+
+@media (max-width: 992px) {
+  .video-player-container {
+    max-width: 90%;
+  }
+
+  :host ::ng-deep video {
+    max-height: 500px;
+  }
+
+  .loading-container,
+  .error-container {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-player-container {
+    max-width: 95%;
+  }
+
+  .video-title h3 {
+    font-size: 1.1rem;
+  }
+
+  :host ::ng-deep video {
+    max-height: 350px;
+  }
+
+  .loading-container,
+  .error-container {
+    min-height: 300px;
+  }
+
+  :host ::ng-deep vg-time-display {
+    display: none;
+  }
+
+  :host ::ng-deep vg-volume {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  :host ::ng-deep video {
+    max-height: 240px;
+  }
+
+  .loading-container,
+  .error-container {
+    min-height: 240px;
+  }
+}

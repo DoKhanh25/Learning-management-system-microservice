@@ -1,0 +1,61 @@
+<div class="flex justify-content-left">
+    <p-breadcrumb class="max-w-full" [model]="items">
+        <ng-template pTemplate="item" let-item>
+            <ng-container *ngIf="item.route; else elseBlock">
+                <a [routerLink]="item.route" class="p-menuitem-link">
+                    <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+                    <span class="text-primary font-semibold">{{ item.label }}</span>
+                </a>
+            </ng-container>
+            <ng-template #elseBlock>
+                <a [href]="item.url">
+                    <span class="text-color">{{ item.label }}</span>
+                </a>
+            </ng-template>
+        </ng-template>
+    </p-breadcrumb>
+</div>
+<div class="container"> 
+    <div class="card">
+        <p-dataView #dv [value]="products" layout="grid">
+                <ng-template pTemplate="header">
+                    <div class="flex justify-content-end">
+                        <p-button >Tạo bài kiểm tra</p-button>
+                    </div>
+                </ng-template>
+                
+                <ng-template let-product pTemplate="grid" let-products>
+                    <div class="grid grid-nogutter">
+                        <div class="col-12 md:col-4 p-4" *ngFor="let product of products">
+                            <div class="p-4 border-1 surface-border surface-card border-round flex flex-column">
+                                <div class="surface-50 flex justify-content-center border-round p-3">
+                                    <div class="relative mx-auto">
+                                        <img class="border-round w-full" [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" 
+                                        [alt]="product.name" 
+                                        style="max-width: 300px;" />
+                                    </div>
+                                </div>
+                                <div class="pt-4">
+                                    <div class="flex flex-row justify-content-between align-items-start gap-2">
+                                        <div>
+                                            <span class="font-medium text-secondary text-sm">{{ product.category }}</span>
+                                            <div class="text-lg font-medium text-900 mt-1">{{ product.name }}</div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="flex flex-column gap-4 mt-4">
+                                        <span class="text-2xl font-semibold">{{ '$' + product.price }}</span>
+                                        <div class="flex gap-2">
+                                            <p-button icon="pi pi-shopping-cart" class="flex-auto md:flex-initial white-space-nowrap" label="Theo dõi" />
+                                            <p-button icon="pi pi-shopping-cart" class="flex-auto md:flex-initial white-space-nowrap" label="Chỉnh sửa" [outlined]="true"/>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+        </p-dataView>
+    </div>
+</div>

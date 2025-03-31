@@ -1,0 +1,160 @@
+<p-toast/>
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+
+<div class="container-fluid mx-auto min-vh-100 p-5 mt-5">
+  <h1 class="text-center">Tạo tài khoản</h1>
+  <div class="card mt-5">
+    <a (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" class="text-dark collapsed" data-toggle="collapse" aria-expanded="false">
+      <div class="p-4">
+        <div class="align-items-center">
+          <div class="overflow-hidden">
+            <h5 class="font-size-16 mb-1">Tạo tài khoản</h5>
+            <p class="text-muted text-truncate mb-0">Tạo tài khoản bằng form</p>
+          </div>
+        </div>
+
+      </div>
+    </a>
+
+    <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+      <div class="p-4 border-top">
+        <form class="mt-4" autocomplete="off" [formGroup]="addUserFormGroup">
+          <!-- Họ và Tên -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Tài khoản</label>
+            <input type="text" required pInputText class="form-control" id="username" autocomplete="off" placeholder="Tài khoản" formControlName="username">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <input type="password" required pInputText class="form-control" id="password" placeholder="Mật khẩu" formControlName="password">
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" required pInputText class="form-control" id="email" placeholder="Nhập email" formControlName="email">
+          </div>
+
+          <div class="mb-3">
+            <label for="lastName" class="form-label">Họ</label>
+            <input type="text" required pInputText class="form-control" id="lastName" placeholder="Nhập họ" formControlName="lastName">
+          </div>
+
+          <div class="mb-3">
+            <label for="firstName" class="form-label">Tên</label>
+            <input type="text" required pInputText class="form-control" id="firstName" placeholder="Nhập họ" formControlName="firstName">
+          </div>
+
+          <div formGroupName="attributes">
+            <!-- Số điện thoại -->
+            <div class="mb-3">
+              <label for="phone" class="form-label">Số điện thoại</label>
+              <input type="tel" pInputText class="form-control" id="phone" placeholder="Nhập số điện thoại" formControlName="phone">
+            </div>
+
+            <!-- Địa chỉ -->
+            <div class="mb-3">
+              <label for="address" class="form-label">Địa chỉ</label>
+              <input type="text" pInputText class="form-control" id="address" placeholder="Nhập địa chỉ" formControlName="address">
+            </div>
+
+
+            <div class="mb-3">
+              <label for="country" class="form-label">Quốc gia</label>
+              <select id="country" class="form-select" formControlName="country" (change)="onCountryChange(); cityLoad=true">
+                <option value="" disabled>-- Chọn một quốc gia --</option>
+                <option *ngFor="let country of countries" [value]="country.name.common">
+                  {{ country.name.common }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="city" class="form-label mt-3">Thành phố:</label>
+              <p-progressBar *ngIf="cityLoad" mode="indeterminate" [style]="{ height: '6px' }" />
+              <select id="city" class="form-select" formControlName="city" [disabled]="cities.length == 0 && cityLoad==true">
+                <option value="" disabled>-- Chọn thành phố --</option>
+                <option *ngFor="let city of cities" [value]="city">
+                  {{ city }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="department" class="form-label">Phòng ban</label>
+              <input type="text" pInputText class="form-control" id="department" placeholder="Nhập phòng ban" formControlName="department">
+            </div>
+
+            <div class="mb-3">
+              <label for="institution" class="form-label">Trường</label>
+              <input type="text" pInputText class="form-control" id="institution" placeholder="Nhập trường" formControlName="institution">
+            </div>
+
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary w-100" (click)="clickAddUser()">Tạo tài khoản</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <a (click)="isCollapsed2 = !isCollapsed2" [attr.aria-expanded]="!isCollapsed2" class="text-dark collapsed" data-toggle="collapse" aria-expanded="false">
+      <div class="p-4">
+        <div class="align-items-center">
+          <div class="overflow-hidden">
+            <h5 class="font-size-16 mb-1">Tạo tài khoản</h5>
+            <p class="text-muted text-truncate mb-0">Tạo tài khoản bằng excel</p>
+          </div>
+        </div>
+
+      </div>
+    </a>
+
+    <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed2">
+      <div class="p-4 border-top card text-center">
+        <a [href]="sampleExcelUrl" class="m-1">Tải file mẫu</a>
+
+
+
+        <p-fileUpload name="demo"
+                      chooseLabel="Chọn tệp"
+                      uploadLabel="Tải lên"
+                      cancelLabel="Hủy"
+                      customUpload="true"
+                      (uploadHandler)="uploadHandler($event)"
+                      (onUpload)="onUpload($event)"
+                      [multiple]="false"
+                      accept=".xlsx,.xls,.csv"
+                      maxFileSize="1000000"
+                      mode="advanced">
+          <ng-template pTemplate="empty">
+            <div>Kéo tệp vào đây để đăng tải</div>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p *ngIf="file">
+              {{ file.name }} - {{ file.size }} bytes
+            </p>
+          </ng-template>
+        </p-fileUpload>
+      </div>
+    </div>
+  </div>
+
+
+</div>

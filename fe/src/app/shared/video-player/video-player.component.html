@@ -1,0 +1,8 @@
+<iframe
+  *ngIf="videoUrl"
+  width="100%"
+  height="600"
+  [src]="videoUrl | safe"
+  frameborder="0"
+  allowfullscreen>
+</iframe>

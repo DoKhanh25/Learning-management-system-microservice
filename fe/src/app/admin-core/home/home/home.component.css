@@ -1,0 +1,12 @@
+:host ::ng-deep .customized-timeline .p-timeline-event {
+  margin-bottom: 1rem;
+}
+
+:host ::ng-deep .customized-timeline .p-timeline-event-opposite {
+  flex: 0;
+}
+
+:host ::ng-deep .p-card:hover .pi {
+  transform: scale(1.05);
+  transition: transform 0.3s;
+}

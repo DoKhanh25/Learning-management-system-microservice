@@ -1,0 +1,9 @@
+:host ::ng-deep .p-datepicker {
+    position: absolute !important;
+    bottom: 100% !important; /* Đặt lịch phía trên input */
+    top: auto !important;
+}
+
+:host ::ng-deep .p-datepicker {
+    z-index: 10000 !important; /* Đảm bảo lịch nằm trên cùng */
+}

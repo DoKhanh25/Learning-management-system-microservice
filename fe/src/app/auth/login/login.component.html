@@ -1,0 +1,123 @@
+
+<div class="hero_area">
+    <div class="hero_bg_box">
+        <img src="{{image}}" alt="">
+    </div>
+    <div class="container">
+          <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+            <div class="container">
+              <div class="row justify-content-center">
+                <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <div class="pt-4 pb-2">
+                        <h5 class="card-title text-center pb-0 fs-4">Đăng nhập</h5>
+                        <p class="text-center small">Nhập tài khoản và mật khẩu để đăng nhập</p>
+                      </div>
+                      <form 
+                      [formGroup]="loginForm" 
+                      (ngSubmit)="onSubmit()"
+                      class="row g-3">
+                        <!-- <div class="col-12">
+                          <label for="username" class="form-label">Tài khoản</label>
+                          <div class="input-group">
+                            <input 
+                            pInputText  
+                            formControlName="username"
+                            type="text" name="username" 
+                            class="form-control" 
+                            id="username">
+                          </div>
+                        </div>
+                        <div class="col-12">
+                          <label for="password" class="form-label">Mật khẩu</label>
+                          <p-password   
+                          name="password" 
+                          styleClass="form-control"
+                          [feedback]="false"
+                          id="password" 
+                          formControlName="password"> 
+
+                          </p-password>
+                        </div> -->
+                        <div class="col-12">
+                            <p-floatLabel>
+                                <input 
+                                autocomplete="new-password"
+                                pInputText  
+                                formControlName="username"
+                                type="text" name="username" 
+                                class="form-control" 
+                                id="username">
+                                <label for="username">Tài khoản</label>
+                            </p-floatLabel>
+                            <div *ngIf="isSubmitted && loginForm.controls['username'].invalid" >
+                                <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['username'].hasError('required')">
+                                    Vui lòng nhập tài khoản.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12" style="margin-top: 25px;">
+                            <p-floatLabel>
+                                <p-password 
+                                autocomplete="new-password"
+                                id="password" 
+                                type="password" 
+                                [feedback]="true" 
+                                styleClass="p-password" 
+                                [style]="{'width':'100%'}"
+                                inputStyleClass="form-control"
+                                formControlName="password" 
+                                [toggleMask]="true"
+                                >
+                                <ng-template pTemplate="footer">
+                                    <p-divider />
+                                    <p class="mt-2">Gợi ý</p>
+                                    <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                                        <li>Ít nhất một chữ cái thường</li>
+                                        <li>Ít nhất một chữ cái hoa</li>
+                                        <li>Ít nhất một chữ số</li>
+                                        <li>Ít nhất 8 ký tự</li>
+                                    </ul>
+                                </ng-template>
+                            </p-password>
+                                <label for="password" class="form-label">Mật khẩu</label>
+                            </p-floatLabel>
+                            <!-- <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['password'].hasError('required') && loginForm.controls['password'].touched">
+                                Vui lòng nhập mật khẩu.
+                            </p>
+                            <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['password'].hasError('minlength') && loginForm.controls['password'].touched">
+                                Vui lòng nhập ít nhất 8 ký tự.
+                            </p>
+                            <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['password'].hasError('pattern') && loginForm.controls['password'].touched">
+                                Vui lòng nhập đúng định dạng
+                            </p> -->
+                            <div *ngIf="isSubmitted && loginForm.controls['password'].invalid" >
+                                <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['password'].hasError('required')">
+                                  Vui lòng nhập mật khẩu.
+                                </p>
+                                <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['password'].hasError('minlength')">
+                                    Mật khẩu phải có ít nhất 8 ký tự.
+                                </p>
+                                <p class="alert alert-danger alert-sm" *ngIf="loginForm.controls['password'].hasError('pattern')">
+                                    Mật khẩu không đúng định dạng
+                                </p>
+                            </div>
+
+                        </div>
+                        <div class="col-12" style="margin-top: 30px;">
+                          <button class="btn btn-primary w-100" type="submit" >Đăng nhập</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+    
+    
+    
+                </div>
+              </div>
+            </div>
+          </section>
+    </div>
+    
+</div>

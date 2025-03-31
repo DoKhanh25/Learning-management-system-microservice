@@ -1,0 +1,435 @@
+/* Document viewer container */
+.document-viewer {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: white;
+  min-height: 500px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Enhanced scrollable DOCX Container */
+.docx-container {
+  width: 100%;
+  height: 600px;
+  overflow-y: auto;
+  background-color: white;
+  padding: 0;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Beautiful scrollbar for DOCX container */
+.docx-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.docx-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.docx-container::-webkit-scrollbar-thumb {
+  background: #3B82F6;
+  border-radius: 4px;
+}
+
+.docx-container::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Enhanced DOCX Content styling */
+.docx-content {
+  padding: 2.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.7;
+  color: #495057;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Refined Heading Styles */
+.docx-content h1.title {
+  font-size: 2.2rem;
+  color: #3B82F6;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #3B82F6;
+  padding-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.docx-content h2.subtitle {
+  font-size: 1.8rem;
+  color: #3B82F6;
+  margin-top: 2.5rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+}
+
+.docx-content h3.section {
+  font-size: 1.5rem;
+  color: #495057;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  border-left: 4px solid #3B82F6;
+  padding-left: 0.75rem;
+}
+
+/* Enhanced Text Formatting */
+.docx-content p.text {
+  margin-bottom: 1.2rem;
+  text-align: justify;
+  font-size: 16px;
+  color: #6c757d;
+  line-height: 1.8;
+}
+
+.docx-content .bold {
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.docx-content .italic {
+  font-style: italic;
+  color: #7f8c8d;
+}
+
+.docx-content .underline {
+  text-decoration: underline;
+}
+
+/* Custom List Styles */
+.docx-content ul {
+  margin-left: 0;
+  padding-left: 1.5rem;
+  margin-bottom: 1.2rem;
+  list-style-type: none;
+}
+
+.docx-content ol {
+  margin-left: 0;
+  padding-left: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.docx-content li.list-item {
+  margin-bottom: 0.8rem;
+  position: relative;
+  padding-left: 1.2rem;
+}
+
+.docx-content li.list-item::before {
+  content: "•";
+  color: #3B82F6;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.docx-content li.numbered-item {
+  margin-bottom: 0.8rem;
+}
+
+/* Enhanced Tables */
+.docx-content table.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.8rem 0;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.docx-content tr.table-row:first-child {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.docx-content tr.table-row {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.docx-content tr.table-row:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.docx-content td.table-cell {
+  padding: 0.9rem 1.2rem;
+  border: 1px solid #e9ecef;
+  font-size: 0.95rem;
+}
+
+/* Beautiful Blockquotes */
+.docx-content blockquote.quote {
+  border-left: 4px solid #3B82F6;
+  padding: 1rem 1.5rem;
+  font-style: italic;
+  color: #6c757d;
+  margin: 1.5rem 0;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Enhanced Images */
+.docx-content img {
+  max-width: 100%; /* Giữ nguyên để ảnh không vượt container */
+  max-height: 300px; /* Giới hạn chiều cao tối đa */
+  width: auto; /* Giữ tỷ lệ ảnh */
+  height: auto; /* Giữ tỷ lệ ảnh */
+  margin: 1.5rem 0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  object-fit: contain; /* Đảm bảo ảnh không bị méo */
+}
+
+.docx-content img:hover {
+  transform: scale(1.02);
+}
+
+/* Links */
+.docx-content a {
+  color: #3B82F6;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.docx-content a:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}
+/* PDF Container and Viewer */
+.pdf-container {
+  width: 100%;
+  height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* PDF Toolbar */
+.pdf-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #4a6bff 0%, #2b48e0 100%);
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* PDF Controls Groups */
+.pdf-controls, .pdf-zoom-controls, .pdf-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+}
+
+/* Beautiful PDF Buttons */
+.pdf-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pdf-btn::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  top: 0;
+  left: 0;
+  border-radius: 8px;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.pdf-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-btn:active {
+  transform: translateY(1px);
+}
+
+.pdf-btn:hover::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.pdf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.pdf-btn .pi {
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.pdf-btn:hover .pi {
+  transform: scale(1.1);
+}
+
+/* Page and Zoom Info */
+.pdf-page-info, .pdf-zoom-info {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 54px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* PDF Viewer Styles */
+:host ::ng-deep .ng2-pdf-viewer-container {
+  background-color: #edf0f5 !important;
+  padding: 20px 0;
+}
+
+:host ::ng-deep .page {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  margin-bottom: 20px !important;
+  border-radius: 4px !important;
+  transition: all 0.3s ease !important;
+}
+
+:host ::ng-deep .page:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Fullscreen adjustments */
+.pdf-container:fullscreen {
+  padding: 0;
+  background: #f8f9fa;
+}
+
+.pdf-container:fullscreen .pdf-toolbar {
+  padding: 0 24px;
+}
+
+.pdf-container:fullscreen pdf-viewer {
+  height: calc(100vh - 50px) !important;
+}
+
+/* Button hover tooltips */
+.pdf-actions .pdf-btn {
+  position: relative;
+}
+
+.pdf-actions .pdf-btn::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.pdf-actions .pdf-btn:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+  bottom: -35px;
+}
+
+/* Loading state for buttons */
+.pdf-btn.loading {
+  pointer-events: none;
+}
+
+.pdf-btn.loading .pi {
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* PowerPoint Container */
+.ppt-container {
+  width: 100%;
+  height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.ppt-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #4a6bff 0%, #2b48e0 100%);
+  color: white;
+}
+
+.ppt-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+}
+
+.pptx-viewer {
+  width: 100%;
+  height: calc(600px - 50px);
+  overflow: auto;
+  background-color: #edf0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Override some pptx-js styles to match our theme */
+:host ::ng-deep #pptx-container .slide {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 4px !important;
+  transition: all 0.3s ease !important;
+}

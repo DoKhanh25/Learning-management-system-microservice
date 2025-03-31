@@ -1,0 +1,99 @@
+<p-toast/>
+<p-confirmDialog
+  header="Xác nhận"
+  icon="pi pi-exclamation-triangle">
+</p-confirmDialog>
+
+<div class="flex justify-content-left">
+  <p-breadcrumb class="max-w-full" [model]="items">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngIf="item.route; else elseBlock">
+        <a [routerLink]="item.route" class="p-menuitem-link">
+          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+          <span class="text-primary font-semibold">{{ item.label }}</span>
+        </a>
+      </ng-container>
+      <ng-template #elseBlock>
+        <a [href]="item.url">
+          <span class="text-color">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </ng-template>
+  </p-breadcrumb>
+</div>
+
+<div class="container-fluid mt-4 p-4">
+  <div class="card">
+    <p-progressBar *ngIf="loading" mode="indeterminate" [style]="{ height: '6px' }">
+    </p-progressBar>
+    <p-table
+      #dt
+      [value]="courses"
+      [scrollable]="true"
+      [paginator]="true"
+      [rows]="10"
+      [first]="first"
+      [showCurrentPageReport]="true"
+      [(selection)]="selectedCourses"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onPage)="pageChange($event)"
+      [rowsPerPageOptions]="[10, 20, 30]"
+      [globalFilterFields]="['name']"
+
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <p-iconField iconPosition="left" class="ml-auto">
+            <p-inputIcon>
+              <i class="pi pi-search" (click)="dt.filterGlobal(searchQuery, 'contains')"></i>
+            </p-inputIcon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchQuery"
+              (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')"
+              placeholder="Tìm kiếm"
+            />
+          </p-iconField>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" >
+        <tr>
+          <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+          <th style="min-width: 150px">Khóa học</th>
+          <th style="min-width: 200px">Mô tả</th>
+          <th style="min-width: 50px">Ngày bắt đầu</th>
+          <th style="min-width: 50px">Ngày kết thúc</th>
+          <th style="min-width: 100px">Thao tác</th>
+        </tr>
+      </ng-template>
+      <ng-template  pTemplate="body"  let-course>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="course" />
+          </td>
+          <td>{{ course.name }}</td>
+          <td style="text-align: center">{{ course.summary }}</td>
+          <td>{{ course.startDate | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ course.endDate | date: 'dd/MM/yyyy' }}</td>
+          <td>
+            <p-button icon="pi pi-user" rounded="true" severity="info" pTooltip="Chi tiết khóa học" tooltipPosition="left" (click)="clickCourseDetail(course.id)"/>
+            <p-button class="ml-1" rounded="true" icon="pi pi-trash" pTooltip="Xóa khóa học" tooltipPosition="right" severity="danger" (click)="clickDeleteCourse(course.id)"/>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="paginatorleft">
+        <p-button type="button" icon="pi pi-plus" pTooltip="Tạo khóa học" tooltipPosition="right" (click)="clickAddCourse()"/>
+      </ng-template>
+      <p-button
+        type="button"
+        icon="pi pi-plus"
+        pTooltip="Tạo khóa học"
+        tooltipPosition="right"
+        (click)="clickAddCourse()"
+      />
+    </p-table>
+  </div>
+</div>
+
+

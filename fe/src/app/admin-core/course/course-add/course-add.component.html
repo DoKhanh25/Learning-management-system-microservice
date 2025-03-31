@@ -1,0 +1,46 @@
+<p-toast/>
+<div class="flex justify-content-left">
+    <p-breadcrumb class="max-w-full" [model]="items">
+        <ng-template pTemplate="item" let-item>
+            <ng-container *ngIf="item.route; else elseBlock">
+                <a [routerLink]="item.route" class="p-menuitem-link">
+                    <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
+                    <span class="text-primary font-semibold">{{ item.label }}</span>
+                </a>
+            </ng-container>
+            <ng-template #elseBlock>
+                <a [href]="item.url">
+                    <span class="text-color">{{ item.label }}</span>
+                </a>
+            </ng-template>
+        </ng-template>
+    </p-breadcrumb>
+</div>
+<div class="container-fluid mt-4 p-4">
+  <form autocomplete="off" [formGroup]="courseAddForm">
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="name" class="font-semibold w-8rem">Tên khóa học</label>
+      <input pInputText id="name" class="flex-auto" autocomplete="off" required formControlName="name"/>
+    </div>
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="description" class="font-semibold w-8rem">Mô tả</label>
+      <input pInputText id="description" class="flex-auto" autocomplete="off" formControlName="summary" />
+    </div>
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="startDate" class="font-semibold w-8rem">Ngày bắt đầu</label>
+      <p-calendar required  id="startDate" class="flex-auto" [dateFormat]="'dd/mm/yy'" formControlName="startDate" />
+    </div>
+
+    <div class="flex items-center gap-2 align-items-center mb-4">
+      <label for="endDate" class="font-semibold w-8rem">Ngày kết thúc</label>
+      <p-calendar required id="endDate" class="flex-auto" [dateFormat]="'dd/mm/yy'"  formControlName="endDate" />
+    </div>
+    <div class="text-center">
+      <p-button label="Lưu" [outlined]="false" severity="primary" (click)="clickAddCourse()" />
+    </div>
+  </form>
+
+</div>
+
+
+

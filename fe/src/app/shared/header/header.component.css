@@ -1,0 +1,8 @@
+.chat-toggle-button {
+  margin-right: 10px;
+  position: relative;
+}
+
+.chat-toggle-button:hover {
+  background-color: rgba(99, 102, 241, 0.08);
+}

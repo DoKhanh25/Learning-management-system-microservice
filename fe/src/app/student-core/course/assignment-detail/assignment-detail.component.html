@@ -1,0 +1,191 @@
+<p-toast></p-toast>
+<p-breadcrumb [model]="[
+    { label: 'Home', routerLink: '/student/home' },
+    { label: 'Courses', routerLink: '/student/courses' },
+    { label: 'Assignment' }
+  ]" [home]="{ icon: 'pi pi-home', routerLink: '/student/home' }"></p-breadcrumb>
+
+<div class="assignment-container">
+
+  <p-card *ngIf="loading" styleClass="loading-card">
+    <div class="loading-content">
+      <p-progressSpinner></p-progressSpinner>
+      <h3>Loading assignment details...</h3>
+    </div>
+  </p-card>
+
+  <div *ngIf="!loading && assignment" class="assignment-content">
+    <p-card styleClass="assignment-details-card">
+      <ng-template pTemplate="header">
+        <div class="assignment-header">
+          <h2>{{ assignment?.name }}</h2>
+          <p-tag [value]="getSubmissionStatus()" [severity]="getStatusSeverity()"></p-tag>
+        </div>
+      </ng-template>
+
+      <div class="assignment-info">
+        <div class="info-section">
+          <h3>Assignment Details</h3>
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Type:</span>
+              <span class="info-value">{{ assignment?.assignmentType === 'TEXT' ? 'Text Submission' : 'File Upload' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Available From:</span>
+              <span class="info-value">{{ formatDate(assignment?.startDate) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Due Date:</span>
+              <span class="info-value">{{ formatDate(assignment?.endDate) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Resubmission:</span>
+              <span class="info-value">{{ assignment?.resubmit ? 'Allowed' : 'Not Allowed' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Late Submission:</span>
+              <span class="info-value">{{ assignment?.preventLate ? 'Not Allowed' : 'Allowed' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="description-section">
+          <h3>Description</h3>
+          <div [innerHTML]="assignment?.description" class="assignment-description"></div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="submission-section">
+          <h3>Your Submission</h3>
+
+          <div *ngIf="submission" class="submitted-content">
+            <p-timeline [value]="[
+              {
+                status: 'Submitted',
+                date: submission?.createdTime,
+                icon: 'pi pi-check-circle',
+                color: '#4caf50'
+              },
+              (submission?.updatedTime && submission?.updatedTime !== submission?.createdTime ? [{
+                status: 'Updated',
+                date: submission?.updatedTime,
+                icon: 'pi pi-sync',
+                color: '#2196f3'
+              }] : [])
+            ]">
+              <ng-template pTemplate="content" let-event>
+                <small>{{ formatDate(event.date) }}</small>
+                <p>{{ event.status }}</p>
+              </ng-template>
+              <ng-template pTemplate="opposite" let-event>
+                <i [class]="event.icon" [style.color]="event.color"></i>
+              </ng-template>
+            </p-timeline>
+
+            <div *ngIf="assignment?.assignmentType === 'TEXT'" class="text-submission">
+              <h4>Nội dung đã nộp</h4>
+              <p-card>
+                <div [innerHTML]="submission?.data1" class="submitted-text"></div>
+              </p-card>
+            </div>
+
+            <div *ngIf="assignment?.assignmentType === 'FILE'" class="file-submission">
+              <h4>Submitted Files</h4>
+              <p-card>
+                <div *ngIf="submission?.data1" class="file-list">
+                  <div *ngFor="let fileName of submission?.data1?.split(';')" class="file-item">
+                    <i class="pi pi-file"></i>
+                    <span>{{ fileName }}</span>
+                  </div>
+                </div>
+              </p-card>
+            </div>
+
+            <div *ngIf="submission?.grade !== undefined && submission?.grade !== null" class="grading-section">
+              <h4>Grade</h4>
+              <p-card>
+                <div class="grade-display">
+                  <span class="grade-value">{{ submission?.grade }}</span>
+                </div>
+                <div *ngIf="submission?.submissionComment" class="feedback-section">
+                  <h5>Feedback</h5>
+                  <p>{{ submission?.submissionComment }}</p>
+                </div>
+              </p-card>
+            </div>
+          </div>
+
+          <div *ngIf="!submission" class="no-submission">
+            <p-message severity="info" text="You have not submitted this assignment yet." styleClass="w-full"></p-message>
+          </div>
+
+          <div *ngIf="canSubmit()" class="submission-form">
+            <h4>{{ submission ? 'Resubmit' : 'Submit' }} Assignment</h4>
+
+<div *ngIf="assignment?.assignmentType === 'TEXT'" class="text-form">
+              <form [formGroup]="textForm" (ngSubmit)="submitTextAssignment()">
+                <div class="form-field">
+                  <label for="submission">Your Answer</label>
+                  <p-editor formControlName="submission" [style]="{'height':'320px'}" placeholder="Enter your submission here...">
+                  </p-editor>
+                </div>
+                <div class="form-actions">
+                  <p-button type="submit" label="Submit" icon="pi pi-check" [loading]="submitting" [disabled]="!textForm.valid"></p-button>
+                </div>
+              </form>
+            </div>
+            <div *ngIf="assignment?.assignmentType === 'FILE'" class="file-form">
+              <p-fileUpload
+                name="files"
+                [multiple]="true"
+                [showUploadButton]="false"
+                [showCancelButton]="true"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                (onSelect)="onFileSelect($event)"
+                chooseLabel="Select Files"
+                [maxFileSize]="10000000">
+                <ng-template pTemplate="content">
+                  <div *ngIf="uploadedFiles.length > 0" class="upload-list">
+                    <h5>Selected Files:</h5>
+                    <ul>
+                      <li *ngFor="let file of uploadedFiles">{{ file.name }}</li>
+                    </ul>
+                  </div>
+                </ng-template>
+              </p-fileUpload>
+              <div class="form-actions">
+                <p-button label="Upload and Submit" icon="pi pi-upload" (onClick)="submitFileAssignment()" [loading]="submitting" [disabled]="uploadedFiles.length === 0"></p-button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!canSubmit() && !submission" class="cannot-submit">
+            <p-message
+              severity="warn"
+              [text]="getSubmissionWarningMessage()"
+              styleClass="w-full">
+            </p-message>
+          </div>
+
+          <div *ngIf="!canSubmit() && submission" class="cannot-resubmit">
+            <p-message
+              severity="info"
+              text="Resubmission is not allowed for this assignment."
+              styleClass="w-full">
+            </p-message>
+          </div>
+        </div>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <p-button label="Back to Courses" icon="pi pi-arrow-left" styleClass="p-button-secondary" (onClick)="goBack()"></p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

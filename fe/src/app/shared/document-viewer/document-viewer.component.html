@@ -1,0 +1,64 @@
+<div class="document-viewer">
+  <div *ngIf="loading" class="p-3 text-center">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Loading document...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- PDF Viewer -->
+    <div *ngIf="isPdf" class="pdf-container">
+      <div class="pdf-toolbar">
+        <div class="pdf-controls">
+          <button class="pdf-btn" (click)="prevPage()" [disabled]="page === 1" title="Previous Page">
+            <i class="pi pi-chevron-left"></i>
+          </button>
+          <span class="pdf-page-info">
+        {{ page }}/{{ totalPages }}
+      </span>
+          <button class="pdf-btn" (click)="nextPage()" [disabled]="page === totalPages" title="Next Page">
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="pdf-zoom-controls">
+          <button class="pdf-btn" (click)="zoomOut()" [disabled]="zoom <= 0.5" title="Zoom Out">
+            <i class="pi pi-minus"></i>
+          </button>
+          <span class="pdf-zoom-info">{{ (zoom * 100).toFixed(0) }}%</span>
+          <button class="pdf-btn" (click)="zoomIn()" [disabled]="zoom >= 3" title="Zoom In">
+            <i class="pi pi-plus"></i>
+          </button>
+        </div>
+
+        <div class="pdf-actions">
+          <button class="pdf-btn" (click)="toggleFullscreen()" title="Toggle Fullscreen">
+            <i class="pi" [ngClass]="isFullscreen ? 'pi-window-minimize' : 'pi-window-maximize'"></i>
+          </button>
+          <button class="pdf-btn" (click)="downloadPdf()" title="Download PDF">
+            <i class="pi pi-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <pdf-viewer
+        [src]="documentUrl"
+        [page]="page"
+        [zoom]="zoom"
+        [render-text]="true"
+        [show-all]="false"
+        [original-size]="false"
+        [fit-to-page]="true"
+        style="display: block; width: 100%; height: calc(600px - 50px);"
+        (after-load-complete)="afterLoadComplete($event)"
+        (page-rendered)="pageRendered()"
+        (error)="onError($event)"
+      ></pdf-viewer>
+    </div>
+
+    <!-- DOCX Viewer -->
+    <div *ngIf="isDocx" class="docx-container">
+      <div class="docx-content" [innerHTML]="docContent"></div>
+    </div>
+
+  </div>
+</div>

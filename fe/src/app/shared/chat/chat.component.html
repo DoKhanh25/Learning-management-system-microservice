@@ -1,0 +1,145 @@
+<div class="chat-container" [ngClass]="{'chat-closed': !isChatOpen}">
+  <div class="chat-sidebar-header">
+    <div class="user-profile">
+      <p-avatar [label]="currentUser.name.charAt(0)" styleClass="mr-2" size="large"></p-avatar>
+      <span class="user-name">{{currentUser.name}}</span>
+    </div>
+  </div>
+
+  <div class="search-container">
+  <span class="p-input-icon-left p-fluid">
+    <i class="pi pi-search"></i>
+    <input type="text" pInputText [(ngModel)]="searchTerm"
+           placeholder="Search users..."
+           (input)="searchUsers()">
+  </span>
+
+    <div class="search-results" *ngIf="showSearchResults && searchResults.length > 0">
+      <div *ngFor="let user of searchResults"
+           class="search-item"
+           (click)="startChatWithUser(user)">
+        <p-avatar [label]="user.username.charAt(0)" shape="circle" styleClass="mr-2"></p-avatar>
+        <div class="user-info">
+          <div class="user-name">{{user.username}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-tabs">
+    <p-tabView>
+      <p-tabPanel header="Private">
+        <div class="chat-list">
+          <div *ngFor="let chat of userChats"
+               [ngClass]="{'chat-item': true, 'active': selectedChat?.id === chat.userId}"
+               (click)="selectChat(chat)">
+            <p-avatar [label]="chat.username?.charAt(0)" shape="circle" styleClass="mr-2"></p-avatar>
+            <div class="chat-info">
+              <div class="chat-name">{{chat.username}}</div>
+<!--              <div class="last-message">{{messages[0] || 'No messages yet'}}</div>-->
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Groups">
+        <div class="chat-list">
+          <div class="group-header">
+            <button pButton icon="pi pi-plus" label="Create Group"
+                    class="p-button-sm p-button-outlined"
+                    (click)="openCreateGroupDialog()"></button>
+          </div>
+          <div *ngFor="let chat of groupChats"
+               [ngClass]="{'chat-item': true, 'active': selectedChat?.id === chat.id}"
+               (click)="selectChat(chat)">
+            <p-avatar icon="pi pi-users" styleClass="mr-2"></p-avatar>
+            <div class="chat-info">
+              <div class="chat-name">{{chat.groupName}}</div>
+              <div class="last-message">{{chat.lastMessage?.content || 'No messages yet'}}</div>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
+
+<div class="chat-bubbles-container">
+  <div *ngFor="let chat of activeChatBubbles"
+       class="chat-bubble"
+       [ngClass]="{'minimized': !maximizedChatIds[chat.chatId], 'maximized': maximizedChatIds[chat.chatId]}">
+
+    <!-- Chat bubble header -->
+<!--    <div class="bubble-header" (click)="onBubbleHeaderClick(chat.chatId, $event)">-->
+    <div class="bubble-header" >
+
+      <div class="bubble-user-info">
+        <p-avatar [label]="chat.username?.charAt(0)" shape="circle" size="normal"></p-avatar>
+        <span class="bubble-user-name">{{chat.username}}</span>
+      </div>
+      <div class="bubble-actions">
+<!--        <i class="pi pi-minus"-->
+<!--           (click)="minimizeChatBubble(chat.chatId, $event)"-->
+<!--           (mousedown)="$event.stopPropagation()"-->
+<!--           style="z-index: 10"></i>-->
+        <i class="pi pi-times"
+           (click)="closeChatBubble(chat.chatId, $event)"></i>
+      </div>
+    </div>
+
+    <!-- Chat bubble content -->
+    <div class="bubble-content" [style.display]="maximizedChatIds[chat.chatId] ? 'flex' : 'none'">
+      <div class="bubble-messages" [attr.data-chat-id]="chat.chatId" #chatBubbleMessages>
+        <div *ngFor="let message of getChatMessages(chat.chatId); let i = index"
+             class="bubble-message"
+             [ngClass]="{'own-message': isOwnMessage(message), 'other-message': !isOwnMessage(message)}">
+          <div class="message-content">
+            <div class="message-text">{{message.content}}</div>
+            <div class="message-time">{{message.timestamp | date:'shortTime'}}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message input -->
+      <div class="bubble-input">
+        <input type="text" pInputText [(ngModel)]="chat.newMessage"
+               placeholder="Type a message..."
+               (keyup.enter)="sendMessageFromBubble(chat)">
+        <button pButton icon="pi pi-send"
+                class="p-button-rounded p-button-text send-button"
+                (click)="sendMessageFromBubble(chat)"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<p-dialog header="Create Group Chat"
+          [(visible)]="showCreateGroupDialog"
+          [style]="{width: '400px'}"
+          [modal]="true"
+          [baseZIndex]="1000">
+  <div class="p-fluid">
+    <div class="field">
+      <label for="groupName">Group Name</label>
+      <input id="groupName" type="text" pInputText [(ngModel)]="newGroup.name">
+    </div>
+
+    <div class="field">
+      <label>Add Members</label>
+      <p-multiSelect
+        [options]="availableUsers"
+        [(ngModel)]="newGroup.members"
+        optionLabel="username"
+        placeholder="Select members"
+        [filter]="true" [appendTo]="'body'"></p-multiSelect>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" icon="pi pi-times"
+            class="p-button-text" (click)="showCreateGroupDialog = false"></button>
+    <button pButton label="Create" icon="pi pi-check"
+            class="p-button-text" (click)="createGroupChat()"
+            [disabled]="!newGroup.name || newGroup.members.length === 0"></button>
+  </ng-template>
+</p-dialog>

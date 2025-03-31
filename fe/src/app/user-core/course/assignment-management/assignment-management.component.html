@@ -1,0 +1,187 @@
+<p-toast/>
+<div class="assignment-management">
+                <!-- Breadcrumb Navigation -->
+                <div class="mb-3">
+                  <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
+                </div>
+
+                <!-- Main Content -->
+                <div class="p-4 bg-white shadow-sm rounded">
+                  <!-- Header with assignment details -->
+                  <div class="header-section mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h2 class="m-0">{{assignment?.name}}</h2>
+                      <p-badge [value]="submissions?.length?.toString() || '0'" severity="info"
+                               styleClass="p-mr-2"></p-badge>
+                    </div>
+                    <div class="assignment-metadata">
+                      <span class="badge bg-primary me-2">{{assignment?.assignmentType}}</span>
+                      <span *ngIf="assignment?.startDate" class="text-muted me-3">
+                        <i class="pi pi-calendar me-1"></i> Bắt đầu: {{assignment?.startDate | date:'dd/MM/yyyy HH:mm'}}
+                      </span>
+                      <span *ngIf="assignment?.endDate" class="text-muted">
+                        <i class="pi pi-clock me-1"></i> Kết thúc: {{assignment?.endDate | date:'dd/MM/yyyy HH:mm'}}
+                      </span>
+                    </div>
+                    <div *ngIf="assignment?.description" class="mt-2" [innerHTML]="assignment?.description"></div>
+                  </div>
+
+                  <!-- Loading Indicator -->
+                  <div *ngIf="loading" class="text-center p-5">
+                    <p-progressSpinner></p-progressSpinner>
+                    <p>Đang tải dữ liệu...</p>
+                  </div>
+
+                  <!-- Content Area -->
+                  <div *ngIf="!loading" class="row">
+                    <!-- Submissions List - Left column -->
+                    <div class="col-lg-5 mb-4 mb-lg-0">
+                      <p-card header="Danh sách bài nộp" styleClass="h-100">
+                        <p-table [value]="submissions" [paginator]="submissions.length > 10"
+                                 [rows]="10" styleClass="p-datatable-sm"
+                                 [rowHover]="true" dataKey="id"
+                                 [scrollable]="true" scrollHeight="450px">
+                          <ng-template pTemplate="header">
+                            <tr>
+                              <th>Sinh viên</th>
+                              <th>Thời gian nộp</th>
+                              <th>Điểm</th>
+                              <th></th>
+                            </tr>
+                          </ng-template>
+                          <ng-template pTemplate="body" let-submission>
+                            <tr [ngClass]="{'selected-row': selectedSubmission?.id === submission.id}"
+                                (click)="viewSubmission(submission)">
+                              <td>
+                                <!-- Display username instead of userId -->
+                                {{getUserName(submission.userId)}}
+                              </td>
+                              <td>{{submission.createdTime | date:'dd/MM/yyyy HH:mm'}}</td>
+                              <td>
+                                <span *ngIf="submission.grade !== null" class="grade-badge">
+                                  {{submission.grade}}/10
+                                </span>
+                                <span *ngIf="submission.grade === null" class="ungraded-badge">
+                                  Chưa chấm
+                                </span>
+                              </td>
+                              <td>
+                                <button pButton icon="pi pi-eye" class="p-button-sm p-button-text"></button>
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </p-card>                    </div>
+
+                    <!-- Submission Details - Right column -->
+                    <div class="col-lg-7" *ngIf="selectedSubmission; else noSubmissionSelected">
+                      <p-card styleClass="h-100 submission-detail-card">
+                        <ng-template pTemplate="header">
+                          <div class="submission-header p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <h3 class="m-0">Chi tiết bài nộp</h3>
+                              <span class="submission-status">
+                                <span *ngIf="selectedSubmission.grade !== null" class="status-badge graded">
+                                  Đã chấm: {{selectedSubmission.grade}}/10
+                                </span>
+                                <span *ngIf="selectedSubmission.grade === null" class="status-badge ungraded">
+                                  Chưa chấm điểm
+                                </span>
+                              </span>
+                            </div>
+
+                            <div class="submission-meta mt-3">
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <p><strong>Sinh viên:</strong> {{getUserName(selectedSubmission.userId!)}}</p>
+                                  <p><strong>Thời gian nộp:</strong> {{selectedSubmission.createdTime | date:'dd/MM/yyyy HH:mm'}}</p>
+                                </div>
+                                <div class="col-md-6">
+                                  <p *ngIf="selectedSubmission.updatedTime">
+                                    <strong>Nộp lại lúc:</strong> {{selectedSubmission.updatedTime | date:'dd/MM/yyyy HH:mm'}}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </ng-template>
+
+                        <!-- Text submission content -->
+                        <div *ngIf="assignment?.assignmentType === 'TEXT'" class="content-section mb-4">
+                          <h4 class="mb-3 section-title">
+                            <i class="pi pi-file-edit me-2"></i>Nội dung bài nộp
+                          </h4>
+                          <div [innerHTML]="selectedSubmission.data1" class="submitted-text border p-3 rounded"></div>
+                        </div>
+
+                        <!-- File submission content -->
+                        <div *ngIf="assignment?.assignmentType === 'FILE'" class="content-section mb-4">
+                          <h4 class="mb-3 section-title">
+                            <i class="pi pi-paperclip me-2"></i>Tập tin đính kèm
+                          </h4>
+                          <div class="file-list p-3 border rounded">
+                            <div *ngFor="let file of getFileNames(selectedSubmission); let i = index"
+                                 class="file-item p-2 d-flex justify-content-between align-items-center">
+                              <div>
+                                <i class="pi pi-file me-2"></i>
+                                <span>{{file}}</span>
+                              </div>
+                              <button pButton icon="pi pi-download" class="p-button-rounded p-button-sm"
+                                      (click)="downloadFile(selectedSubmission, i)"></button>
+                            </div>
+                            <div *ngIf="getFileNames(selectedSubmission).length === 0" class="text-center p-3">
+                              <p class="text-muted">Không có tập tin đính kèm</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Grading form -->
+<!-- Grading form -->
+                        <div class="grading-section border rounded p-3">
+                          <h4 class="mb-3 section-title">
+                            <i class="pi pi-check-square me-2"></i>Đánh giá bài nộp
+                          </h4>
+                          <form [formGroup]="gradeForm" (ngSubmit)="submitGrade()">
+                            <div class="form-group mb-3">
+                              <label for="grade" class="form-label fw-bold mr-2">Điểm số (0-10)</label>
+                              <p-inputNumber id="grade" formControlName="grade"
+                              [min]="0" [max]="10" [showButtons]="true"
+                              buttonLayout="horizontal"
+                              decrementButtonClass="p-button-secondary"
+                              incrementButtonClass="p-button-secondary"
+                              incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
+                              [step]="0.5" [inputStyleClass]="'w-100'"
+                              styleClass="w-100" [placeholder]="'Nhập điểm'"></p-inputNumber>
+                              <small *ngIf="gradeForm.get('grade')?.invalid && gradeForm.get('grade')?.touched"
+                                    class="text-danger">
+                                Vui lòng nhập điểm từ 0-10
+                              </small>
+                            </div>
+
+                            <div class="form-group mb-3">
+                              <label for="comment" class="form-label fw-bold">Nhận xét</label>
+                              <p-editor id="comment" formControlName="comment" [style]="{'height':'250px'}" styleClass="editor-container">
+                              </p-editor>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                              <p-button type="submit" label="Lưu đánh giá" icon="pi pi-check"
+                                       [disabled]="gradeForm.invalid" styleClass="p-button-success"></p-button>
+                            </div>
+                          </form>
+                        </div>                      </p-card>
+                    </div>
+
+                    <!-- No submission selected placeholder -->
+                    <ng-template #noSubmissionSelected>
+                      <div class="col-lg-7">
+                        <div class="h-100 d-flex flex-column justify-content-center align-items-center p-5 border rounded bg-light">
+                          <i class="pi pi-file-edit mb-3" style="font-size: 3rem; color: #ccc;"></i>
+                          <h4>Chọn một bài nộp để xem chi tiết</h4>
+                          <p class="text-center text-muted">Nhấn vào nút Xem chi tiết ở danh sách bên trái để xem và đánh giá bài nộp</p>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+              </div>
