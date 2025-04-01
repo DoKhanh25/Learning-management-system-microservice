@@ -6,12 +6,29 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'primeng/dynamicdialog';
 import {CourseSection} from "../../../../model/course";
 import {Assignment} from "../../../../model/assignment";
+import {animate, state, style, transition, trigger} from "@angular/animations";
 
 @Component({
   selector: 'app-course-detail',
   templateUrl: './course-detail.component.html',
   styleUrl: './course-detail.component.css',
-  providers: [DialogService, ConfirmationService]
+  providers: [DialogService, ConfirmationService],
+  animations: [
+    trigger('expandCollapse', [
+      state('collapsed', style({
+        height: '0',
+        overflow: 'hidden',
+        opacity: '0'
+      })),
+      state('expanded', style({
+        height: '*',
+        opacity: '1'
+      })),
+      transition('collapsed <=> expanded', [
+        animate('300ms ease-out')
+      ])
+    ])
+  ]
 })
 export class CourseDetailComponent implements OnInit {
   courseId: string | null = null;
@@ -459,6 +476,9 @@ export class CourseDetailComponent implements OnInit {
   }
   clickNavigateAssignment(assignmentId: any){
     this.router.navigate(['/user/assignment-management', assignmentId]);
+  }
 
+  clickNavigateLessonStudentManagement(courseId: any){
+    this.router.navigate(['/user/lesson-student-management', courseId]);
   }
 }

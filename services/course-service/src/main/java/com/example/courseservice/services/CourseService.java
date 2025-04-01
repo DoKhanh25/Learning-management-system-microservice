@@ -10,6 +10,7 @@ import com.example.courseservice.mapper.LessonMapper;
 import com.example.courseservice.repository.CourseRepository;
 import com.example.courseservice.repository.CourseSectionsRepository;
 import com.example.courseservice.repository.LessonRepository;
+import com.example.courseservice.repository.UserEnrolmentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,14 +32,58 @@ public class CourseService {
     CourseSectionsRepository courseSectionsRepository;
 
     @Autowired
+    UserEnrolmentsRepository userEnrolmentsRepository;
+
+    @Autowired
     CourseMapper courseMapper;
+
     @Autowired
     private LessonMapper lessonMapper;
 
     public ResponseEntity<ResultDTO> getAllCourses(){
         ResultDTO resultDTO = new ResultDTO();
         List<CourseEntity> courseEntities = courseRepository.findAll();
-        resultDTO.setData(courseEntities);
+        List<CourseDTO> courseDTOs = new ArrayList<>();
+        for (CourseEntity courseEntity : courseEntities) {
+            courseDTOs.add(courseMapper.toSimpleDto(courseEntity, new CycleAvoidingMappingContext()));
+        }
+
+        resultDTO.setData(courseDTOs);
+        resultDTO.setStatus(1);
+
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getAllCourseAvailable(String userId){
+        ResultDTO resultDTO = new ResultDTO();
+
+        List<CourseEntity> attendedCourseEntities = userEnrolmentsRepository.getCoursesByUserId(userId);
+        List<CourseEntity> courseEntities = courseRepository.findAll();
+        List<CourseAvailableDTO> courseAvailableDTOs = new ArrayList<>();
+
+        for (CourseEntity courseEntity : attendedCourseEntities) {
+            CourseAvailableDTO courseAvailableDTO = new CourseAvailableDTO();
+            courseAvailableDTO.setId(courseEntity.getId());
+            courseAvailableDTO.setName(courseEntity.getName());
+            courseAvailableDTO.setAttended(true);
+            courseAvailableDTO.setStartDate(courseEntity.getStartDate());
+            courseAvailableDTO.setEndDate(courseEntity.getEndDate());
+            courseAvailableDTOs.add(courseAvailableDTO);
+        }
+
+        for (CourseEntity courseEntity : courseEntities) {
+            if(!attendedCourseEntities.contains(courseEntity)) {
+                CourseAvailableDTO courseAvailableDTO = new CourseAvailableDTO();
+                courseAvailableDTO.setId(courseEntity.getId());
+                courseAvailableDTO.setName(courseEntity.getName());
+                courseAvailableDTO.setAttended(false);
+                courseAvailableDTO.setStartDate(courseEntity.getStartDate());
+                courseAvailableDTO.setEndDate(courseEntity.getEndDate());
+                courseAvailableDTOs.add(courseAvailableDTO);
+            }
+        }
+
+        resultDTO.setData(courseAvailableDTOs);
         resultDTO.setStatus(1);
 
         return ResponseEntity.ok(resultDTO);

@@ -26,7 +26,7 @@ public class AIChatSessionEntity {
     @Column(name = "context_used", columnDefinition = "LONGTEXT")
     String contextUsed;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "session")
+    @OneToOne(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     LessonEntity lesson;
 
     @Column(name = "session_name")

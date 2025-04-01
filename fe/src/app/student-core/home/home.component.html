@@ -1,91 +1,175 @@
-<div class="container-fluid m-3">
-  <div class="welcome-banner">
-    <h2>Xin chào, {{ teacherName }}</h2>
-    <p>Bạn có {{courses.length || 0}} khóa học và {{pendingAssignments}} bài tập.</p>
-  </div>
-
-  <div class="stats-card">
-    <div class="stat-item">
-      <div class="stat-value">{{courses.length || 0}}</div>
-      <div class="stat-label">Tổng khóa học</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-value">{{completionRate}}%</div>
-      <div class="stat-label">Avg. Completion</div>
-    </div>
-  </div>
-
-  <h3 class="section-header">Khóa học hiện tại</h3>
-  <p-carousel [value]="featuredCourses" [numVisible]="3" [numScroll]="1" [circular]="true" [responsiveOptions]="responsiveOptions">
-    <ng-template pTemplate="item" let-course>
-      <div class="p-2">
-        <p-card class="course-card">
-          <ng-template pTemplate="header">
-            <div style="position: relative;">
-              <img [src]="course.image || 'assets/image/course-placeholder.jpg'" alt="Course Image" class="course-image" />
-              <span class="status-badge" [ngClass]="{'status-active': course.status === 'active', 'status-draft': course.status === 'draft'}"
-                    style="position: absolute; top: 10px; right: 10px;">
-                {{course.status || 'Active'}}
-              </span>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="content">
-            <div class="course-title">{{ course.name }}</div>
-            <div class="course-desc">{{ course.description }}</div>
-            <div class="course-stats">
-              <span><i class="pi pi-users" style="margin-right: 5px;"></i>{{course.studentCount || 0}} Học sinh</span>
-              <span><i class="pi pi-clock" style="margin-right: 5px; margin-top: 2px"></i>{{course.length || '8 weeks'}}</span>
-            </div>
-            <div class="progress-label">
-              <span>Quá trình</span>
-              <span>{{course.progress || 0}}%</span>
-            </div>
-            <p-progressBar [value]="course.progress || 0"></p-progressBar>
-          </ng-template>
-          <ng-template pTemplate="footer">
-            <div class="card-action">
-              <p-button label="Chi tiết khóa học" icon="pi pi-external-link"  styleClass="p-button-sm" (click)="navigateCourseDetail(course.id)" ></p-button>
-            </div>
-          </ng-template>
-        </p-card>
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="dashboard-header">
+    <div class="welcome-card">
+      <div class="welcome-content">
+        <h1>Xin chào, {{ teacherName }}</h1>
+        <p class="welcome-subtitle">Welcome to your teaching dashboard</p>
+        <div class="welcome-stats">
+          <div class="stat-pill">
+            <i class="pi pi-book"></i>
+            <span>{{courses.length || 0}} Khóa học</span>
+          </div>
+          <div class="stat-pill">
+            <i class="pi pi-check-square"></i>
+            <span>{{pendingAssignments}} Bài tập</span>
+          </div>
+        </div>
       </div>
-    </ng-template>
-  </p-carousel>
+      <div class="welcome-decoration">
+        <i class="pi pi-users"></i>
+      </div>
+    </div>
+  </div>
 
-  <h3 class="section-header">Tất cả khóa học</h3>
-  <div class="course-grid">
-    <p-card *ngFor="let course of courses" class="course-card">
-      <ng-template pTemplate="header">
-        <div style="position: relative;">
-          <img [src]="course.image || 'assets/images/course-placeholder.jpg'" alt="Course Image" class="course-image" />
-          <span class="status-badge" [ngClass]="{'status-active': course.status === 'active', 'status-draft': course.status === 'draft'}"
-                style="position: absolute; top: 10px; right: 10px;">
-            {{course.status || 'Active'}}
-          </span>
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon courses-icon">
+        <i class="pi pi-book"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{courses.length || 0}}</span>
+        <span class="stat-label">Tổng khóa học</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon students-icon">
+        <i class="pi pi-users"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{totalStudents}}</span>
+        <span class="stat-label">Tổng học sinh</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon completion-icon">
+        <i class="pi pi-chart-pie"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{completionRate}}%</span>
+        <span class="stat-label">Tỷ lệ hoàn thành</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon events-icon">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{upcomingEvents}}</span>
+        <span class="stat-label">Sự kiện sắp tới</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Courses -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Khóa học nổi bật</h2>
+      <a class="view-all-link" routerLink="/user/course-list">Xem tất cả <i class="pi pi-arrow-right"></i></a>
+    </div>
+
+    <p-carousel [value]="featuredCourses" [numVisible]="3" [numScroll]="1"
+                [circular]="true" [responsiveOptions]="responsiveOptions"
+                styleClass="custom-carousel">
+      <ng-template pTemplate="item" let-course>
+        <div class="carousel-item-container">
+          <div class="course-card">
+            <div class="course-card-header" [style.background]="getGradientForCourse(course)">
+              <div class="course-status" [ngClass]="{'status-active': course.status === 'Hoạt động',
+                                                    'status-completed': course.status === 'Hoàn thành',
+                                                    'status-upcoming': course.status === 'Sắp tới'}">
+                {{course.status}}
+              </div>
+            </div>
+
+            <div class="course-card-body">
+              <h3 class="course-title">{{ course.name }}</h3>
+              <p class="course-description">{{ course.description }}</p>
+
+              <div class="course-metrics">
+                <div class="metric">
+                  <i class="pi pi-users"></i>
+                  <span>{{course.studentCount || 0}} học sinh</span>
+                </div>
+                <div class="metric">
+                  <i class="pi pi-clock"></i>
+                  <span>{{course.length}}</span>
+                </div>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-header">
+                  <span>Tiến độ</span>
+                  <span class="progress-value">{{course.progress}}%</span>
+                </div>
+                <p-progressBar [value]="course.progress" styleClass="custom-progress"></p-progressBar>
+              </div>
+
+              <button pButton pRipple label="Chi tiết"
+                      icon="pi pi-external-link"
+                      class="p-button-outlined view-course-btn"
+                      (click)="navigateCourseDetail(course.id)"></button>
+            </div>
+          </div>
         </div>
       </ng-template>
-      <ng-template pTemplate="content">
-        <div class="course-title">{{ course.name }}</div>
-        <div class="course-desc">{{ course.description }}</div>
-        <div class="course-stats">
-          <span><i class="pi pi-users" style="margin-right: 5px;"></i>{{course.studentCount || 0}} students</span>
-          <span><i class="pi pi-clock" style="margin-right: 5px;"></i>{{course.length || '8 weeks'}}</span>
+    </p-carousel>
+  </div>
+
+  <!-- All Courses -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Tất cả khóa học</h2>
+    </div>
+
+    <div class="courses-grid">
+      <div *ngFor="let course of courses" class="course-card-wrapper">
+        <div class="course-card">
+          <div class="course-card-header" [style.background]="getGradientForCourse(course)">
+            <div class="course-status" [ngClass]="{'status-active': course.status === 'Hoạt động',
+                                                  'status-completed': course.status === 'Hoàn thành',
+                                                  'status-upcoming': course.status === 'Sắp tới'}">
+              {{course.status}}
+            </div>
+          </div>
+
+          <div class="course-card-body">
+            <h3 class="course-title">{{ course.name }}</h3>
+            <p class="course-description">{{ course.description }}</p>
+
+            <div class="course-metrics">
+              <div class="metric">
+                <i class="pi pi-users"></i>
+                <span>{{course.studentCount || 0}} học sinh</span>
+              </div>
+              <div class="metric">
+                <i class="pi pi-clock"></i>
+                <span>{{course.length}}</span>
+              </div>
+            </div>
+
+            <div class="progress-container">
+              <div class="progress-header">
+                <span>Tiến độ</span>
+                <span class="progress-value">{{course.progress}}%</span>
+              </div>
+              <p-progressBar [value]="course.progress" styleClass="custom-progress"></p-progressBar>
+            </div>
+
+            <div class="card-actions">
+              <button pButton pRipple label="Chi tiết"
+                      icon="pi pi-external-link"
+                      class="p-button-outlined view-course-btn"
+                      (click)="navigateCourseDetail(course.id)"></button>
+
+            </div>
+          </div>
         </div>
-        <div class="progress-label">
-          <span>Quá trình</span>
-          <span>{{course.progress || 0}}%</span>
-        </div>
-        <p-progressBar [value]="course.progress || 0"></p-progressBar>
-      </ng-template>
-      <ng-template pTemplate="footer">
-        <div class="card-action">
-          <p-button label="Chi tiết khóa học"
-                    icon="pi pi-external-link"
-                    styleClass="p-button-sm p-button-outlined"
-          (click)="navigateCourseDetail(course.id)"></p-button>
-          <p-button icon="pi pi-ellipsis-v" styleClass="p-button-rounded p-button-text p-button-sm"></p-button>
-        </div>
-      </ng-template>
-    </p-card>
+      </div>
+    </div>
   </div>
 </div>

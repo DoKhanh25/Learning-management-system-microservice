@@ -100,6 +100,15 @@ export class HomeComponent implements OnInit{
     });
   }
 
+  getGradientForCourse(course: any): string {
+    // Generate a unique but consistent gradient based on course id
+    const seed = course.id || 0;
+    const hue1 = (seed * 137) % 360; // First hue
+    const hue2 = (hue1 + 40) % 360;  // Second hue with offset
+
+    return `linear-gradient(135deg, hsl(${hue1}, 70%, 65%) 0%, hsl(${hue2}, 80%, 55%) 100%)`;
+  }
+
   checkCourseStatus(course: any){
     if(new Date() > new Date(course.startDate) && new Date() < new Date(course.endDate)){
       return 'Hoạt động';

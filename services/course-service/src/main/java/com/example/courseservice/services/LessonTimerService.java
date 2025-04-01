@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -86,6 +87,7 @@ public class LessonTimerService {
             LessonTimerEntity newLessonTimerEntity = lessonTimerMapper.toEntity(lessonTimerDTO, new CycleAvoidingMappingContext());
             newLessonTimerEntity.setLesson(lessonEntity);
             newLessonTimerEntity.setUserId(userId);
+            newLessonTimerEntity.setStartTime(new Date());
             newLessonTimerEntity = lessonTimerRepository.save(newLessonTimerEntity);
             resultDTO.setStatus(1);
             resultDTO.setData(lessonTimerMapper.toDto(newLessonTimerEntity, new CycleAvoidingMappingContext()));

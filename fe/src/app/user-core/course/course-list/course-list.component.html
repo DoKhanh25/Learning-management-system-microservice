@@ -1,1 +1,94 @@
-<p>course-list works!</p>
+<p-toast/>
+<div class="course-list-container">
+  <div class="header-container">
+    <h2>Available Courses</h2>
+    <div class="p-inputgroup search-container">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-search"></i>
+      </span>
+      <input type="text" pInputText [formControl]="searchControl" placeholder="Search courses...">
+    </div>
+  </div>
+
+  <p-progressSpinner *ngIf="loading" styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+
+  <div *ngIf="!loading && filteredCourses.length === 0" class="empty-state">
+    <i class="pi pi-book" style="font-size: 3rem"></i>
+    <h3>No courses found</h3>
+    <p>Try adjusting your search terms or check back later for new courses.</p>
+  </div>
+
+  <div *ngIf="!loading" class="p-grid course-grid">
+    <div *ngFor="let course of filteredCourses" class="p-col-12 p-md-6 p-lg-4">
+      <div class="course-card">
+        <div class="course-card-header" [style.background-color]="getRandomColor(course.name)">
+          <div class="course-initials">{{course.name?.charAt(0) || 'C'}}</div>
+        </div>
+        <div class="course-card-content">
+          <h3>{{course.name}}</h3>
+          <p class="course-summary">{{course.summary}}</p>
+
+          <div class="course-details">
+            <div class="detail-item">
+              <i class="pi pi-calendar"></i>
+              <span>Start: {{formatDate(course.startDate)}}</span>
+            </div>
+            <div class="detail-item">
+              <i class="pi pi-calendar-times"></i>
+              <span>End: {{formatDate(course.endDate)}}</span>
+            </div>
+          </div>
+
+          <div class="course-actions">
+            <button *ngIf="!course.attended" pButton pRipple type="button" label="Enroll"
+                    icon="pi pi-sign-in" class="p-button-success"
+                    (click)="openEnrollDialog(course)"></button>
+            <div *ngIf="course.attended" class="enrolled-badge">
+              <i class="pi pi-check-circle"></i> Enrolled
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enroll Dialog -->
+<p-dialog header="Enroll in Course" [(visible)]="displayEnrollDialog"
+         [modal]="true" [style]="{width: '450px'}"
+         [breakpoints]="{'960px': '80vw'}" [draggable]="false" [resizable]="false">
+
+<div class="enrollment-dialog">
+  <div class="course-banner" [style.background-color]="getRandomColor(selectedCourse?.name)">
+    <div class="course-initials">{{selectedCourse?.name?.charAt(0) || 'C'}}</div>
+  </div>
+
+  <div class="p-fluid enrollment-form">
+    <h3>{{selectedCourse?.name}}</h3>
+    <p>{{selectedCourse?.summary}}</p>
+
+    <div class="field">
+      <label for="role">Select Role</label>
+      <p-dropdown id="role" [options]="courseRoles" [(ngModel)]="selectedRole"
+                  placeholder="Select a role" [style]="{'width':'100%'}"></p-dropdown>
+      <small>Choose your role for this course</small>
+    </div>
+
+    <div class="field">
+      <label for="password">Enrollment Password</label>
+      <span class="p-input-icon-right">
+        <i class="pi pi-lock"></i>
+        <input id="password" type="password" pInputText [(ngModel)]="enrollPassword"
+               placeholder="Enter the course password">
+      </span>
+      <small>Required to enroll in this course</small>
+    </div>
+  </div>
+</div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times"
+            class="p-button-text" (click)="displayEnrollDialog=false"></button>
+    <button pButton pRipple label="Enroll" icon="pi pi-check"
+            class="p-button-text p-button-success" (click)="enrollCourse()"></button>
+  </ng-template>
+</p-dialog>

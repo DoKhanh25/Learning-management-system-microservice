@@ -1,14 +1,12 @@
 package com.example.courseservice.controller;
 
+import com.example.courseservice.dto.EnrolDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.services.UserEnrolmentsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -20,6 +18,12 @@ public class UserEnrolmentsController {
     @GetMapping("/getAllUserEnrolmentsByCourseId")
     public ResponseEntity<ResultDTO> getAllUserEnrolmentsByCourseId(@RequestParam Long id){
         return userEnrolmentsService.getAllUserEnrolmentsByCourseId(id);
+    }
+
+    @PostMapping("/addSelfUserEnrolment")
+    public ResponseEntity<ResultDTO> addSelfUserEnrolment(@RequestBody EnrolDTO enrolDTO,
+                                                          @RequestHeader("X-User-Id") String userId){
+        return userEnrolmentsService.addSelfUserEnrolment(enrolDTO, userId);
     }
 
     @GetMapping("/getAllStudentEnrolmentsByCourseId")

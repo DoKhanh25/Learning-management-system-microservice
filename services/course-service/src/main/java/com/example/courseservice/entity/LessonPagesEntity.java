@@ -27,7 +27,7 @@ public class LessonPagesEntity {
     @OneToMany(mappedBy = "lessonPages", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<LessonBranchEntity> lessonBranch;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
             @JoinColumn(name = "lessonPages_id")
     LessonNoteEntity lessonNotes;
 

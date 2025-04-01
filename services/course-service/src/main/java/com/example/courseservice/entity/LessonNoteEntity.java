@@ -21,7 +21,7 @@ public class LessonNoteEntity {
     @Column(name = "note", columnDefinition = "LONGTEXT")
     String note;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "lessonNotes")
+    @OneToOne(mappedBy = "lessonNotes", cascade = CascadeType.ALL, orphanRemoval = true)
     LessonPagesEntity lessonPages;
 
     @Column(name = "created_time")

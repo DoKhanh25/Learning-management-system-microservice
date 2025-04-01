@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import {AuthService} from "../../../services/auth/auth.service";
+import {blob} from "node:stream/consumers";
 
 @Component({
   selector: 'app-assignment-detail',
@@ -22,6 +23,7 @@ export class AssignmentDetailComponent implements OnInit {
   textForm: FormGroup;
   uploadedFiles: File[] = [];
   userId: any;
+  uploadedFileInfo: { originalName: string, index: number, submissionId?: number }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -92,6 +94,16 @@ export class AssignmentDetailComponent implements OnInit {
           if (this.submission && this.assignment?.assignmentType === 'TEXT') {
             this.textForm.get('submission')?.setValue(this.submission.data1);
           }
+          if(this.submission && this.assignment?.assignmentType === 'FILE'){
+            if (this.submission.data1) {
+              const fileNames = this.submission.data1.split(';');
+              this.uploadedFileInfo = fileNames.map((name, index) => ({
+                originalName: name,
+                index: index,
+                submissionId: this.submission?.id
+              }));
+            }
+          }
         }
         this.loading = false;
       },
@@ -147,6 +159,41 @@ export class AssignmentDetailComponent implements OnInit {
           });
         }
       });
+  }
+
+  downloadFile(submissionId: number | undefined, fileIndex: number): void {
+    if (!submissionId) return;
+
+    // Show loading indicator
+    this.loading = true;
+
+    this.courseService.downloadSubmissionFile(submissionId, fileIndex).subscribe({
+      next: (blob) => {
+        const fileName = this.uploadedFileInfo.find(f => f.index === fileIndex)?.originalName || `file-${fileIndex}`;
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName; // Set filename for download
+
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Download failed:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to download the file',
+          life: 3000
+        });
+        this.loading = false;
+      }
+    });
   }
 
   onFileSelect(event: any) {

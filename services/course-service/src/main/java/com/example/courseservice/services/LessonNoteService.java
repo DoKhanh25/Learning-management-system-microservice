@@ -74,9 +74,15 @@ public class LessonNoteService {
         ResultDTO resultDTO = new ResultDTO();
         LessonNoteEntity lessonNoteEntity = lessonNoteMapper.toEntity(lessonNoteDTO, new CycleAvoidingMappingContext());
 
+        LessonPagesEntity lessonPagesEntity = lessonPagesRepository.findById(lessonNoteDTO.getLessonPagesId()).orElse(null);
+        if(lessonPagesEntity == null){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Not found");
+            return ResponseEntity.ok(resultDTO);
+        }
+
         LessonNoteEntity lessonNoteEntityExist = lessonNoteRepository.getLessonNoteByLessonPageIdAndUserId(userId, lessonNoteDTO.getLessonPagesId());
         if(lessonNoteEntityExist != null){
-
             lessonNoteEntityExist.setNote(lessonNoteDTO.getNote());
             lessonNoteEntityExist.setUpdatedTime(new Date());
             lessonNoteEntity = lessonNoteRepository.save(lessonNoteEntityExist);
@@ -88,22 +94,19 @@ public class LessonNoteService {
             return ResponseEntity.ok(resultDTO);
         }
 
-        LessonPagesEntity lessonPagesEntity = lessonPagesRepository.findById(lessonNoteDTO.getLessonPagesId()).orElse(null);
-        if(lessonPagesEntity == null){
-            resultDTO.setStatus(0);
-            resultDTO.setMessage("Not found");
-            return ResponseEntity.ok(resultDTO);
-        }
-
-
         lessonNoteEntity.setUserId(userId);
         lessonNoteEntity.setLessonPages(lessonPagesEntity);
+        lessonNoteEntity.setNote(lessonNoteDTO.getNote());
         lessonNoteEntity.setCreatedTime(new Date());
-        LessonNoteEntity lessonNote = lessonNoteRepository.save(lessonNoteEntity);
+
+        lessonPagesEntity.setLessonNotes(lessonNoteEntity);
+
+        lessonNoteEntity = lessonNoteRepository.save(lessonNoteEntity);
+        lessonPagesRepository.save(lessonPagesEntity);
 
         resultDTO.setStatus(1);
         resultDTO.setMessage("Success");
-        resultDTO.setData(lessonNoteMapper.toDto(lessonNote, new CycleAvoidingMappingContext()));
+        resultDTO.setData(lessonNoteMapper.toDto(lessonNoteEntity, new CycleAvoidingMappingContext()));
 
         return ResponseEntity.ok(resultDTO);
     }

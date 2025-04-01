@@ -14,7 +14,7 @@ public class FilesEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    @OneToOne(mappedBy = "files", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "files" ,fetch = FetchType.LAZY)
     private ResourceEntity resource;
 
     @Column(name = "file_path")

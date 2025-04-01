@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -47,7 +48,14 @@ public class EnrolService {
         if(courseEntityOptional.isEmpty()){
             resultDTO.setStatus(2);
             resultDTO.setMessage("course does not exist");
-            return ResponseEntity.ok(resultDTO);
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        List<String> passwordList = enrolRepository.findAllPasswordByCourseId(courseEntityOptional.get().getId());
+        if(passwordList.contains(enrolDTO.getPassword())){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("password already exist");
+            return new ResponseEntity<>(resultDTO, HttpStatus.CONFLICT);
         }
 
         enrolEntity.setCourse(courseEntityOptional.get());
@@ -85,7 +93,7 @@ public class EnrolService {
             if(resultDTOResponse == null || resultDTOResponse.getData() == null){
                 resultDTO.setStatus(2);
                 resultDTO.setMessage("No Cohort Found");
-                return ResponseEntity.ok(resultDTO);
+                return new ResponseEntity<>(resultDTOResponse, HttpStatus.NOT_FOUND);
             }
             List<?> data = (List<?>) resultDTOResponse.getData();
             List<String> keycloakIds = new ArrayList<>();
@@ -94,7 +102,7 @@ public class EnrolService {
             if (cohortMemberDTOList.isEmpty()){
                 resultDTO.setStatus(2);
                 resultDTO.setMessage("No cohort Member");
-                return ResponseEntity.ok(resultDTO);
+                return new ResponseEntity<>(resultDTOResponse, HttpStatus.NOT_FOUND);
             }
 
             for (CohortMemberDTO cohortMemberDTO: cohortMemberDTOList){
@@ -105,7 +113,7 @@ public class EnrolService {
             if(courseEntityOptional.isEmpty()){
                 resultDTO.setStatus(2);
                 resultDTO.setMessage("No Course Found");
-                return ResponseEntity.ok(resultDTO);
+                return new ResponseEntity<>(resultDTOResponse, HttpStatus.NOT_FOUND);
             }
 
             // check User still active

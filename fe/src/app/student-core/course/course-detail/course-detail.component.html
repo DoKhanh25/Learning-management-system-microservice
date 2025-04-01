@@ -1,152 +1,169 @@
-  <div class="flex justify-content-left mb-4">
-    <p-breadcrumb class="w-full" [model]="items"></p-breadcrumb>
-  </div>
-  <div *ngIf="!loading && course" class="course-detail-container">
+<div class="course-detail-container">
+          <!-- Breadcrumb with improved styling -->
+          <div class="breadcrumb-container">
+            <p-breadcrumb [model]="items" styleClass="custom-breadcrumb"></p-breadcrumb>
+          </div>
 
-    <p-card *ngIf="course" styleClass="mb-4 course-header-card">
-        <ng-template pTemplate="header">
-          <div class="course-header">
-            <h1>{{course.name}}</h1>
-            <div class="course-meta">
-          <span class="date-badge">
-            <i class="pi pi-calendar"></i>
-            {{course.startDate | date:'mediumDate'}} - {{course.endDate | date:'mediumDate'}}
-          </span>
+          <!-- Course Header with modern gradient -->
+          <div class="course-header-card" *ngIf="course">
+            <div class="course-header-content">
+              <div class="course-header-main">
+                <h1>{{course.name}}</h1>
+                <div class="course-meta">
+                  <span class="date-badge">
+                    <i class="pi pi-calendar"></i>
+                    {{course.startDate | date:'mediumDate'}} - {{course.endDate | date:'mediumDate'}}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-        </ng-template>
 
-        <div class="course-summary" *ngIf="course.summary">
-          <h3>Tổng quan khóa học</h3>
-          <p>{{course.summary}}</p>
-        </div>
-
-      </p-card>
-
-    <!-- Assignments Section -->
-    <p-card styleClass="mb-4">
-      <ng-template pTemplate="header">
-        <div class="p-3">
-          <h2 class="m-0">Assignments</h2>
-        </div>
-      </ng-template>
-
-      <!-- Show when assignments exist -->
-      <p-table *ngIf="assignments && assignments.length > 0" [value]="assignments"
-               styleClass="p-datatable-sm"
-               [tableStyle]="{'min-width': '50rem'}">
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 30%">Title</th>
-            <th style="width: 20%">Start Date</th>
-            <th style="width: 20%">Due Date</th>
-            <th style="width: 20%">Type</th>
-            <th style="width: 15%">Status</th>
-            <th style="width: 15%">Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-assignment>
-          <tr>
-            <td>
-              <div class="flex align-items-center">
-                <i class="pi pi-file-o mr-2"></i>
-                <span>{{ assignment.name }}</span>
-              </div>
-            </td>
-            <td>{{ assignment.startDate | date:'medium' }}</td>
-            <td>{{ assignment.endDate | date:'medium' }}</td>
-            <td>{{ assignment.assignmentType }}</td>
-            <td>
-              <p-tag
-                [value]="checkStatusDate(assignment.startDate, assignment.endDate)"
-                [severity]="checkStatusDate(assignment.startDate, assignment.endDate) === 'In Progress' ? 'success' :
-                            checkStatusDate(assignment.startDate, assignment.endDate) === 'Overdue' ? 'danger' : 'info'">
-              </p-tag>
-            </td>
-            <td>
-              <div class="assignment-actions">
-                <button pButton pRipple icon="pi pi-eye"
-                        class="p-button-rounded p-button-text"
-                        pTooltip="View Assignment"
-                        (click)="navigateToAssignmentDetail(assignment.id)">
-                </button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-
-      <!-- No assignments message -->
-      <div *ngIf="!assignments || assignments.length === 0" class="flex flex-column align-items-center p-4">
-        <i class="pi pi-file-o text-5xl mb-3 text-primary"></i>
-        <h3>No Assignments</h3>
-        <p>There are no assignments for this course yet.</p>
-      </div>
-    </p-card>
-
-    <!-- Course Content Section -->
-    <p-card styleClass="mb-4">
-      <ng-template pTemplate="header">
-        <div class="p-3">
-          <h2 class="m-0">Lesson</h2>
-        </div>
-      </ng-template>
-      <div class="course-content">
-        <div *ngIf="sections.length === 0" class="empty-state">
-          <p>No content has been added to this course yet.</p>
-        </div>
-
-        <div *ngFor="let section of sections" class="section-container">
-          <p-card styleClass="mb-3">
-            <div class="section-header" (click)="toggleSection(section.id)">
-              <div class="section-title-container">
-                <i class="pi" [ngClass]="expandedSections[section.id] ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-                <h2 class="section-title">{{ section.name }}</h2>
-              </div>
+          <!-- Course Summary Card -->
+          <div class="content-card summary-card" *ngIf="course && course.summary">
+            <div class="card-header">
+              <h2><i class="pi pi-info-circle"></i> Tổng quan khóa học</h2>
             </div>
+            <div class="card-body">
+              <p>{{course.summary}}</p>
+            </div>
+          </div>
 
-            <p *ngIf="section.summary" class="section-summary">{{ section.summary }}</p>
-
-            <div class="lessons-container" *ngIf="expandedSections[section.id]">
-              <p-divider></p-divider>
-
-              <div *ngIf="!section.lessons || section.lessons.length === 0" class="empty-lessons">
-                <p>No lessons in this section yet.</p>
-              </div>
-
-              <p-table [value]="section.lessons || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+          <!-- Assignments Card -->
+          <div class="content-card">
+            <div class="card-header">
+              <h2><i class="pi pi-file-o"></i> Assignments</h2>
+            </div>
+            <div class="card-body">
+              <!-- Show when assignments exist -->
+              <p-table *ngIf="assignments && assignments.length > 0" [value]="assignments"
+                       styleClass="p-datatable-sm p-datatable-hoverable-rows" [tableStyle]="{'min-width': '50rem'}">
                 <ng-template pTemplate="header">
                   <tr>
-                    <th style="width: 60%">Lesson Name</th>
-                    <th>Summary</th>
-                    <th style="width: 80px">Actions</th>
+                    <th style="width: 30%">Title</th>
+                    <th style="width: 15%">Start Date</th>
+                    <th style="width: 15%">Due Date</th>
+                    <th style="width: 15%">Type</th>
+                    <th style="width: 15%">Status</th>
+                    <th style="width: 10%">Actions</th>
                   </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-lesson>
+                <ng-template pTemplate="body" let-assignment>
                   <tr>
                     <td>
                       <div class="flex align-items-center">
-                        <i class="pi pi-file-o mr-2"></i>
-                        <span>{{ lesson.name }}</span>
+                        <i class="pi pi-file-o assignment-icon"></i>
+                        <span class="assignment-title">{{ assignment.name }}</span>
                       </div>
                     </td>
-                    <td>{{ lesson.intro }}</td>
+                    <td>{{ assignment.startDate | date:'medium' }}</td>
+                    <td>{{ assignment.endDate | date:'medium' }}</td>
                     <td>
-                      <div class="lesson-actions">
-                        <button pButton pRipple icon="pi pi-eye"
-                                class="p-button-rounded p-button-text"
-                                pTooltip="View Lesson"
-                                (click)="navigateToLessonDetail(lesson.id)">
-                        </button>
-                      </div>
+                      <p-tag [value]="assignment.assignmentType"
+                             [severity]="assignment.assignmentType === 'FILE' ? 'info' : 'warning'">
+                      </p-tag>
+                    </td>
+                    <td>
+                      <p-tag
+                        [value]="checkStatusDate(assignment.startDate, assignment.endDate)"
+                        [severity]="checkStatusDate(assignment.startDate, assignment.endDate) === 'In Progress' ? 'success' :
+                                    checkStatusDate(assignment.startDate, assignment.endDate) === 'Overdue' ? 'danger' : 'info'">
+                      </p-tag>
+                    </td>
+                    <td>
+                      <button pButton pRipple icon="pi pi-eye"
+                              class="p-button-rounded p-button-text"
+                              pTooltip="View Assignment"
+                              (click)="navigateToAssignmentDetail(assignment.id)">
+                      </button>
                     </td>
                   </tr>
                 </ng-template>
               </p-table>
+
+              <!-- No assignments message -->
+              <div *ngIf="!assignments || assignments.length === 0" class="empty-state">
+                <div class="empty-state-icon">
+                  <i class="pi pi-file-o"></i>
+                </div>
+                <h3>No Assignments</h3>
+                <p>There are no assignments for this course yet.</p>
+              </div>
             </div>
-          </p-card>
+          </div>
+
+          <!-- Lessons & Sections Card -->
+          <div class="content-card">
+            <div class="card-header">
+              <h2><i class="pi pi-book"></i> Lessons</h2>
+            </div>
+            <div class="card-body">
+              <div class="course-content" *ngIf="!loading">
+                <div *ngIf="sections.length === 0" class="empty-state">
+                  <div class="empty-state-icon">
+                    <i class="pi pi-folder-open"></i>
+                  </div>
+                  <h3>No Content Yet</h3>
+                  <p>No content has been added to this course yet.</p>
+                </div>
+
+                <div *ngFor="let section of sections" class="section-container">
+                  <div class="section-card">
+                    <div class="section-header" (click)="toggleSection(section.id)">
+                      <div class="section-title-container">
+                        <i class="pi" [ngClass]="expandedSections[section.id] ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                        <h3 class="section-title">{{ section.name }}</h3>
+                      </div>
+                    </div>
+
+                    <div *ngIf="section.summary" class="section-summary">
+                      <p>{{ section.summary }}</p>
+                    </div>
+
+                    <div class="lessons-container" *ngIf="expandedSections[section.id]">
+                      <div *ngIf="!section.lessons || section.lessons.length === 0" class="empty-lessons">
+                        <p>No lessons in this section yet.</p>
+                      </div>
+
+                      <p-table *ngIf="section.lessons && section.lessons.length > 0"
+                               [value]="section.lessons"
+                               styleClass="p-datatable-sm p-datatable-hoverable-rows"
+                               [tableStyle]="{'min-width': '50rem'}">
+                        <ng-template pTemplate="header">
+                          <tr>
+                            <th style="width: 60%">Lesson Name</th>
+                            <th>Summary</th>
+                            <th style="width: 80px">Actions</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-lesson>
+                          <tr>
+                            <td>
+                              <div class="flex align-items-center">
+                                <i class="pi pi-file-o lesson-icon"></i>
+                                <span class="lesson-title">{{ lesson.name }}</span>
+                              </div>
+                            </td>
+                            <td>{{ lesson.intro }}</td>
+                            <td>
+                              <button pButton pRipple icon="pi pi-eye"
+                                      class="p-button-rounded p-button-text action-btn"
+                                      pTooltip="View Lesson"
+                                      (click)="navigateToLessonDetail(lesson.id)">
+                              </button>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p-skeleton *ngIf="loading" width="100%" height="600px"></p-skeleton>
+            </div>
+          </div>
         </div>
-      </div>
-      <p-skeleton *ngIf="loading" width="100%" height="600px"></p-skeleton>
-    </p-card>
-  </div>
+
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{width: '450px'}" header="Confirm" icon="pi pi-exclamation-triangle"></p-confirmDialog>

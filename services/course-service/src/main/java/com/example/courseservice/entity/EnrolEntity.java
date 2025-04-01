@@ -22,6 +22,7 @@ public class EnrolEntity {
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
+    @JsonIgnore
     CourseEntity course;
 
     @Column(name = "name")
@@ -40,7 +41,7 @@ public class EnrolEntity {
     @Column(name = "course_role")
     CourseRole courseRole;
 
-    @Column(name = "password")
+    @Column(name = "password", unique = true)
     String password;
 
     @Column(name = "enrol_start_date")

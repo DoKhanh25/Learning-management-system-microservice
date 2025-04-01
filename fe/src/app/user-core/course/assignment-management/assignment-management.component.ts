@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
     import { FormBuilder, FormGroup, Validators } from '@angular/forms';
     import { MessageService } from 'primeng/api';
     import { MenuItem } from 'primeng/api';
-import {UserService} from "../../../services/user-service/user.service";
+    import {UserService} from "../../../services/user-service/user.service";
 
     @Component({
       selector: 'app-assignment-management',

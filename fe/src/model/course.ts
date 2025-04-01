@@ -11,14 +11,14 @@ export interface Course{
 }
 
 export interface Enrolment {
-  courseId: number,
-  name: string,
-  status: number,
-  enrolType: string,
-  courseRole: string,
-  password: string,
-  enrolStartDate: any,
-  enrolEndDate: any,
+  courseId?: number,
+  name?: string,
+  status?: number,
+  enrolType?: string,
+  courseRole?: string,
+  password?: string,
+  enrolStartDate?: any,
+  enrolEndDate?: any,
 }
 
 export interface UserEnrolments{

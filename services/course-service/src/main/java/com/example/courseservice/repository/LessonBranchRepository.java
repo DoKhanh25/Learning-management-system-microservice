@@ -13,7 +13,7 @@ public interface LessonBranchRepository extends JpaRepository<LessonBranchEntity
     @Query("select l from lesson_branch l where l.lessonPages.id = :lessonPagesId and l.userId = :userId")
     public LessonBranchEntity findLessonBranchEntityByLessonPagesIdAndUserId(Long lessonPagesId, String userId);
 
-    @Query("select new com.example.courseservice.dto.StudentProgressDTO(lb.id, l.id, lp.id, lp.title, lb.userId, lt.completed, lt.startTime) " +
+    @Query("select new com.example.courseservice.dto.StudentProgressDTO(lb.id, l.id, lp.id, lp.title, lb.userId, lt.completed, lt.startTime, lb.timeSeen) " +
             "from lesson_branch lb left join lesson_pages lp " +
             "on lb.lessonPages.id = lp.id " +
             "left join lesson l " +

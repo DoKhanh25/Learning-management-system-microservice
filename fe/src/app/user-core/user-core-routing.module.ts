@@ -9,6 +9,8 @@ import {LessonManagementComponent} from "./lesson/lesson-management/lesson-manag
 import {RoleGuard} from "../guard/role/role.guard";
 import {CourseManagementComponent} from "./course/course-management/course-management.component";
 import {AssignmentManagementComponent} from "./course/assignment-management/assignment-management.component";
+import {LessonStudentManagementComponent} from "./lesson/lesson-student-management/lesson-student-management.component";
+import {CourseListComponent} from "./course/course-list/course-list.component";
 
 const routes: Routes = [
   {
@@ -22,6 +24,10 @@ const routes: Routes = [
       {
         path: 'home',
         component: HomeComponent
+      },
+      {
+        path: 'course-list',
+        component: CourseListComponent
       },
       {
         path: 'course-detail/:id',
@@ -42,6 +48,10 @@ const routes: Routes = [
       {
         path: 'assignment-management/:id',
         component:  AssignmentManagementComponent
+      },
+      {
+        path: 'lesson-student-management/:id',
+        component: LessonStudentManagementComponent
       },
       {
         path: '',

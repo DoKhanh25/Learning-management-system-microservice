@@ -19,6 +19,11 @@ public class CourseController {
         return courseService.getAllCourses();
     }
 
+    @GetMapping("/getAllCourseAvailable")
+    public ResponseEntity<ResultDTO> getAllCourseAvailable(@RequestHeader("X-User-Id") String userId){
+        return courseService.getAllCourseAvailable(userId);
+    }
+
 
     @PostMapping("/addCourse")
     public ResponseEntity<ResultDTO> addCourse(@RequestBody CourseCreateDTO courseCreateDTO){

@@ -17,4 +17,5 @@ public class StudentProgressDTO {
     String userId;
     short completed;
     Date startTime;
+    Long timeSeen;
 }

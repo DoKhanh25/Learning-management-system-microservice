@@ -26,6 +26,10 @@ export class CourseService {
     return this.httpClient.get<Result>(`${this.baseUrl}/getAllCourses`)
   }
 
+  getAllCourseAvailable():Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/getAllCourseAvailable`)
+  }
+
   addCourse(course: any): Observable<Result>{
     return this.httpClient.post<Result>(`${this.baseUrl}/addCourse`, course);
   }
@@ -60,6 +64,10 @@ export class CourseService {
 
   deleteCourseById(id: any): Observable<Result>{
     return this.httpClient.delete<Result>(`${this.baseUrl}/deleteCourseById?id=${id}`);
+  }
+
+  addSelfUserEnrolment(enrolment: any){
+    return this.httpClient.post<Result>(`${this.baseUrl}/addSelfUserEnrolment`, enrolment);
   }
 
 // teacher function

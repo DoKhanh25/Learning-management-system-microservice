@@ -1,1 +1,108 @@
-<p>lesson-student-management works!</p>
+<div class="card p-4">
+          <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-4">
+            <h2 class="text-2xl font-bold m-0">Student Lesson Progress</h2>
+            <div class="flex gap-3 mt-3 md:mt-0">
+              <p-button icon="pi pi-arrow-left" label="Back" routerLink="/user/course-detail/{{courseId}}" styleClass="p-button-outlined"></p-button>
+            </div>
+          </div>
+
+          <p-card>
+            <h3 *ngIf="courseName" class="mb-3">Course: {{courseName}}</h3>
+
+            <div class="grid">
+              <div class="col-12 md:col-4">
+                <div class="p-field mb-3">
+                  <label for="section" class="block mb-2 font-semibold">Select Course Section</label>
+                  <p-dropdown id="section" [options]="sections" [(ngModel)]="selectedSection" (onChange)="onSectionChange()"
+                            optionLabel="name" placeholder="Select a section" styleClass="w-full"
+                            [disabled]="loading || sections.length === 0"></p-dropdown>
+                </div>
+              </div>
+
+              <div class="col-12 md:col-4">
+                <div class="p-field mb-3">
+                  <label for="lesson" class="block mb-2 font-semibold">Select Lesson</label>
+                  <p-dropdown id="lesson" [options]="selectedSection ? sectionLessons : lessons" [(ngModel)]="selectedLesson"
+                            (onChange)="onLessonChange()" optionLabel="name" placeholder="Select a lesson" styleClass="w-full"
+                            [disabled]="loading || (selectedSection && sectionLessons.length === 0) || (!selectedSection && lessons.length === 0)"></p-dropdown>
+                </div>
+              </div>
+
+              <div class="col-12 md:col-4">
+                <div class="p-field mb-3">
+                  <label for="student" class="block mb-2 font-semibold">Select Student</label>
+                  <p-dropdown id="student" [options]="students" [(ngModel)]="selectedStudent" (onChange)="onStudentChange()"
+                            optionLabel="name" placeholder="Select a student" styleClass="w-full"
+                            [disabled]="loading || students.length === 0"></p-dropdown>
+                </div>
+              </div>
+            </div>
+
+            <p-divider></p-divider>
+
+            <div *ngIf="loading" class="flex justify-content-center my-5">
+              <p-progressSpinner></p-progressSpinner>
+            </div>
+
+            <div *ngIf="!loading && selectedLesson && selectedStudent">
+              <div class="mb-3">
+                <span class="font-semibold">Section:</span> {{selectedLesson.sectionName || 'N/A'}}
+                <span class="mx-2">|</span>
+                <span class="font-semibold">Lesson:</span> {{selectedLesson.name}}
+                <span class="mx-2">|</span>
+                <span class="font-semibold">Student:</span> {{selectedStudent.name}}
+              </div>
+
+              <div *ngIf="studentProgress.length === 0" class="text-center my-5">
+                <i class="pi pi-exclamation-circle text-5xl text-yellow-500 mb-3 block"></i>
+                <h3>No progress data found</h3>
+                <p>The student hasn't viewed any pages in this lesson yet.</p>
+              </div>
+
+              <div *ngIf="studentProgress.length > 0">
+                <div class="flex justify-content-between align-items-center mb-3">
+                  <h3 class="m-0">Progress Summary</h3>
+                  <div class="text-right">
+                    <span class="font-bold">Total Time Spent: </span>
+                    <span class="text-primary font-bold">{{formatTime(totalTimeSpent)}}</span>
+                  </div>
+                </div>
+
+                <p-table [value]="studentProgress" [tableStyle]="{'min-width': '50rem'}" styleClass="p-datatable-sm p-datatable-striped">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Page Title</th>
+                      <th class="text-center">Completion Status</th>
+                      <th class="text-center">Start Time</th>
+                      <th class="text-center">Time Spent</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-progress>
+                    <tr>
+                      <td>{{progress.title}}</td>
+                      <td class="text-center">
+                        <p-tag [severity]="progress.completed ? 'success' : 'warning'"
+                               [value]="progress.completed ? 'Completed' : 'In Progress'"></p-tag>
+                      </td>
+                      <td class="text-center">{{progress.startTime | date:'short'}}</td>
+                      <td class="text-center">{{formatTime(progress.timeSeen)}}</td>
+
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="5" class="text-center p-3">No progress data available</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+
+            <div *ngIf="!loading && (!selectedLesson || !selectedStudent)" class="text-center p-5">
+              <i class="pi pi-info-circle text-4xl text-primary mb-3 block"></i>
+              <p>Please select a course section, lesson, and student to view progress data.</p>
+            </div>
+          </p-card>
+
+          <p-toast></p-toast>
+        </div>
