@@ -1,0 +1,208 @@
+.exam-container {
+  padding: 1.5rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #f9fafb;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 3rem 0;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-message i {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: #d1d5db;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.required-field::after {
+  content: "*";
+  color: red;
+  margin-left: 4px;
+}
+
+.helper-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.description-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* PrimeNG Style Overrides */
+:host ::ng-deep {
+  .p-datatable .p-datatable-thead > tr > th {
+    background: #f3f4f6;
+    color: #374151;
+    font-weight: 600;
+    padding: 1rem;
+  }
+  
+  .p-datatable .p-datatable-tbody > tr {
+    transition: background-color 0.2s;
+  }
+  
+  .p-datatable .p-datatable-tbody > tr:hover {
+    background: #f9fafb;
+  }
+  
+  .p-button.p-button-success {
+    background: #10b981;
+    border-color: #10b981;
+  }
+  
+  .p-button.p-button-success:hover {
+    background: #059669;
+    border-color: #059669;
+  }
+  
+  .p-button.p-button-primary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  .p-button.p-button-primary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+  
+  .p-button.p-button-danger {
+    background: #ef4444;
+    border-color: #ef4444;
+  }
+  
+  .p-button.p-button-danger:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+  }
+  
+  .p-dialog .p-dialog-header {
+    background: #f9fafb;
+    color: #1f2937;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+  }
+  
+  .p-dialog .p-dialog-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .p-dialog .p-dialog-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+  
+  .p-tag.p-tag-info {
+    background: #60a5fa;
+  }
+  
+  .p-tag.p-tag-warning {
+    background: #fbbf24;
+  }
+  
+  .p-tag.p-tag-success {
+    background: #34d399;
+  }
+
+  .p-calendar .p-inputtext, 
+  .p-dropdown .p-dropdown-label,
+  .p-inputnumber .p-inputtext {
+    width: 100%;
+  }
+
+  .field-checkbox {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.p-error {
+  color: #ef4444;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.formgrid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -0.5rem;
+  margin-left: -0.5rem;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -0.5rem;
+  margin-left: -0.5rem;
+}
+
+.col-12 {
+  flex: 0 0 100%;
+  padding: 0 0.5rem;
+}
+
+@media screen and (min-width: 768px) {
+  .md\:col-6 {
+    flex: 0 0 50%;
+  }
+}

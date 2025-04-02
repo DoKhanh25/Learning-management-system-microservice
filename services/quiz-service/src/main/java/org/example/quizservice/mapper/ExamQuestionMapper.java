@@ -16,6 +16,5 @@ public interface ExamQuestionMapper extends EntityMapper<ExamQuestionDTO, ExamQu
     @Override
     @Mapping(source = "exam.id", target = "examId")
     @Mapping(source = "question.id", target = "questionId")
-    @Mapping(target = "question", ignore = true)
     ExamQuestionDTO toDto(ExamQuestionEntity entity);
 }

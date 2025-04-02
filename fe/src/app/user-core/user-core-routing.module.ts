@@ -13,6 +13,8 @@ import {LessonStudentManagementComponent} from "./lesson/lesson-student-manageme
 import {CourseListComponent} from "./course/course-list/course-list.component";
 import { QuestionBankManagementComponent } from './quiz/question/question-bank-management/question-bank-management.component';
 import { QuestionBankDetailComponent } from './quiz/question/question-bank-detail/question-bank-detail.component';
+import { ExamManagementComponent } from './quiz/exam/exam-management/exam-management.component';
+import { ExamDetailComponent } from './quiz/exam/exam-detail/exam-detail.component';
 
 const routes: Routes = [
   {
@@ -62,6 +64,14 @@ const routes: Routes = [
       {
         path: 'course/:courseId/question-bank-detail/:id',
         component: QuestionBankDetailComponent
+      },
+      {
+        path: 'course/:courseId/exam-management',
+        component: ExamManagementComponent
+      },
+      {
+        path: 'course/:courseId/exam-detail/:examId',
+        component: ExamDetailComponent
       },
       {
         path: '',

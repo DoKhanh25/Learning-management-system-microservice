@@ -37,6 +37,9 @@ public class ExamEntity {
     @Column(name = "total_score")
     Float totalScore;
 
+    @Column(name = "number_questions")
+    Integer numberQuestions;
+
     @Column(name = "shuffle_questions")
     Boolean shuffleQuestions;
 

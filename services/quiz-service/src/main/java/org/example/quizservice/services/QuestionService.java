@@ -57,7 +57,11 @@ public class QuestionService {
     @Autowired
     CourseServiceClient courseServiceClient;
 
+    @Autowired
+    private ExamRepository examRepository;
 
+    @Autowired
+    private ExamQuestionRepository examQuestionRepository;
 
     public ResponseEntity<ResultDTO> findQuestionEntitiesByQuestionBankId(Long questionBankId, String validateUserId) {
         ResultDTO resultDTO = new ResultDTO();
@@ -98,6 +102,8 @@ public class QuestionService {
         }
 
     }
+
+    
 
 
     @Transactional
@@ -633,5 +639,60 @@ public class QuestionService {
 
     public Boolean fallbackValidate(Long courseId, String userId, Throwable t) {
         return false;
+    }
+
+    public ResponseEntity<ResultDTO> findQuestionByExamId(Long examId, String validateUserId) {
+        ResultDTO resultDTO = new ResultDTO();
+        
+        // First, check if the exam exists
+        ExamEntity exam = examRepository.findById(examId).orElse(null);
+        if (exam == null) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Exam not found");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+        
+        // Validate user permission
+        if (!validateIsTeacherInCourse(exam.getCourseId(), validateUserId)) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("You don't have permission to access this exam");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+        
+        // Get all exam questions
+        List<ExamQuestionEntity> examQuestions = examQuestionRepository.findByExamId(examId);
+        
+        // Process the questions by type
+        List<Object> questionDTOs = new ArrayList<>();
+        
+        for (ExamQuestionEntity examQuestion : examQuestions) {
+            QuestionEntity question = examQuestion.getQuestion();
+            
+            switch (question.getQuestionType()) {
+                case MULTIPLE_CHOICE:
+                    MultipleChoiceQuestionEntity mcq = multipleChoiceQuestionRepository.findById(question.getId()).orElse(null);
+                    if (mcq != null) {
+                        questionDTOs.add(multipleChoiceQuestionMapper.toDto(mcq));
+                    }
+                    break;
+                case ESSAY:
+                    EssayQuestionEntity essay = essayQuestionRepository.findById(question.getId()).orElse(null);
+                    if (essay != null) {
+                        questionDTOs.add(essayQuestionMapper.toDto(essay));
+                    }
+                    break;
+                case CODING:
+                    CodingQuestionEntity coding = codingQuestionRepository.findById(question.getId()).orElse(null);
+                    if (coding != null) {
+                        questionDTOs.add(codingQuestionMapper.toDto(coding));
+                    }
+                    break;
+            }
+        }
+        
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("Questions retrieved successfully");
+        resultDTO.setData(questionDTOs);
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 }

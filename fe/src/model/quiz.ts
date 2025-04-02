@@ -99,6 +99,7 @@ export interface Exam {
   shuffleQuestions?: boolean;
   shuffleAnswers?: boolean;
   createdTime?: Date;
+  numberQuestions?: number;
   startTime?: Date;
   endTime?: Date;
   examQuestions?: ExamQuestion[];

@@ -43,6 +43,9 @@ import {InputNumberModule} from "primeng/inputnumber";
 import {BadgeModule} from "primeng/badge";
 import { QuestionBankManagementComponent } from './quiz/question/question-bank-management/question-bank-management.component';
 import { QuestionBankDetailComponent } from './quiz/question/question-bank-detail/question-bank-detail.component';
+import { ExamManagementComponent } from './quiz/exam/exam-management/exam-management.component';
+import { ExamDetailComponent } from './quiz/exam/exam-detail/exam-detail.component';
+import {MultiSelectModule} from "primeng/multiselect";
 
 
 @NgModule({
@@ -57,7 +60,9 @@ import { QuestionBankDetailComponent } from './quiz/question/question-bank-detai
     LessonStudentManagementComponent,
     AssignmentManagementComponent,
     QuestionBankManagementComponent,
-    QuestionBankDetailComponent
+    QuestionBankDetailComponent,
+    ExamManagementComponent,
+    ExamDetailComponent
   ],
   imports: [
     SafePipe,
@@ -93,7 +98,8 @@ import { QuestionBankDetailComponent } from './quiz/question/question-bank-detai
     TabViewModule,
     AccordionModule,
     InputNumberModule,
-    BadgeModule
+    BadgeModule,
+    MultiSelectModule
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ExamRepository extends JpaRepository<ExamEntity, Long> {
-
+    List<ExamEntity> findByCourseId(Long courseId);
 }

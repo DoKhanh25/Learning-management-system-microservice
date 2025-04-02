@@ -1,0 +1,292 @@
+<div class="exam-detail-container">
+  <p-toast></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+  <!-- Breadcrumb Navigation -->
+ 
+
+  <div class="card">
+    <div class="card-header">
+      <div class="header-left">
+        <button pButton icon="pi pi-arrow-left" class="p-button-rounded p-button-text"
+          (click)="goBackToExams()" pTooltip="Quay lại danh sách bài kiểm tra"></button>
+        <h2>Chi tiết Bài Kiểm Tra</h2>
+      </div>
+    </div>
+
+    <div class="card-body" *ngIf="!loading; else loadingTemplate">
+      <!-- Exam Details Section -->
+      <div class="exam-info-section">
+        <div class="info-card">
+          <div class="info-card-header">
+            <h3>Thông tin bài kiểm tra</h3>
+          </div>
+          <div class="info-card-content">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Tên bài kiểm tra:</label>
+                <span class="info-value">{{exam.name}}</span>
+              </div>
+              <div class="info-item">
+                <label>Loại bài kiểm tra:</label>
+                <p-tag [severity]="exam.examType === 'MULTIPLE_CHOICE' ? 'info' :
+                      exam.examType === 'ESSAY' ? 'warning' : 'success'">
+                  {{getExamTypeName(exam.examType!)}}
+                </p-tag>
+              </div>
+              <div class="info-item">
+                <label>Thời gian làm bài:</label>
+                <span class="info-value">{{exam.duration}} phút</span>
+              </div>
+              <div class="info-item">
+                <label>Thời gian bắt đầu:</label>
+                <span class="info-value">{{formatDateTime(exam.startTime)}}</span>
+              </div>
+              <div class="info-item">
+                <label>Thời gian kết thúc:</label>
+                <span class="info-value">{{formatDateTime(exam.endTime)}}</span>
+              </div>
+              <div class="info-item">
+                <label>Tổng điểm:</label>
+                <span class="info-value">{{exam.totalScore || 'Chưa thiết lập'}}</span>
+              </div>
+              <div class="info-item">
+                <label>Số lượng câu hỏi:</label>
+                <span class="info-value">{{exam.examQuestions?.length || 0}}
+                  <span *ngIf="exam.numberQuestions">/{{exam.numberQuestions}}</span>
+                </span>
+              </div>
+            </div>
+            <div class="info-description" *ngIf="exam.description">
+              <label>Mô tả:</label>
+              <p class="description-content">{{exam.description}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Management Section -->
+      <div class="questions-section">
+        <div class="section-header">
+          <h3>Quản lý Câu hỏi</h3>
+          <div class="section-actions">
+            <p-button
+              label="Thêm từ nhiều ngân hàng câu hỏi"
+              icon="pi pi-list"
+              styleClass="p-button-outlined p-button-info mr-2"
+              (onClick)="openMultipleBanksDialog()">
+            </p-button>
+            <p-button
+              label="Thêm từ ngân hàng câu hỏi"
+              icon="pi pi-plus"
+              styleClass="p-button-success"
+              (onClick)="openAddQuestionsDialog()">
+            </p-button>
+          </div>
+        </div>
+
+        <!-- Question List -->
+        <p-table
+          [value]="exam?.examQuestions || []"
+          [paginator]="true"
+          [rows]="10"
+          styleClass="p-datatable-gridlines p-datatable-sm"
+          [rowHover]="true"
+          responsiveLayout="scroll">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 5rem">STT</th>
+              <th style="width: 45%">Nội dung câu hỏi</th>
+              <th>Loại câu hỏi</th>
+              <th style="width: 8rem">Điểm</th>
+              <th style="width: 8rem">Thao tác</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-question let-i="rowIndex">
+            <tr>
+              <td>{{i + 1}}</td>
+              <td>
+                <div class="question-content-preview">
+                  {{getQuestionContent(question)}}
+                </div>
+              </td>
+              <td>
+                <p-tag [severity]="question?.questionType === 'MULTIPLE_CHOICE' ? 'info' :
+                      question?.questionType === 'ESSAY' ? 'warning' : 'success'">
+                  {{getExamTypeName(question?.questionType || '')}}
+                </p-tag>
+              </td>
+              <td>{{question.points}}</td>
+              <td>
+                <div class="action-buttons">
+                  <button pButton pRipple icon="pi pi-trash"
+                    class="p-button-rounded p-button-danger p-button-sm"
+                    (click)="removeQuestion(question)"
+                    pTooltip="Xóa câu hỏi"></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5">
+                <div class="empty-message">
+                  <i class="pi pi-inbox"></i>
+                  <p>Chưa có câu hỏi nào trong bài kiểm tra này.</p>
+                  <p-button label="Thêm câu hỏi" icon="pi pi-plus" (onClick)="openAddQuestionsDialog()"></p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Template -->
+  <ng-template #loadingTemplate>
+    <div class="loading-container">
+      <p-progressSpinner strokeWidth="4" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+      <span class="loading-text">Đang tải thông tin bài kiểm tra...</span>
+    </div>
+  </ng-template>
+
+  <!-- Single Question Bank Dialog -->
+  <p-dialog
+    [(visible)]="singleBankDialogVisible"
+    [style]="{width: '550px'}"
+    header="Thêm câu hỏi từ ngân hàng"
+    [modal]="true"
+    styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+      <form [formGroup]="addQuestionsForm">
+        <div class="field">
+          <label for="questionBankId">Ngân hàng câu hỏi <span class="required-field">*</span></label>
+          <p-dropdown
+            id="questionBankId"
+            formControlName="questionBankId"
+            [options]="selectedQuestionBanks"
+            (onChange)="onSingleQuestionBankChange($event)"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Chọn ngân hàng câu hỏi"
+            [appendTo]="'body'"
+            [filter]="true"
+            filterBy="name"
+            [showClear]="true">
+            <ng-template pTemplate="selectedItem">
+              <div class="question-bank-item" *ngIf="addQuestionsForm.get('questionBankId')?.value">
+                <div>{{ getQuestionBankNameById(addQuestionsForm.get('questionBankId')?.value) }}</div>
+              </div>
+            </ng-template>
+            <ng-template let-bank pTemplate="item">
+              <div class="question-bank-item">
+                <div>{{ bank.name }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <small class="p-error" *ngIf="addQuestionsForm.get('questionBankId')?.invalid && addQuestionsForm.get('questionBankId')?.touched">
+            Vui lòng chọn ngân hàng câu hỏi.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="numberOfQuestions">Số lượng câu hỏi <span class="required-field">*</span></label>
+          <p-inputNumber
+            id="numberOfQuestions"
+            formControlName="numberOfQuestions"
+            [showButtons]="true"
+            [min]="1"
+            [step]="1"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus">
+          </p-inputNumber>
+          <small class="p-error" *ngIf="addQuestionsForm.get('numberOfQuestions')?.invalid && addQuestionsForm.get('numberOfQuestions')?.touched">
+            Số lượng câu hỏi phải lớn hơn 0.
+          </small>
+        </div>
+
+        <div class="field info-message" *ngIf="selectedQuestionBanks.length === 0">
+          <i class="pi pi-info-circle"></i>
+          <span>Không có ngân hàng câu hỏi phù hợp với loại bài kiểm tra này ({{getExamTypeName(exam?.examType!)}}).</span>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Hủy" icon="pi pi-times" class="p-button-text" (click)="singleBankDialogVisible = false"></button>
+      <button pButton pRipple label="Thêm" icon="pi pi-check" [disabled]="questionsLoading" class="p-button-primary" (click)="addQuestionsFromBank()"></button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Multiple Question Banks Dialog -->
+  <p-dialog
+    [(visible)]="multipleBanksDialogVisible"
+    [style]="{width: '550px'}"
+    header="Thêm câu hỏi từ nhiều ngân hàng"
+    [modal]="true"
+    styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+      <form [formGroup]="addQuestionsForm">
+        <div class="field">
+          <label>Chọn ngân hàng câu hỏi <span class="required-field">*</span></label>
+          <p-multiSelect
+            [options]="selectedQuestionBanks"
+            [(ngModel)]="selectedQuestionBankIds"
+            [ngModelOptions]="{standalone: true}"
+            optionLabel="name"
+            optionValue="id"
+            [appendTo]="'body'"
+            defaultLabel="Chọn ngân hàng câu hỏi"
+            display="chip"
+            [filter]="true"
+            (onChange)="onQuestionBankSelectionChange($event)">
+            <ng-template let-bank pTemplate="item">
+              <div class="question-bank-item">
+                <div>{{ bank.name }}</div>
+              </div>
+            </ng-template>
+          </p-multiSelect>
+          <small class="p-error" *ngIf="selectedQuestionBankIds.length === 0">
+            Vui lòng chọn ít nhất một ngân hàng câu hỏi.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="numberOfQuestions">Số lượng câu hỏi <span class="required-field">*</span></label>
+          <p-inputNumber
+            id="numberOfQuestions"
+            formControlName="numberOfQuestions"
+            [showButtons]="true"
+            [min]="1"
+            [step]="1"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus">
+          </p-inputNumber>
+          <small class="p-error" *ngIf="addQuestionsForm.get('numberOfQuestions')?.invalid && addQuestionsForm.get('numberOfQuestions')?.touched">
+            Số lượng câu hỏi phải lớn hơn 0.
+          </small>
+        </div>
+
+        <div class="field info-message" *ngIf="selectedQuestionBanks.length === 0">
+          <i class="pi pi-info-circle"></i>
+          <span>Không có ngân hàng câu hỏi phù hợp với loại bài kiểm tra này ({{getExamTypeName(exam?.examType!)}}).</span>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Hủy" icon="pi pi-times" class="p-button-text" (click)="multipleBanksDialogVisible = false"></button>
+      <button pButton pRipple label="Thêm" icon="pi pi-check" [disabled]="questionsLoading" class="p-button-primary" (click)="addQuestionsFromBank()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

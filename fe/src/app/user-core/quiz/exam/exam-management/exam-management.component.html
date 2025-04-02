@@ -1,0 +1,204 @@
+<div class="exam-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Quản lý Bài Kiểm Tra</h2>
+      <p-button
+        label="Thêm Bài Kiểm Tra"
+        icon="pi pi-plus"
+        styleClass="p-button-success"
+        (onClick)="openNew()">
+      </p-button>
+    </div>
+
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+    <div class="card-body">
+      <p-table
+        #dt
+        [value]="exams"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'description', 'examType']"
+        [rowHover]="true"
+        dataKey="id"
+        [loading]="loading"
+        styleClass="p-datatable-gridlines p-datatable-sm"
+        responsiveLayout="scroll">
+
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-between align-items-center">
+            <h5 class="m-0">Danh sách Bài Kiểm Tra</h5>
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" [(ngModel)]="searchQuery" (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')" placeholder="Tìm kiếm" />
+            </span>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name">Tên <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="examType">Loại <p-sortIcon field="examType"></p-sortIcon></th>
+            <th pSortableColumn="duration">Thời gian <p-sortIcon field="duration"></p-sortIcon></th>
+            <th pSortableColumn="startTime">Bắt đầu <p-sortIcon field="startTime"></p-sortIcon></th>
+            <th pSortableColumn="endTime">Kết thúc <p-sortIcon field="endTime"></p-sortIcon></th>
+            <th style="width: 8rem">Thao tác</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-exam>
+          <tr>
+            <td>
+              <span class="font-bold">{{exam.name}}</span>
+              <div class="description-text">{{exam.description}}</div>
+            </td>
+            <td>
+              <p-tag [severity]="getExamTypeName(exam.examType) === 'Trắc nghiệm' ? 'info' :
+                      getExamTypeName(exam.examType) === 'Tự luận' ? 'warning' : 'success'">
+                {{getExamTypeName(exam.examType)}}
+              </p-tag>
+            </td>
+            <td>{{exam.duration}} phút</td>
+            <td>{{formatDateTime(exam.startTime)}}</td>
+            <td>{{formatDateTime(exam.endTime)}}</td>
+            <td>
+              <div class="action-buttons">
+                <button pButton pRipple icon="pi pi-list" class="p-button-rounded p-button-info p-button-sm mr-2"
+                  (click)="navigateToExamDetail(exam)" pTooltip="Quản lý câu hỏi"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-primary p-button-sm mr-2"
+                  (click)="editExam(exam)" pTooltip="Chỉnh sửa"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm"
+                  (click)="deleteExam(exam)" pTooltip="Xóa"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6">
+              <div class="empty-message">
+                <i class="pi pi-inbox"></i>
+                <p>Không tìm thấy bài kiểm tra nào cho khóa học này.</p>
+                <p-button label="Tạo Bài Kiểm Tra" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <p-dialog
+    [(visible)]="displayDialog"
+    [style]="{width: '650px'}"
+    header="{{isEditMode ? 'Chỉnh sửa Bài Kiểm Tra' : 'Tạo Bài Kiểm Tra'}}"
+    [modal]="true"
+    styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+      <form [formGroup]="examForm">
+        <div class="field">
+          <label for="name">Tên bài kiểm tra <span class="required-field">*</span></label>
+          <input pInputText id="name" formControlName="name" required autofocus />
+          <small class="p-error" *ngIf="examForm.get('name')?.invalid && examForm.get('name')?.touched">
+            Tên bài kiểm tra là bắt buộc.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="description">Mô tả</label>
+          <textarea pInputTextarea id="description" formControlName="description" rows="3"></textarea>
+        </div>
+
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="examType">Loại bài kiểm tra <span class="required-field">*</span></label>
+            <p-dropdown
+              id="examType"
+              [options]="examTypes"
+              formControlName="examType"
+              placeholder="Chọn loại bài kiểm tra"
+              [showClear]="false"
+              optionLabel="label"
+              optionValue="value"
+              [appendTo]="'body'"
+              [required]="true">
+            </p-dropdown>
+            <small class="p-error" *ngIf="examForm.get('examType')?.invalid && examForm.get('examType')?.touched">
+              Loại bài kiểm tra là bắt buộc.
+            </small>
+          </div>
+
+          <div class="field col-12 md:col-6">
+            <label for="duration">Thời gian làm bài (phút) <span class="required-field">*</span></label>
+            <p-inputNumber id="duration" formControlName="duration" [showButtons]="true" buttonLayout="horizontal"
+              spinnerMode="horizontal" [min]="1" [step]="5" decrementButtonClass="p-button-secondary" 
+              incrementButtonClass="p-button-secondary" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus">
+            </p-inputNumber>
+            <small class="p-error" *ngIf="examForm.get('duration')?.invalid && examForm.get('duration')?.touched">
+              Thời gian làm bài phải lớn hơn 0.
+            </small>
+          </div>
+        </div>
+
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="numberQuestions">Số lượng câu hỏi</label>
+            <p-inputNumber id="numberQuestions" formControlName="numberQuestions" [min]="1"></p-inputNumber>
+            <small class="p-error" *ngIf="examForm.get('numberQuestions')?.invalid">
+              Số lượng câu hỏi phải lớn hơn 0.
+            </small>
+          </div>
+
+          <div class="field col-12 md:col-6">
+            <label for="totalScore">Tổng điểm</label>
+            <p-inputNumber id="totalScore" formControlName="totalScore" [min]="0"></p-inputNumber>
+            <small class="helper-text">Để trống để tự động tính tổng điểm từ các câu hỏi.</small>
+          </div>
+        </div>
+
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="startTime">Thời gian bắt đầu</label>
+            <p-calendar 
+            [appendTo]="'body'"
+            id="startTime" formControlName="startTime" [showTime]="true" [showSeconds]="false" 
+              dateFormat="dd/mm/yy" [readonlyInput]="true" placeholder="Chọn thời gian bắt đầu"></p-calendar>
+          </div>
+
+          <div class="field col-12 md:col-6">
+            <label for="endTime">Thời gian kết thúc</label>
+            <p-calendar 
+            [appendTo]="'body'"
+            id="endTime" formControlName="endTime" [showTime]="true" [showSeconds]="false"
+            [appendTo]="'body'"
+              dateFormat="dd/mm/yy" [readonlyInput]="true" placeholder="Chọn thời gian kết thúc"></p-calendar>
+          </div>
+          
+          <div class="field col-12" *ngIf="hasTimeError()">
+            <small class="p-error">Thời gian kết thúc phải sau thời gian bắt đầu</small>
+          </div>
+        </div>
+
+        <div class="formgrid grid">
+          <div class="field-checkbox col-12 md:col-6">
+            <p-checkbox formControlName="shuffleQuestions" [binary]="true" inputId="shuffleQuestions"></p-checkbox>
+            <label for="shuffleQuestions" class="ml-2">Xáo trộn thứ tự câu hỏi</label>
+          </div>
+
+          <div class="field-checkbox col-12 md:col-6">
+            <p-checkbox formControlName="shuffleAnswers" [binary]="true" inputId="shuffleAnswers"></p-checkbox>
+            <label for="shuffleAnswers" class="ml-2">Xáo trộn thứ tự đáp án</label>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Hủy" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+      <button pButton pRipple label="Lưu" icon="pi pi-check" class="p-button-primary" (click)="saveExam()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

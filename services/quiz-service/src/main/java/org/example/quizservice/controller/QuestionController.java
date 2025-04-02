@@ -111,6 +111,11 @@ public class QuestionController {
                 .body(resource);
     }
 
+    @GetMapping("/findQuestionByExamId/{examId}")
+    public ResponseEntity<ResultDTO> findQuestionByExamId(@PathVariable Long examId, @RequestHeader("X-User-Id") String validateUserId) {
+        return questionService.findQuestionByExamId(examId, validateUserId);
+    }
+
     @PutMapping("/updateMultipleChoiceQuestion/{id}")
     public ResponseEntity<ResultDTO> updateMultipleChoiceQuestion(
             @PathVariable Long id,

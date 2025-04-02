@@ -9,10 +9,10 @@ import org.mapstruct.Mapping;
 public interface ExamMapper extends EntityMapper<ExamDTO, ExamEntity> {
 
     @Override
-    @Mapping(target = "examQuestions", source = "examQuestions")
+    @Mapping(target = "examQuestions", ignore = true)
     ExamEntity toEntity(ExamDTO dto);
 
     @Override
-    @Mapping(target = "examQuestions", source = "examQuestions")
+    @Mapping(source = "examQuestions", target = "questions")
     ExamDTO toDto(ExamEntity entity);
 }

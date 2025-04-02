@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Result } from '../../../model/result';
-import { CodingQuestion, EssayQuestion } from '../../../model/quiz';
+import { CodingQuestion, EssayQuestion, Exam } from '../../../model/quiz';
 
 @Injectable({
   providedIn: 'root'
@@ -82,5 +82,48 @@ export class QuizService {
     formData.append('file', file);
     formData.append('questionBankId', questionBankId.toString());
     return this.httpClient.post<Result>(`${this.baseUrl}/importMultipleChoiceQuestionsFromExcel`, formData);
+  }
+
+  // Exam endpoints
+  getAllExamsByCourseId(courseId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getAllExamsByCourseId/${courseId}`);
+  }
+
+  getExamById(examId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getExamById/${examId}`);
+  }
+
+  createExam(examDTO: Exam): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/addExam`, examDTO);
+  }
+
+  updateExam(examId: any, examDTO: Exam): Observable<Result> {
+    return this.httpClient.put<Result>(`${this.baseUrl}/updateExam/${examId}`, examDTO);
+  }
+
+  deleteExam(examId: any): Observable<Result> {
+    return this.httpClient.delete<Result>(`${this.baseUrl}/deleteExam/${examId}`);
+  }
+
+  addQuestionsFromQuestionBank(examId: any, questionBankId: any, numberOfQuestions: number): Observable<Result> {
+    return this.httpClient.post<Result>(
+      `${this.baseUrl}/addQuestionsFromQuestionBank/${examId}?questionBankId=${questionBankId}&numberOfQuestions=${numberOfQuestions}`,
+      {}
+    );
+  }
+
+  addQuestionsFromMultipleQuestionBanks(examId: any, questionBankIds: number[], numberOfQuestions: number): Observable<Result> {
+    return this.httpClient.post<Result>(
+      `${this.baseUrl}/addQuestionsFromMultipleQuestionBanks/${examId}?numberOfQuestions=${numberOfQuestions}`,
+      questionBankIds
+    );
+  }
+
+  removeQuestionFromExam(examId: any, questionId: any): Observable<Result> {
+    return this.httpClient.delete<Result>(`${this.baseUrl}/removeQuestionFromExam/${examId}/${questionId}`);
+  }
+
+  findQuestionByExamId(examId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/findQuestionByExamId/${examId}`);
   }
 }
