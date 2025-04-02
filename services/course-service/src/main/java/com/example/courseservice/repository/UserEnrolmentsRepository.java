@@ -5,8 +5,10 @@ import com.example.courseservice.entity.EnrolEntity;
 import com.example.courseservice.entity.UserEnrolmentsEntity;
 import com.example.courseservice.enums.CourseRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,4 +35,14 @@ public interface UserEnrolmentsRepository extends JpaRepository<UserEnrolmentsEn
 
     @Query("select ue from user_enrolment ue where ue.enrol.course.id =:courseId")
     List<UserEnrolmentsEntity> getUserEnrolmentsByCourseId(@Param("courseId") Long courseId);
+
+
+    @Query("select ue from user_enrolment ue where ue.enrol.course.id =:courseId and ue.userId = :userId")
+    UserEnrolmentsEntity getUserEnrolmentsEntityByUserIdAndCourseId(@Param("userId") String userId,
+                                                                    @Param("courseId") Long courseId);
+
+    @Modifying
+    @Transactional
+    @Query("delete from user_enrolment ue where ue.userId = :userId and ue.enrol.course.id = :courseId")
+    void deleteUserEnrolmentsByUserIdAndCourseId(String userId, Long courseId);
 }

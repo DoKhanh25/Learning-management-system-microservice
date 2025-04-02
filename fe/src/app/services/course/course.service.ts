@@ -243,5 +243,13 @@ export class CourseService {
     });
   }
 
+  addUserEnrolment(enrolment: Enrolment, userId: any): Observable<Result>{
+    return  this.httpClient.post<Result>(`${this.baseUrl}/addUserEnrolment?userId=${userId}`, enrolment)
+  }
+
+  deleteUserEnrolmentsByUserIdAndCourseId(courseId: any, userId: any){
+    return this.httpClient.delete(`${this.baseUrl}/deleteUserEnrolmentsByUserIdAndCourseId?userId=${userId}&courseId=${courseId}`);
+  }
+
 
 }

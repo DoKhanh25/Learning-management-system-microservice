@@ -12,6 +12,7 @@ import com.example.courseservice.repository.CourseSectionsRepository;
 import com.example.courseservice.repository.LessonRepository;
 import com.example.courseservice.repository.UserEnrolmentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +88,29 @@ public class CourseService {
         resultDTO.setStatus(1);
 
         return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> updateCourse(CourseCreateDTO courseDTO, Long courseId){
+        ResultDTO resultDTO = new ResultDTO();
+        Optional<CourseEntity> courseEntityOptional = courseRepository.findById(courseId);
+
+        if(courseEntityOptional.isEmpty()){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Course not found");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        CourseEntity courseEntity = courseEntityOptional.get();
+        courseEntity.setName(courseDTO.getName());
+        courseEntity.setSummary(courseDTO.getSummary());
+        courseEntity.setStartDate(courseDTO.getStartDate());
+        courseEntity.setEndDate(courseDTO.getEndDate());
+
+        courseEntity = courseRepository.save(courseEntity);
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("Course updated");
+        resultDTO.setData(courseEntity);
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 
     public ResponseEntity<ResultDTO> addCourse(CourseCreateDTO courseCreateDTO){

@@ -33,4 +33,12 @@ public class EnrolController {
                                                            @RequestParam("courseRole") String courseRole){
         return enrolService.addEnrolmentsByCohort(cohortId, courseId, courseRole);
     }
+
+    @PostMapping("/addUserEnrolment")
+    public ResponseEntity<ResultDTO> addUserEnrolment(@RequestBody EnrolDTO enrolDTO,
+                                                           @RequestParam("userId") String userId){
+        return enrolService.addUserEnrolment(enrolDTO, userId);
+    }
+
+
 }

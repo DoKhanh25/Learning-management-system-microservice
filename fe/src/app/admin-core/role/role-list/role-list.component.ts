@@ -51,9 +51,8 @@ export class RoleListComponent implements OnInit{
 
     this.roleService.getAllRoles().subscribe((result) => {
       console.log(result.data)
-      this.roles = result.data;
+      this.roles = result.data.filter((e: any) => e.name.includes("ROLE_"));
       this.loading = false;
-
     }, (err) => {
       console.log(err)
     })

@@ -30,4 +30,10 @@ public class UserEnrolmentsController {
     public ResponseEntity<ResultDTO> getAllStudentEnrolmentsByCourseId(@RequestParam Long id){
         return userEnrolmentsService.getAllStudentEnrolmentsByCourseId(id);
     }
+
+    @DeleteMapping("/deleteUserEnrolmentsByUserIdAndCourseId")
+    public ResponseEntity<ResultDTO> deleteUserEnrolmentsByUserIdAndCourseId(@RequestParam Long courseId,
+                                                                             @RequestParam String userId){
+        return userEnrolmentsService.deleteUserEnrolmentsByUserIdAndCourseId(courseId, userId);
+    }
 }

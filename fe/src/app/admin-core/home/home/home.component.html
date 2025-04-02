@@ -1,185 +1,186 @@
-<div class="container-fluid m-3" >
-  <div class="grid mt-3">
-    <div class="col-12">
-      <div class="p-card shadow-2 p-4 border-round gradient-background">
-        <div class="flex flex-column md:flex-row justify-content-between align-items-center">
-          <div>
-            <h1 class="text-4xl font-bold mb-2 text-primary">Dashboard quản trị</h1>
-            <p class="text-lg m-0 opacity-8">
-              <i class="pi pi-user mr-2"></i>Xin chào, <span class="font-medium">{{adminName}}</span>
-              <span class="mx-2 text-500">|</span>
-              <i class="pi pi-calendar mr-2"></i><span>{{currentDate | date:'EEEE, dd/MM/yyyy'}}</span>
-            </p>
+<div class="dashboard-container">
+      <!-- Header with modern gradient -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <div class="header-title">
+            <h1>Dashboard Admin</h1>
+            <div class="header-meta">
+              <div class="meta-item">
+                <i class="pi pi-user"></i>
+                <span>Xin chào, <strong>{{adminName}}</strong></span>
+              </div>
+              <div class="meta-item">
+                <i class="pi pi-calendar"></i>
+                <span>{{currentDate | date:'EEEE, dd/MM/yyyy'}}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-
-
-    <!-- Statistics Cards -->
-    <div class="col-12 mt-4">
-      <div class="flex justify-content-between align-items-center">
-        <h2 class="text-2xl font-semibold mb-0 text-900">Tổng quan hệ thống</h2>
+      <!-- Statistics Section -->
+      <div class="section-header">
+        <h2><i class="pi pi-chart-bar"></i> Tổng quan hệ thống</h2>
       </div>
-    </div>
 
-    <!-- Statistics Cards Row -->
-    <div class="col-12 md:col-6 lg:col-3 p-2" *ngFor="let stat of statistics">
-      <p-card [styleClass]="'shadow-3 h-full ' + stat.cardClass">
-        <div class="flex flex-column align-items-center text-center p-3">
-          <div class="bg-primary-100 p-3 mb-3 border-circle">
-            <i [class]="stat.icon + ' text-4xl text-primary'" style="font-size: 2.5rem"></i>
+      <div class="stats-grid">
+        <div class="stat-card" *ngFor="let stat of statistics" [ngClass]="stat.cardClass">
+          <div class="stat-icon">
+            <i [class]="stat.icon"></i>
           </div>
-          <h2 class="text-5xl font-bold mb-2">{{stat.value}}</h2>
-          <p class="text-lg font-medium text-700">{{stat.label}}</p>
+          <div class="stat-content">
+            <div class="stat-value">{{stat.value}}</div>
+            <div class="stat-label">{{stat.label}}</div>
+          </div>
+          <div class="stat-progress">
+            <div class="progress-bar" [style.width.%]="stat.progressValue"></div>
+          </div>
         </div>
-      </p-card>
-    </div>
+      </div>
 
-    <!-- Microservices Status -->
-    <div class="col-12 mt-4">
-      <div class="flex justify-content-between align-items-center">
-        <h2 class="text-2xl font-semibold mb-0 text-900">Trạng thái Microservice</h2>
+      <!-- Microservices Status -->
+      <div class="section-header">
+        <h2><i class="pi pi-server"></i> Trạng thái Microservice</h2>
         <button pButton icon="pi pi-refresh" class="p-button-rounded p-button-text"
                 (click)="refreshServices()" [loading]="serviceStatusLoading"></button>
       </div>
-    </div>
 
-    <div class="col-12">
-      <p-card styleClass="shadow-2">
-        <ng-template pTemplate="header">
-          <div class="flex justify-content-between align-items-center p-3">
-            <span class="text-xl font-semibold">Các dịch vụ trong hệ thống</span>
-            <span class="p-badge p-badge-info">{{microservices.length}} dịch vụ</span>
-          </div>
-        </ng-template>
-
-        <p-table [value]="microservices" [tableStyle]="{ 'min-width': '50rem' }"
-                 [loading]="serviceStatusLoading" styleClass="p-datatable-sm">
+      <div class="services-container">
+        <p-table [value]="microservices" styleClass="p-datatable-sm p-datatable-hoverable-rows shadow-table"
+                 [loading]="serviceStatusLoading" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
-              <th>Dịch vụ</th>
-              <th>Trạng thái</th>
-              <th>Số lượng instance</th>
-              <th>Thao tác</th>
+              <th>Tên dịch vụ</th>
+              <th style="width: 15%">Trạng thái</th>
+              <th style="width: 15%">Thao tác</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-service>
             <tr>
               <td>
-                <div class="flex align-items-center">
-                  <i class="pi pi-server mr-2 text-primary"></i>
-                  <span class="font-semibold">{{service.name}}</span>
-                </div>
+                <div class="service-name">{{service.name}}</div>
               </td>
               <td>
-            <span [class]="'p-badge ' + getStatusBadge(service.status)">
-              {{service.status}}
-            </span>
+                <span class="status-badge" [ngClass]="service.status === 'UP' ? 'status-up' : 'status-down'">
+                  {{service.status === 'UP' ? 'Hoạt động' : 'Không hoạt động'}}
+                </span>
               </td>
               <td>
-                <div class="flex align-items-center">
-                  <i class="pi pi-desktop mr-2"></i>
-                  <span>{{service.instances.length}}</span>
-                </div>
-              </td>
-              <td>
-                <button pButton icon="pi pi-info-circle" class="p-button-rounded p-button-text p-button-sm"
-                        pTooltip="Chi tiết dịch vụ" (click)="showServiceDetails(service)"></button>
+                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text"
+                        (click)="showServiceDetails(service)"></button>
               </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="4" class="text-center p-4">
-                <div *ngIf="serviceStatusLoading" class="flex flex-column align-items-center">
-                  <i class="pi pi-spin pi-spinner text-primary" style="font-size: 2rem"></i>
-                  <span class="mt-2">Đang tải thông tin dịch vụ...</span>
-                </div>
-                <div *ngIf="!serviceStatusLoading" class="flex flex-column align-items-center">
-                  <i class="pi pi-info-circle text-primary" style="font-size: 2rem"></i>
-                  <span class="mt-2">Không có dịch vụ nào được tìm thấy</span>
-                  <button pButton label="Làm mới" icon="pi pi-refresh"
-                          class="p-button-outlined mt-3" (click)="refreshServices()"></button>
+              <td colspan="3" class="text-center p-4">
+                <div class="empty-message">
+                  <i class="pi pi-server mb-3" style="font-size: 2rem"></i>
+                  <p>Không tìm thấy dịch vụ nào</p>
                 </div>
               </td>
             </tr>
           </ng-template>
         </p-table>
-      </p-card>
-    </div>
-
-    <!-- Quick Access Tiles -->
-    <div class="col-12 mt-4">
-      <div class="flex justify-content-between align-items-center">
-        <h2 class="text-2xl font-semibold mb-0 text-900">Truy cập nhanh</h2>
       </div>
+
+      <!-- Quick Access Menu -->
+      <div class="section-header">
+        <h2><i class="pi pi-th-large"></i> Truy cập nhanh</h2>
+      </div>
+
+      <div class="quick-access-grid">
+        <div *ngFor="let menu of quickAccessMenu" class="quick-access-card" (click)="navigateTo(menu.route)">
+          <div class="menu-icon">
+            <i [class]="menu.icon"></i>
+          </div>
+          <div class="menu-content">
+            <h3>{{menu.title}}</h3>
+            <p>{{menu.description}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activities -->
+<!--      <div class="two-column-grid">-->
+<!--        <div class="activity-container">-->
+<!--          <div class="section-header">-->
+<!--            <h2><i class="pi pi-history"></i> Hoạt động gần đây</h2>-->
+<!--          </div>-->
+
+<!--          <div class="timeline-container">-->
+<!--            <p-timeline [value]="recentActivities" styleClass="customized-timeline">-->
+<!--              <ng-template pTemplate="marker" let-activity>-->
+<!--                <span class="timeline-marker" [style.background-color]="activity.color">-->
+<!--                  <i [class]="'pi ' + activity.icon"></i>-->
+<!--                </span>-->
+<!--              </ng-template>-->
+<!--              <ng-template pTemplate="content" let-activity>-->
+<!--                <div class="timeline-event">-->
+<!--                  <div class="activity-description">{{activity.description}}</div>-->
+<!--                  <small class="activity-time">{{activity.time | date:'dd/MM/yyyy HH:mm'}}</small>-->
+<!--                </div>-->
+<!--              </ng-template>-->
+<!--            </p-timeline>-->
+<!--          </div>-->
+<!--        </div>-->
+
+<!--        <div class="system-status-container">-->
+<!--          <div class="section-header">-->
+<!--            <h2><i class="pi pi-cog"></i> Tình trạng hệ thống</h2>-->
+<!--          </div>-->
+
+<!--          <div class="system-metrics">-->
+<!--            <div *ngFor="let status of systemStatus" class="metric-card">-->
+<!--              <div class="metric-info">-->
+<!--                <div class="metric-label">{{status.label}}</div>-->
+<!--                <div class="metric-value">{{status.value}}%</div>-->
+<!--              </div>-->
+<!--              <div class="metric-progress">-->
+<!--                <div class="progress-track">-->
+<!--                  <div class="progress-fill" [ngClass]="status.class" [style.width.%]="status.value"></div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
-    <div class="col-12 md:col-6 lg:col-3 p-2" *ngFor="let menu of quickAccessMenu">
-      <p-card styleClass="shadow-1 h-full cursor-pointer hover:shadow-4 transition-all transition-duration-300"
-              (click)="navigateTo(menu.route)">
-        <div class="flex flex-column align-items-center text-center">
-          <i [class]="menu.icon" style="font-size: 2.5rem" class="mb-3 text-primary"></i>
-          <h4 class="m-0">{{menu.title}}</h4>
-          <p class="mt-2 mb-0">{{menu.description}}</p>
+
+    <!-- Service Details Dialog -->
+    <p-dialog [(visible)]="serviceDetailsVisible" [style]="{width: '650px'}"
+              header="Chi tiết dịch vụ" [modal]="true" styleClass="service-dialog">
+      <div *ngIf="selectedService" class="service-details">
+        <div class="service-header">
+          <h3>{{selectedService.name}}</h3>
+          <span class="status-badge" [ngClass]="selectedService.status === 'UP' ? 'status-up' : 'status-down'">
+            {{selectedService.status === 'UP' ? 'Hoạt động' : 'Không hoạt động'}}
+          </span>
         </div>
-      </p-card>
-    </div>
-  </div>
-</div>
 
-
-<p-dialog
-  [(visible)]="serviceDetailsVisible"
-  [modal]="true"
-  [style]="{width: '650px'}"
-  [header]="selectedService?.name + ' - Chi tiết dịch vụ'"
-  [draggable]="false" [resizable]="false">
-
-  <div *ngIf="selectedService">
-    <p-tabView>
-      <p-tabPanel header="Thông tin cơ bản">
-        <div class="grid">
-          <div class="col-4 font-medium">Tên dịch vụ:</div>
-          <div class="col-8">{{selectedService.name}}</div>
-
-          <div class="col-4 font-medium">Số lượng instance:</div>
-          <div class="col-8">{{selectedService.instances.length}}</div>
-
-          <div class="col-4 font-medium">Trạng thái:</div>
-          <div class="col-8">
-            <span [class]="'p-badge ' + getStatusBadge(selectedService.status)">
-              {{selectedService.status}}
-            </span>
+        <div class="instances-container" *ngIf="selectedService.instances && selectedService.instances.length">
+          <h4>Instances ({{selectedService.instances.length}})</h4>
+          <div *ngFor="let instance of selectedService.instances" class="instance-card">
+            <div class="instance-header">
+              <span class="instance-id">{{instance.instanceId}}</span>
+              <span class="status-dot" [ngClass]="instance.status === 'UP' ? 'status-up' : 'status-down'"></span>
+            </div>
+            <div class="instance-details">
+              <div class="detail-item">
+                <span class="detail-label">Host:</span>
+                <span class="detail-value">{{instance.ipAddr}}:{{instance.port?.$}}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </p-tabPanel>
-      <p-tabPanel header="Chi tiết instance">
-        <div *ngFor="let instance of selectedService.instances; let i = index" class="mb-3 p-3 border-round surface-hover">
-          <div class="flex justify-content-between">
-            <span class="font-medium">Instance {{i + 1}}</span>
-            <span [class]="'p-badge ' + getStatusBadge(instance.status || 'DOWN')">
-              {{instance.status || 'DOWN'}}
-            </span>
-          </div>
-          <div class="grid mt-2">
-            <div class="col-4 text-500">Host:</div>
-            <div class="col-8">{{instance.ipAddr || 'N/A'}}</div>
 
-            <div class="col-4 text-500">Port:</div>
-            <div class="col-8">{{instance.port?.$}} </div>
-
-            <div class="col-4 text-500">Last updated:</div>
-            <div class="col-8">{{instance.lastUpdatedTimestamp | date:'medium'}}</div>
-          </div>
+        <div class="empty-instances" *ngIf="!selectedService.instances || selectedService.instances.length === 0">
+          <i class="pi pi-server"></i>
+          <p>Không có instance nào đang chạy</p>
         </div>
-      </p-tabPanel>
-    </p-tabView>
-  </div>
+      </div>
 
-  <ng-template pTemplate="footer">
-    <button pButton pRipple label="Đóng" icon="pi pi-times"
-            class="p-button-text" (click)="serviceDetailsVisible = false"></button>
-  </ng-template>
-</p-dialog>
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="Đóng" icon="pi pi-times" class="p-button-text" (click)="serviceDetailsVisible = false"></button>
+      </ng-template>
+    </p-dialog>

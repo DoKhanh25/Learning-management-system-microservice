@@ -161,4 +161,11 @@ public class UserEnrolmentsService {
         resultDTO.setData(userEnrolmentsEntity);
         return ResponseEntity.ok(resultDTO);
     }
+
+    public ResponseEntity<ResultDTO> deleteUserEnrolmentsByUserIdAndCourseId(Long courseId, String userId){
+        ResultDTO resultDTO = new ResultDTO();
+        userEnrolmentsRepository.deleteUserEnrolmentsByUserIdAndCourseId(userId, courseId);
+        resultDTO.setStatus(1);
+        return ResponseEntity.ok(resultDTO);
+    }
 }

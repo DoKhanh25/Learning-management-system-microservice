@@ -1,6 +1,7 @@
 package com.example.courseservice.controller;
 
 import com.example.courseservice.dto.CourseCreateDTO;
+import com.example.courseservice.dto.CourseDTO;
 import com.example.courseservice.dto.ResultDTO;
 import com.example.courseservice.services.CourseService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,12 @@ public class CourseController {
     @GetMapping("/getAllCourseAvailable")
     public ResponseEntity<ResultDTO> getAllCourseAvailable(@RequestHeader("X-User-Id") String userId){
         return courseService.getAllCourseAvailable(userId);
+    }
+
+    @PutMapping("/updateCourse")
+    public ResponseEntity<ResultDTO> updateCourse(@RequestBody CourseCreateDTO courseDTO,
+                                                  @RequestParam("id") Long courseId){
+        return courseService.updateCourse(courseDTO, courseId);
     }
 
 

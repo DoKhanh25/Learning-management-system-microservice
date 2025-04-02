@@ -81,6 +81,50 @@ public class EnrolService {
         return ResponseEntity.ok(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> addUserEnrolment(EnrolDTO enrolDTO, String userId){
+        ResultDTO resultDTO = new ResultDTO();
+
+        if(enrolDTO.getCourse() == null){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("course does not exist");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        CourseEntity courseEntity = courseRepository.findById(enrolDTO.getCourse()).orElse(null);
+
+        if(courseEntity == null){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("course does not exist");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        UserEnrolmentsEntity userEnrolments = userEnrolmentsRepository.getUserEnrolmentsEntityByUserIdAndCourseId(userId, enrolDTO.getCourse());
+
+        if(userEnrolments != null){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("user already exist");
+            return new ResponseEntity<>(resultDTO, HttpStatus.CONFLICT);
+        }
+
+        EnrolEntity enrolEntity = new EnrolEntity();
+        enrolEntity.setCourse(courseEntity);
+        enrolEntity.setStatus((short) 1);
+        enrolEntity.setEnrolType(EnrolType.MANUAL);
+        enrolEntity = enrolRepository.save(enrolEntity);
+
+        UserEnrolmentsEntity userEnrolmentsEntity = new UserEnrolmentsEntity();
+        userEnrolmentsEntity.setUserId(userId);
+        userEnrolmentsEntity.setStatus(1);
+        userEnrolmentsEntity.setCreatedTime(new Date());
+        userEnrolmentsEntity.setEnrol(enrolEntity);
+
+        userEnrolmentsEntity = userEnrolmentsRepository.save(userEnrolmentsEntity);
+
+        resultDTO.setStatus(1);
+        resultDTO.setData(userEnrolmentsEntity);
+        return ResponseEntity.ok(resultDTO);
+    }
+
     @CircuitBreaker(name = "user-service", fallbackMethod = "fallbackCohort")
     public ResponseEntity<ResultDTO> addEnrolmentsByCohort(Long cohortId, Long courseId, String courseRole){
         ResultDTO resultDTO = new ResultDTO();

@@ -1,241 +1,412 @@
-<p-toast/>
-<div class="flex justify-content-left">
-  <p-breadcrumb class="max-w-full" [model]="items">
-    <ng-template pTemplate="item" let-item>
-      <ng-container *ngIf="item.route; else elseBlock">
-        <a [routerLink]="item.route" class="p-menuitem-link">
-          <span [ngClass]="[item.icon ? item.icon : '', 'text-color']"></span>
-          <span class="text-primary font-semibold">{{ item.label }}</span>
-        </a>
-      </ng-container>
-      <ng-template #elseBlock>
-        <a [href]="item.url">
-          <span class="text-color">{{ item.label }}</span>
-        </a>
-      </ng-template>
-    </ng-template>
-  </p-breadcrumb>
-</div>
+<div class="course-detail-container">
+                    <!-- Header Section with Breadcrumb -->
+                    <div class="page-header">
+                      <h1 class="page-title">Chi tiết khóa học</h1>
+                      <p-breadcrumb [model]="items" styleClass="custom-breadcrumb">
+                        <ng-template pTemplate="item" let-item>
+                          <ng-container *ngIf="item.route; else elseBlock">
+                            <a [routerLink]="item.route" class="p-menuitem-link">
+                              <i [ngClass]="item.icon" class="mr-2"></i>
+                              <span class="font-medium">{{ item.label }}</span>
+                            </a>
+                          </ng-container>
+                          <ng-template #elseBlock>
+                            <span>
+                              <span class="text-color">{{ item.label }}</span>
+                            </span>
+                          </ng-template>
+                        </ng-template>
+                      </p-breadcrumb>
+                    </div>
 
-<div class="container-fluid mt-2 p-4">
-  <p-tabView>
-    <p-tabPanel header="Thông tin chung">
-      <form [formGroup]="courseUpdateForm" (ngSubmit)="onUpdateCourse()">
-        <div class="flex items-center gap-2 align-items-center mb-4">
-          <label for="name" class="font-semibold w-8rem">Tên khóa học</label>
-          <input pInputText id="name" class="flex-auto" formControlName="name"/>
-          <small class="p-error" *ngIf="courseUpdateForm.get('name')?.invalid && courseUpdateForm.get('name')?.touched">
-            Tên khóa học là bắt buộc và phải có ít nhất 3 ký tự
-          </small>
-        </div>
-        <div class="flex items-center gap-2 align-items-center mb-4">
-          <label for="summary" class="font-semibold w-8rem">Mô tả</label>
-          <textarea pInputTextarea id="summary" class="flex-auto" formControlName="summary" rows="3"></textarea>
-        </div>
-        <div class="flex items-center gap-2 align-items-center mb-4">
-          <label for="startDate" class="font-semibold w-8rem">Ngày bắt đầu</label>
-          <p-calendar id="startDate" formControlName="startDate" [dateFormat]="'dd/mm/yy'"  />
-        </div>
-        <div class="flex items-center gap-2 align-items-center mb-4">
-          <label for="endDate" class="font-semibold w-8rem">Ngày kết thúc</label>
-          <p-calendar id="endDate" formControlName="endDate" [dateFormat]="'dd/mm/yy'"  />
-        </div>
-        <div class="text-center">
-          <p-button type="submit" label="Lưu" [loading]="saving" severity="primary" />
-        </div>
-      </form>
-    </p-tabPanel>
+                    <!-- Course content -->
+                    <div class="course-content-card">
+                      <p-tabView>
+                        <!-- General Information Tab -->
+                        <p-tabPanel header="Thông tin chung" leftIcon="pi pi-info-circle">
+                          <div class="tab-content">
+                            <form [formGroup]="courseUpdateForm" (ngSubmit)="onUpdateCourse()">
+                              <div class="form-grid">
+                                <div class="form-field">
+                                  <label for="name" class="field-label">Tên khóa học</label>
+                                  <span class="p-input-icon-left w-full">
+                                    <i class="pi pi-book"></i>
+                                    <input pInputText id="name" class="w-full" formControlName="name"/>
+                                  </span>
+                                  <small class="p-error" *ngIf="courseUpdateForm.get('name')?.invalid && courseUpdateForm.get('name')?.touched">
+                                    Tên khóa học phải có ít nhất 3 ký tự
+                                  </small>
+                                </div>
 
+                                <div class="form-field">
+                                  <label for="summary" class="field-label">Mô tả</label>
+                                  <textarea pInputTextarea id="summary" class="w-full" formControlName="summary" rows="3"></textarea>
 
+                                </div>
 
-    <!-- <p-tabPanel header="Danh sách thành viên">
-      <div>
-        <p-progressBar *ngIf="loading" mode="indeterminate" [style]="{ height: '6px' }"></p-progressBar>
-        <p-pickList
-          [source]="sourceUsers"
-          [target]="targetUsers"
-          sourceHeader="Người dùng có sẵn"
-          targetHeader="Người dùng đã ghi danh"
-          [dragdrop]="true"
-          [responsive]="true"
-          [sourceStyle]="{'height':'30rem'}"
-          [targetStyle]="{'height':'30rem'}"
-          filterBy="name"
-          sourceFilterPlaceholder="Tìm kiếm người dùng"
-          targetFilterPlaceholder="Tìm kiếm người đã ghi danh"
-         >
-          <ng-template let-user pTemplate="item">
-            <div class="flex flex-wrap p-2 align-items-center gap-3">
-              <div class="flex-1 flex flex-column gap-2">
-                <span class="font-bold">{{user.name}}</span>
-                <span class="text-sm">{{user.email}}</span>
-              </div>
-              <span class="pi" [class.pi-check-circle]="user.available === 1"
-                             [class.pi-times-circle]="user.available === 0"
-                             [class.text-green-500]="user.available === 1"
-                             [class.text-red-500]="user.available === 0">
-              </span>
-            </div>
-          </ng-template>
-        </p-pickList>
-      </div>
-      <div class="text-center mt-5">
-        <p-button type="submit" label="Lưu" [loading]="saving" severity="primary"  />
-      </div>
-    </p-tabPanel> -->
+                                <div class="form-field">
+                                  <label for="startDate" class="field-label">Ngày bắt đầu</label>
+                                  <span class="p-input-icon-left w-full">
+                                    <i class="pi pi-calendar"></i>
+                                    <p-calendar
+                                      [appendTo]="'body'"
+                                      id="startDate" formControlName="startDate" [dateFormat]="'dd/mm/yy'" styleClass="w-full" showButtonBar="true" />
+                                  </span>
+                                </div>
 
-    <p-tabPanel header="Mã tham gia">
+                                <div class="form-field">
+                                  <label for="endDate" class="field-label">Ngày kết thúc</label>
+                                  <span class="p-input-icon-left w-full">
+                                    <i class="pi pi-calendar-times"></i>
+                                    <p-calendar
+                                      [appendTo]="'body'"
+                                      id="endDate" formControlName="endDate" [dateFormat]="'dd/mm/yy'" styleClass="w-full" showButtonBar="true" />
+                                  </span>
+                                </div>
+                              </div>
 
-      <p-table [value]="enrolments" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Tên</th>
-                <th>mật khẩu</th>
-                <th>Vai trò</th>
-                <th>Ngày bắt đầu</th>
-                <th>Ngày kết thúc</th>
-                <th>Trạng thái</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-enrolment>
-            <tr>
-                <td>{{ enrolment.name }}</td>
-                <td>{{ enrolment.password }}</td>
-                <td>{{ enrolment.courseRole }}</td>
-                <td>{{enrolment.enrolStartDate | date: 'dd/MM/yyyy'}}</td>
-                <td>{{enrolment.enrolEndDate | date: 'dd/MM/yyyy'}}</td>
-                <td>
-                  <p-message *ngIf="isExpired(enrolment.enrolEndDate)" severity="error" text="Expired"></p-message>
-                  <p-message *ngIf="!isExpired(enrolment.enrolEndDate)" severity="success" text="Active"></p-message>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="footer">
-            <p-button label="Thêm mã tham gia" (click)="addEnrolmentDialog = true" />
-        </ng-template>
-    </p-table>
-    </p-tabPanel>
+                              <div class="action-buttons">
+                                <p-button type="submit" label="Lưu thông tin" icon="pi pi-save" [loading]="saving" severity="primary" styleClass="p-button-raised" />
+                              </div>
+                            </form>
+                          </div>
+                        </p-tabPanel>
 
-    <p-tabPanel header="Thêm nhóm">
-      <form [formGroup]="cohortAddEnrolForm" class="mt-3" (ngSubmit)="onCohortAddSubmit()" >
-        <div class="flex items-center gap-2 align-items-center mb-4">
-          <label for="courseRole" class="font-semibold w-8rem">Vai trò</label>
-          <p-dropdown  id="courseRole" class="flex-auto" [style]="{'minWidth':'50%'}" formControlName="courseRole" [options]="courseRolesCohort" optionLabel="name" optionValue="value" />
-        </div>
-        <div class="flex items-center gap-2 align-items-center mb-4">
-          <label for="cohort" class="font-semibold w-8rem">Nhóm</label>
-          <p-dropdown id="cohort" class="flex-auto" [style]="{'minWidth':'50%'}" formControlName="cohort" [options]="cohorts" optionLabel="name" optionValue="id" />
-        </div>
-        <div class="text-center">
-          <p-button type="submit" label="Lưu" [loading]="saving" severity="primary" />
-        </div>
-      </form>
+                        <!-- Enrollment Codes Tab -->
+                        <p-tabPanel header="Mã tham gia" leftIcon="pi pi-key">
+                          <div class="tab-content">
+                            <div class="mb-3 flex justify-content-between align-items-center">
+                              <h3 class="m-0">Danh sách mã tham gia</h3>
+                              <p-button label="Thêm mã mới" icon="pi pi-plus" (click)="addEnrolmentDialog = true" styleClass="p-button-raised" />
+                            </div>
 
-    </p-tabPanel>
+                            <p-table [value]="enrolments" styleClass="modern-table p-datatable-sm" [tableStyle]="{ 'min-width': '50rem' }"
+                                    [paginator]="true" [rows]="5" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                              <ng-template pTemplate="header">
+                                <tr>
+                                  <th>Tên</th>
+                                  <th>Mật khẩu</th>
+                                  <th>Vai trò</th>
+                                  <th>Ngày bắt đầu</th>
+                                  <th>Ngày kết thúc</th>
+                                  <th>Trạng thái</th>
+                                </tr>
+                              </ng-template>
+                              <ng-template pTemplate="body" let-enrolment>
+                                <tr>
+                                  <td>
+                                    <span class="font-semibold">{{ enrolment.name }}</span>
+                                  </td>
+                                  <td>
+                                    <div class="flex align-items-center">
+                                      <span class="enrollment-password">{{ enrolment.password }}</span>
+                                      <button pButton icon="pi pi-copy" class="p-button-text p-button-rounded" pTooltip="Copy password" tooltipPosition="top"></button>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <p-tag [value]="enrolment.courseRole === 'TEACHER' ? 'Giảng viên' : 'Học viên'"
+                                           [severity]="enrolment.courseRole === 'TEACHER' ? 'info' : 'success'"></p-tag>
+                                  </td>
+                                  <td>{{enrolment.enrolStartDate | date: 'dd/MM/yyyy'}}</td>
+                                  <td>{{enrolment.enrolEndDate | date: 'dd/MM/yyyy'}}</td>
+                                  <td>
+                                    <p-tag [value]="isExpired(enrolment.enrolEndDate) ? 'Hết hạn' : 'Đang kích hoạt'"
+                                           [severity]="isExpired(enrolment.enrolEndDate) ? 'danger' : 'success'"></p-tag>
+                                  </td>
+                                </tr>
+                              </ng-template>
+                              <ng-template pTemplate="emptymessage">
+                                <tr>
+                                  <td colspan="6">
+                                    <div class="empty-message">
+                                      <i class="pi pi-lock"></i>
+                                      <span>Chưa có mã tham gia nào. Hãy tạo mã đầu tiên!</span>
+                                      <p-button label="Tạo mã tham gia" icon="pi pi-plus" (click)="addEnrolmentDialog = true"
+                                                styleClass="p-button-outlined mt-3"></p-button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </ng-template>
+                            </p-table>
+                          </div>
+                        </p-tabPanel>
 
-    <p-tabPanel header="Danh sách người tham gia">
-      <p-table
-      #dt
-      [value]="usersInCourse"
-      [scrollable]="true"
-      [paginator]="true"
-      [rows]="10"
-      [first]="first"
-      [showCurrentPageReport]="true"
-      [(selection)]="selectedUsers"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-      (onPage)="pageChange($event)"
-      [rowsPerPageOptions]="[10, 20, 30]"
-      [globalFilterFields]="['username', 'email', 'firstName', 'lastName']"
+                        <!-- Add Student Tab (New) -->
+                        <p-tabPanel header="Thêm học viên" leftIcon="pi pi-user-plus">
+                          <div class="tab-content">
+                            <div class="enrollment-card">
+                              <div class="card-header">
+                                <i class="pi pi-users mr-2"></i>
+                                <h3>Thêm học viên vào khóa học</h3>
+                              </div>
 
-    >
-      <ng-template pTemplate="caption">
-        <div class="flex">
-          <p-iconField iconPosition="left" class="ml-auto">
-            <p-inputIcon>
-              <i class="pi pi-search" (click)="dt.filterGlobal(searchQuery, 'contains')"></i>
-            </p-inputIcon>
-            <input
-              pInputText
-              type="text"
-              [(ngModel)]="searchQuery"
-              (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')"
-              placeholder="Tìm kiếm"
-            />
-          </p-iconField>
-        </div>
-      </ng-template>
-      <ng-template pTemplate="header" >
-        <tr>
-          <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
-          <th style="min-width: 200px">id</th>
-          <th style="min-width: 150px">Tài khoản</th>
-          <th style="min-width: 200px">Email</th>
-          <th style="min-width: 200px">Tên</th>
-          <th style="min-width: 100px">Trạng thái</th>
-          <th style="min-width: 100px">Vai trò</th>
-        </tr>
-      </ng-template>
-      <ng-template  pTemplate="body"  let-user>
-        <tr>
-          <td>
-            <p-tableCheckbox [value]="user" />
-          </td>
-          <td>{{ user.userId }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.lastName + " " + user.firstName }}</td>
-          <td>
-            <p-message *ngIf="user.enable == true" severity="success" text="Hoạt động">Hoạt động</p-message>
-            <p-message *ngIf="user.enable == false" severity="error" text="Không hoạt động"></p-message>
-          </td>
-          <td>{{user.courseRole}}</td>
+                              <form [formGroup]="studentAddForm" (ngSubmit)="onAddSingleStudent()">
+                                <div class="form-grid">
+                                  <div class="form-field">
+                                    <label for="userId" class="field-label">Chọn học viên</label>
+                                    <p-dropdown id="userId" formControlName="userId" [options]="availableStudents"
+                                                optionLabel="username" optionValue="userId" [filter]="true" filterBy="name"
+                                                placeholder="Chọn học viên"
+                                                [appendTo]="'body'"
+                                                styleClass="w-full" [showClear]="true">
+                                      <ng-template pTemplate="selectedItem" let-student>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi pi-user"></i>
+                                          <div>{{ student.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                      <ng-template pTemplate="item" let-student>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi pi-user"></i>
+                                          <div>{{ student.name }}</div>
+                                          <div class="text-sm text-500">({{ student.email }})</div>
+                                        </div>
+                                      </ng-template>
+                                    </p-dropdown>
+                                  </div>
 
-        </tr>
-      </ng-template>
-      <!-- <ng-template pTemplate="paginatorleft">
-        <p-button type="button" icon="pi pi-plus" pTooltip="Tạo tài khoản" tooltipPosition="right" (onClick)="clickAddAccount()"/>
-      </ng-template>
-      <ng-template  pTemplate="paginatorright">
-        <p-button type="button" icon="pi pi-trash" pTooltip="Dừng tài khoản" tooltipPosition="left" (onClick)="clickDeleteAccount()" severity="danger"/>
-      </ng-template> -->
-    </p-table>
-    </p-tabPanel>
-  </p-tabView>
-</div>
+                                  <div class="form-field">
+                                    <label for="courseRole" class="field-label">Vai trò</label>
+                                    <p-dropdown id="courseRole" formControlName="courseRole" [options]="courseRolesStudent"
+                                                [appendTo]="'body'"
+                                                optionLabel="name" optionValue="value" styleClass="w-full">
+                                      <ng-template pTemplate="selectedItem" let-role>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi" [ngClass]="role.value === 'TEACHER' ? 'pi-user-edit' : 'pi-user'"></i>
+                                          <div>{{ role.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                      <ng-template pTemplate="item" let-role>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi" [ngClass]="role.value === 'TEACHER' ? 'pi-user-edit' : 'pi-user'"></i>
+                                          <div>{{ role.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                    </p-dropdown>
+                                  </div>
+                                </div>
 
-<p-dialog header="Tạo mã tham gia" [(visible)]="addEnrolmentDialog" [style]="{ width: '30rem', border: '1px solid #ccc' }">
-  <form [formGroup]="enrolKeyUpdateForm" class="mt-3">
-    <div class="flex items-center gap-2 align-items-center mb-4">
-      <label for="courseRole" class="font-semibold w-8rem">Vai trò</label>
-      <p-dropdown id="courseRole" class="flex-auto" formControlName="courseRole" [options]="courseRoles" optionLabel="name" optionValue="value" />
-    </div>
-    <div class="flex items-center gap-2 align-items-center mb-4">
-      <label for="name" class="font-semibold w-8rem">Tên</label>
-      <input pInputText id="name" class="flex-auto" formControlName="name"/>
-    </div>
-    <div class="flex items-center gap-2 align-items-center mb-4">
-      <label for="password" class="font-semibold w-8rem">Mật khẩu</label>
-      <input pInputText id="password" class="flex-auto" formControlName="password"/>
-    </div>
+                                <div class="action-buttons">
+                                  <p-button type="submit" label="Thêm học viên" icon="pi pi-user-plus" [loading]="addingStudent"
+                                            styleClass="p-button-raised" severity="success"></p-button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </p-tabPanel>
 
-    <div class="flex items-center gap-2 align-items-center mb-4">
-      <label for="startDate" class="font-semibold w-8rem">Ngày bắt đầu</label>
-      <p-calendar required  id="startDate" class="flex-auto" [dateFormat]="'dd/mm/yy'"  [appendTo]="'body'" formControlName="enrolStartDate" />
-    </div>
+                        <!-- Add Group Tab -->
+                        <p-tabPanel header="Thêm nhóm" leftIcon="pi pi-users">
+                          <div class="tab-content">
+                            <div class="enrollment-card">
+                              <div class="card-header">
+                                <i class="pi pi-users mr-2"></i>
+                                <h3>Thêm nhóm vào khóa học</h3>
+                              </div>
 
-    <div class="flex items-center gap-2 align-items-center mb-4">
-      <label for="endDate" class="font-semibold w-8rem">Ngày kết thúc</label>
-      <p-calendar required id="endDate" class="flex-auto" [dateFormat]="'dd/mm/yy'" [appendTo]="'body'"  formControlName="enrolEndDate" />
-    </div>
+                              <form [formGroup]="cohortAddEnrolForm" (ngSubmit)="onCohortAddSubmit()">
+                                <div class="form-grid">
+                                  <div class="form-field">
+                                    <label for="courseRole" class="field-label">Vai trò</label>
+                                    <p-dropdown id="courseRole" formControlName="courseRole" [options]="courseRolesCohort"
+                                                [appendTo]="'body'"
+                                                optionLabel="name" optionValue="value" styleClass="w-full">
+                                      <ng-template pTemplate="selectedItem" let-role>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi" [ngClass]="role.value === 'TEACHER' ? 'pi-user-edit' : 'pi-user'"></i>
+                                          <div>{{ role.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                      <ng-template pTemplate="item" let-role>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi" [ngClass]="role.value === 'TEACHER' ? 'pi-user-edit' : 'pi-user'"></i>
+                                          <div>{{ role.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                    </p-dropdown>
+                                  </div>
 
-    <div class="flex justify-end gap-2 mt-5">
-      <p-button label="Lưu" (click)="onUpdateEnrolment()" />
-      <p-button label="Hủy" severity="secondary" (click)="addEnrolmentDialog = false" />
-    </div>
-    <!-- <div class="text-center">
+                                  <div class="form-field">
+                                    <label for="cohort" class="field-label">Nhóm</label>
+                                    <p-dropdown id="cohort" formControlName="cohort" [options]="cohorts"
+                                                [appendTo]="'body'"
+                                                optionLabel="name" optionValue="id" [filter]="true" filterBy="name"
+                                                placeholder="Chọn nhóm" styleClass="w-full" [showClear]="true">
+                                      <ng-template pTemplate="selectedItem" let-cohort>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi pi-users"></i>
+                                          <div>{{ cohort.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                      <ng-template pTemplate="item" let-cohort>
+                                        <div class="flex align-items-center gap-2">
+                                          <i class="pi pi-users"></i>
+                                          <div>{{ cohort.name }}</div>
+                                        </div>
+                                      </ng-template>
+                                    </p-dropdown>
+                                  </div>
+                                </div>
 
-      <p-button type="submit" label="Cập nhật" (onClick)="onUpdateEnrolment()" severity="primary" />
-    </div> -->
-  </form>
-</p-dialog>
+                                <div class="action-buttons">
+                                  <p-button type="submit" label="Thêm nhóm" icon="pi pi-users" [loading]="saving"
+                                            severity="info" styleClass="p-button-raised"></p-button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </p-tabPanel>
+
+                        <!-- Participants List Tab -->
+                        <p-tabPanel header="Danh sách người tham gia" leftIcon="pi pi-list">
+                          <div class="tab-content">
+                            <p-table #dt [value]="usersInCourse" [scrollable]="true" [paginator]="true" [rows]="10"
+                                    [first]="first" [showCurrentPageReport]="true" [(selection)]="selectedUsers"
+                                    currentPageReportTemplate="Hiển thị {first} đến {last} của {totalRecords} người dùng"
+                                    (onPage)="pageChange($event)" [rowsPerPageOptions]="[10, 20, 30]"
+                                    [globalFilterFields]="['username', 'email', 'firstName', 'lastName']"
+                                    styleClass="modern-table">
+
+                              <ng-template pTemplate="caption">
+                                <div class="table-header">
+                                  <h3>Người tham gia khóa học</h3>
+                                  <span class="p-input-icon-left">
+                                    <i class="pi pi-search"></i>
+                                    <input pInputText type="text"
+                                           [(ngModel)]="searchQuery"
+                                           placeholder="Tìm kiếm người dùng" />
+                                  </span>
+                                </div>
+                              </ng-template>
+
+                              <ng-template pTemplate="header">
+                                <tr>
+                                  <th style="width: 3rem">
+                                    <p-tableHeaderCheckbox />
+                                  </th>
+                                  <th>Tài khoản</th>
+                                  <th>Email</th>
+                                  <th>Tên</th>
+                                  <th>Vai trò</th>
+                                  <th>Thao tác</th>
+                                </tr>
+                              </ng-template>
+
+                              <ng-template pTemplate="body" let-user>
+                                <tr>
+                                  <td>
+                                    <p-tableCheckbox [value]="user" />
+                                  </td>
+                                  <td>{{ user.username }}</td>
+                                  <td>
+                                    <div class="flex align-items-center">
+                                      <i class="pi pi-envelope mr-2 text-500"></i>
+                                      {{ user.email }}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div class="flex align-items-center">
+                                      <i class="pi pi-user mr-2 text-500"></i>
+                                      <span class="font-medium">{{ user.lastName + " " + user.firstName }}</span>
+                                    </div>
+                                  </td>
+
+                                  <td>
+                                    <p-tag [value]="user.courseRole === 'TEACHER' ? 'Giảng viên' : 'Học viên'"
+                                           [severity]="user.courseRole === 'TEACHER' ? 'info' : 'success'"></p-tag>
+                                  </td>
+                                  <td>
+                                    <div class="flex gap-2">
+                                      <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
+                                              (click)="removeUser(user)" pTooltip="Xóa người dùng" tooltipPosition="top"></button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </ng-template>
+
+                              <ng-template pTemplate="emptymessage">
+                                <tr>
+                                  <td colspan="7">
+                                    <div class="empty-message">
+                                      <i class="pi pi-users"></i>
+                                      <span>Chưa có người dùng nào trong khóa học này</span>
+                                      <div class="mt-3">
+                                        <p-button label="Thêm học viên" icon="pi pi-user-plus" routerLink="/tab/2"
+                                                  styleClass="p-button-outlined mr-2"></p-button>
+                                        <p-button label="Thêm nhóm" icon="pi pi-users" routerLink="/tab/3"
+                                                  styleClass="p-button-outlined"></p-button>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </ng-template>
+                            </p-table>
+                          </div>
+                        </p-tabPanel>
+                      </p-tabView>
+                    </div>
+                  </div>
+
+                  <!-- Enrollment Dialog -->
+                  <p-dialog header="Tạo mã tham gia" [(visible)]="addEnrolmentDialog" [modal]="true"
+                            [style]="{width: '550px'}" styleClass="modern-dialog" [draggable]="false" [resizable]="false">
+                    <div class="dialog-content">
+                      <form [formGroup]="enrolKeyUpdateForm" class="p-fluid">
+                        <div class="form-grid">
+                          <div class="form-field">
+                            <label for="dialogCourseRole" class="field-label">Vai trò</label>
+                            <p-dropdown id="dialogCourseRole" formControlName="courseRole" [options]="courseRoles"
+                                        optionLabel="name" optionValue="value" styleClass="w-full">
+                              <ng-template pTemplate="selectedItem" let-role>
+                                <div class="flex align-items-center gap-2">
+                                  <i class="pi" [ngClass]="role.value === 'TEACHER' ? 'pi-user-edit' : 'pi-user'"></i>
+                                  <div>{{ role.name }}</div>
+                                </div>
+                              </ng-template>
+                            </p-dropdown>
+                          </div>
+
+                          <div class="form-field">
+                            <label for="dialogName" class="field-label">Tên</label>
+                            <span class="p-input-icon-left w-full">
+                              <i class="pi pi-tag"></i>
+                              <input pInputText id="dialogName" formControlName="name"/>
+                            </span>
+                          </div>
+
+                          <div class="form-field">
+                            <label for="dialogPassword" class="field-label">Mật khẩu</label>
+                            <span class="p-input-icon-left w-full">
+                              <i class="pi pi-lock"></i>
+                              <input pInputText id="dialogPassword" formControlName="password"/>
+                            </span>
+                          </div>
+
+                          <div class="form-field">
+                            <label for="dialogStartDate" class="field-label">Ngày bắt đầu</label>
+                            <p-calendar id="dialogStartDate" [dateFormat]="'dd/mm/yy'"
+                                        formControlName="enrolStartDate" styleClass="w-full" [showIcon]="true" />
+                          </div>
+
+                          <div class="form-field">
+                            <label for="dialogEndDate" class="field-label">Ngày kết thúc</label>
+                            <p-calendar id="dialogEndDate" [dateFormat]="'dd/mm/yy'"
+                                        formControlName="enrolEndDate" styleClass="w-full" [showIcon]="true" />
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+
+                    <ng-template pTemplate="footer">
+                      <div class="dialog-footer">
+                        <p-button label="Hủy" icon="pi pi-times" (click)="addEnrolmentDialog = false"
+                                  styleClass="p-button-text"></p-button>
+                        <p-button label="Lưu" icon="pi pi-check" (click)="onUpdateEnrolment()"
+                                  [loading]="saving"></p-button>
+                      </div>
+                    </ng-template>
+                  </p-dialog>
+
+                  <p-toast position="top-right"></p-toast>
+                  <p-confirmDialog header="Xác nhận" icon="pi pi-exclamation-triangle"
+                                  acceptLabel="Xác nhận" rejectLabel="Hủy"></p-confirmDialog>

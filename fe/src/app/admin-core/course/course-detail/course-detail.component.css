@@ -1,9 +1,279 @@
-:host ::ng-deep .p-datepicker {
-    position: absolute !important;
-    bottom: 100% !important; /* Đặt lịch phía trên input */
-    top: auto !important;
+/* Course detail styles */
+:host {
+  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-600) 100%);
+  --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  --border-radius: 0.75rem;
+  --transition: all 0.2s ease-in-out;
+}
+
+.course-detail-container {
+  padding: 2rem;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+/* Page header */
+.page-header {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-color);
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.page-title:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: var(--primary-gradient);
+  border-radius: 2px;
+}
+
+/* Breadcrumb styling */
+.custom-breadcrumb {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Course content card */
+.course-content-card {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  overflow: visible; /* Important - fixes dropdowns being cut off */
+  margin-bottom: 2rem;
+}
+
+/* Tab customization */
+:host ::ng-deep .p-tabview .p-tabview-nav {
+  border: none;
+  background: transparent;
+  margin-bottom: 0.5rem;
+}
+
+:host ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  border: none;
+  background: transparent;
+  transition: var(--transition);
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  padding: 1rem 1.25rem;
+}
+
+:host ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: var(--primary-color);
+  color: white;
+}
+
+.tab-content {
+  padding: 1.5rem;
+  position: relative;
+  overflow: visible; /* Important - ensures dropdowns are visible */
+}
+
+/* Form styling */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.field-label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.875rem;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+/* Enrollment card */
+.enrollment-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--surface-200);
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Table styling */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.table-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.modern-table {
+  box-shadow: var(--card-shadow);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+:host ::ng-deep .modern-table .p-datatable-header {
+  background: transparent;
+  border: none;
+  padding: 1rem;
+}
+
+:host ::ng-deep .modern-table .p-datatable-thead > tr > th {
+  background: var(--surface-100);
+  color: var(--text-color);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-color: var(--surface-200);
+}
+
+:host ::ng-deep .modern-table .p-datatable-tbody > tr {
+  transition: var(--transition);
+}
+
+:host ::ng-deep .modern-table .p-datatable-tbody > tr:hover {
+  background-color: var(--surface-100) !important;
+}
+
+:host ::ng-deep .modern-table .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1rem;
+  border-color: var(--surface-200);
+}
+
+.enrollment-password {
+  font-family: monospace;
+  background: var(--surface-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Empty message styling */
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+}
+
+.empty-message i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-message span {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* Dialog styling */
+.dialog-content {
+  padding: 0.5rem 0;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .modern-dialog .p-dialog-header {
+  background: var(--primary-gradient);
+  color: white;
+  padding: 1.25rem;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+:host ::ng-deep .modern-dialog .p-dialog-title {
+  font-weight: 600;
+}
+
+:host ::ng-deep .modern-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+/* Z-index fixes for dropdown and calendar components */
+:host ::ng-deep .p-dropdown-panel {
+  z-index: 9999 !important;
 }
 
 :host ::ng-deep .p-datepicker {
-    z-index: 10000 !important; /* Đảm bảo lịch nằm trên cùng */
+  z-index: 9999 !important;
+}
+
+:host ::ng-deep .p-component-overlay {
+  z-index: 9000 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .course-detail-container {
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  :host ::ng-deep .action-buttons .p-button {
+    width: 100%;
+  }
 }
