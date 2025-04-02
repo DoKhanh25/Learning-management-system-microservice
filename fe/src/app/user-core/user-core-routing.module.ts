@@ -11,6 +11,8 @@ import {CourseManagementComponent} from "./course/course-management/course-manag
 import {AssignmentManagementComponent} from "./course/assignment-management/assignment-management.component";
 import {LessonStudentManagementComponent} from "./lesson/lesson-student-management/lesson-student-management.component";
 import {CourseListComponent} from "./course/course-list/course-list.component";
+import { QuestionBankManagementComponent } from './quiz/question/question-bank-management/question-bank-management.component';
+import { QuestionBankDetailComponent } from './quiz/question/question-bank-detail/question-bank-detail.component';
 
 const routes: Routes = [
   {
@@ -52,6 +54,14 @@ const routes: Routes = [
       {
         path: 'lesson-student-management/:id',
         component: LessonStudentManagementComponent
+      },
+      {
+        path: 'course/:courseId/question-bank-management',
+        component: QuestionBankManagementComponent
+      },
+      {
+        path: 'course/:courseId/question-bank-detail/:id',
+        component: QuestionBankDetailComponent
       },
       {
         path: '',

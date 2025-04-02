@@ -481,4 +481,8 @@ export class CourseDetailComponent implements OnInit {
   clickNavigateLessonStudentManagement(courseId: any){
     this.router.navigate(['/user/lesson-student-management', courseId]);
   }
+
+  navigateToQuestionBankManagement(courseId: any) {
+    this.router.navigate(['/user/course', courseId, 'question-bank-management']);
+  }
 }

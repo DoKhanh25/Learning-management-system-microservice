@@ -3,6 +3,7 @@ package com.example.courseservice.entity;
 
 import com.example.courseservice.enums.AssignmentType;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class AssignmentEntity {
     CourseEntity course;
 
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<AssignmentSubmissionsEntity> assignmentSubmissions;
 
     @Column(name = "description", columnDefinition = "LONGTEXT")

@@ -1,6 +1,7 @@
 package com.example.courseservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,9 +24,11 @@ public class LessonEntity {
     String intro;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<LessonPagesEntity> lessonPages;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<LessonTimerEntity> lessonTimers;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

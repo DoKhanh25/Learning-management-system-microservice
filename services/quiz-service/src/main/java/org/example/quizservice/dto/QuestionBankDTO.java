@@ -3,6 +3,7 @@ package org.example.quizservice.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.quizservice.enums.QuestionType;
 
 import java.util.List;
 
@@ -15,5 +16,6 @@ public class QuestionBankDTO {
     private String description;
     private Long courseId;
     private String userId;
+    private QuestionType questionType;
     private List<QuestionDTO> questions;
 }

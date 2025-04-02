@@ -1,0 +1,135 @@
+<div class="question-bank-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Quản lý Ngân hàng Câu hỏi</h2>
+      <p-button
+        label="Thêm Ngân hàng Câu hỏi"
+        icon="pi pi-plus"
+        styleClass="p-button-success"
+        (onClick)="openNew()">
+      </p-button>
+    </div>
+
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+    <div class="card-body">
+      <p-table
+        #dt
+        [value]="questionBanks"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'description', 'questionType']"
+        [rowHover]="true"
+        dataKey="id"
+        [loading]="loading"
+        styleClass="p-datatable-gridlines p-datatable-sm"
+        responsiveLayout="scroll">
+
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-between align-items-center">
+            <h5 class="m-0">Danh sách Ngân hàng Câu hỏi</h5>
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" [(ngModel)]="searchQuery"  (keydown.enter)="dt.filterGlobal(searchQuery, 'contains')"placeholder="Tìm kiếm" />
+            </span>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name">Tên <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="description">Mô tả <p-sortIcon field="description"></p-sortIcon></th>
+            <th pSortableColumn="questionType">Loại câu hỏi <p-sortIcon field="questionType"></p-sortIcon></th>
+            <th style="width: 8rem">Thao tác</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-questionBank>
+          <tr>
+            <td>
+              <span class="font-bold">{{questionBank.name}}</span>
+            </td>
+            <td>{{questionBank.description}}</td>
+            <td>
+              <p-tag [severity]="getQuestionTypeName(questionBank.questionType) === 'Trắc nghiệm' ? 'info' :
+                      getQuestionTypeName(questionBank.questionType) === 'Tự luận' ? 'warning' : 'success'">
+                {{getQuestionTypeName(questionBank.questionType)}}
+              </p-tag>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button pButton pRipple icon="pi pi-list" class="p-button-rounded p-button-info p-button-sm mr-2"
+                  (click)="navigateToQuestionBankDetail(questionBank)" pTooltip="Quản lý câu hỏi"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-primary p-button-sm mr-2"
+                  (click)="editQuestionBank(questionBank)" pTooltip="Chỉnh sửa"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm"
+                  (click)="deleteQuestionBank(questionBank)" pTooltip="Xóa"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4">
+              <div class="empty-message">
+                <i class="pi pi-inbox"></i>
+                <p>Không tìm thấy ngân hàng câu hỏi nào cho khóa học này.</p>
+                <p-button label="Tạo Ngân hàng Câu hỏi" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <p-dialog
+    [(visible)]="displayDialog"
+    [style]="{width: '500px'}"
+    header="{{isEditMode ? 'Chỉnh sửa Ngân hàng Câu hỏi' : 'Tạo Ngân hàng Câu hỏi'}}"
+    [modal]="true"
+    styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+      <form [formGroup]="questionBankForm">
+        <div class="field">
+          <label for="name">Tên <span class="required-field">*</span></label>
+          <input pInputText id="name" formControlName="name" required autofocus />
+          <small class="p-error" *ngIf="questionBankForm.get('name')?.invalid && questionBankForm.get('name')?.touched">
+            Tên là bắt buộc.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="description">Mô tả</label>
+          <textarea pInputTextarea id="description" formControlName="description" rows="3"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="questionType">Loại câu hỏi <span class="required-field">*</span></label>
+          <p-dropdown
+            id="questionType"
+            [options]="questionTypes"
+            formControlName="questionType"
+            placeholder="Chọn loại câu hỏi"
+            [showClear]="false"
+            optionLabel="label"
+            optionValue="value"
+            [appendTo]="'body'"
+            [required]="true">
+          </p-dropdown>
+          <small class="p-error" *ngIf="questionBankForm.get('questionType')?.invalid && questionBankForm.get('questionType')?.touched">
+            Loại câu hỏi là bắt buộc.
+          </small>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Hủy" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+      <button pButton pRipple label="Lưu" icon="pi pi-check" class="p-button-primary" (click)="saveQuestionBank()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

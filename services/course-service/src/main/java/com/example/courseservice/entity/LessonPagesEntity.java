@@ -2,6 +2,7 @@ package com.example.courseservice.entity;
 
 import com.example.courseservice.enums.QType;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,13 +23,16 @@ public class LessonPagesEntity {
     LessonEntity lesson;
 
     @OneToMany(mappedBy = "lessonPages", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<LessonAttemptsEntity> lessonAttempts;
 
     @OneToMany(mappedBy = "lessonPages", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<LessonBranchEntity> lessonBranch;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
             @JoinColumn(name = "lessonPages_id")
+    @JsonIgnore
     LessonNoteEntity lessonNotes;
 
     @Column(name = "position")

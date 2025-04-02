@@ -32,8 +32,8 @@ public class EnrolEntity {
     short status;
 
     @OneToMany(mappedBy = "enrol", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<UserEnrolmentsEntity> userEnrolments;
-
 
     @Column(name = "enrol_type")
     EnrolType enrolType;

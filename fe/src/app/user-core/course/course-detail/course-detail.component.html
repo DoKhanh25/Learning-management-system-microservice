@@ -24,6 +24,9 @@
         </div>
       </div>
       <div class="course-header-actions">
+        <p-button label="Question Bank" icon="pi pi-list" styleClass="p-button-outlined mr-2"
+                 (click)="navigateToQuestionBankManagement(course.id)">
+        </p-button>
         <p-button label="Course Tracking" icon="pi pi-cog" styleClass="p-button-outlined"
                  (click)="clickNavigateLessonStudentManagement(course.id)">
         </p-button>

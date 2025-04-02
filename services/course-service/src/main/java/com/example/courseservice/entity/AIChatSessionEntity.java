@@ -2,6 +2,7 @@ package com.example.courseservice.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -21,12 +22,14 @@ public class AIChatSessionEntity {
     String userId;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     List<AIChatEntity> messages;
 
     @Column(name = "context_used", columnDefinition = "LONGTEXT")
     String contextUsed;
 
     @OneToOne(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     LessonEntity lesson;
 
     @Column(name = "session_name")

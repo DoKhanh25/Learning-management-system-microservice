@@ -1,12 +1,17 @@
 package org.example.quizservice.services;
 
 import com.example.commondto.dto.ResultDTO;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.apache.poi.ss.usermodel.*;
 import org.example.quizservice.dto.CodingQuestionDTO;
 import org.example.quizservice.dto.EssayQuestionDTO;
+import org.example.quizservice.dto.MultipleChoiceOptionDTO;
 import org.example.quizservice.dto.MultipleChoiceQuestionDTO;
 import org.example.quizservice.entity.*;
 import org.example.quizservice.enums.QuestionType;
+import org.example.quizservice.feign.CourseServiceClient;
+import org.example.quizservice.mapper.CodingQuestionMapper;
+import org.example.quizservice.mapper.EssayQuestionMapper;
 import org.example.quizservice.mapper.MultipleChoiceQuestionMapper;
 import org.example.quizservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +48,17 @@ public class QuestionService {
     @Autowired
     MultipleChoiceQuestionMapper multipleChoiceQuestionMapper;
 
+    @Autowired
+    EssayQuestionMapper essayQuestionMapper;
+
+    @Autowired
+    CodingQuestionMapper codingQuestionMapper;
+
+    @Autowired
+    CourseServiceClient courseServiceClient;
+
+
+
     public ResponseEntity<ResultDTO> findQuestionEntitiesByQuestionBankId(Long questionBankId, String validateUserId) {
         ResultDTO resultDTO = new ResultDTO();
 
@@ -52,15 +68,35 @@ public class QuestionService {
             return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
         }
 
-        if(!validateUserPermission(questionBankEntity.getCourseId(), validateUserId)){
+        if(!validateIsTeacherInCourse(questionBankEntity.getCourseId(), validateUserId)){
             return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
         }
 
-        List<QuestionEntity> questionBankEntityList = questionRepository.findQuestionEntitiesByQuestionBankId(questionBankId);
+        if(questionBankEntity.getQuestionType() == QuestionType.MULTIPLE_CHOICE){
+            List<MultipleChoiceQuestionEntity> multipleChoiceQuestionEntities = multipleChoiceQuestionRepository.findMultipleChoiceQuestionsByQuestionBankId(questionBankId);
+            List<MultipleChoiceQuestionDTO> multipleChoiceQuestionDTOList = multipleChoiceQuestionMapper.toDto(multipleChoiceQuestionEntities);
 
-        resultDTO.setStatus(1);
-        resultDTO.setData(questionBankEntityList);
-        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+            resultDTO.setStatus(1);
+            resultDTO.setData(multipleChoiceQuestionDTOList);
+
+            return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+
+        } else if(questionBankEntity.getQuestionType() == QuestionType.ESSAY){
+            List<EssayQuestionEntity> essayQuestionEntities = essayQuestionRepository.findEssayQuestionEntitiesByQuestionBankId(questionBankId);
+            List<EssayQuestionDTO> essayQuestionDTOList = essayQuestionMapper.toDto(essayQuestionEntities);
+
+            resultDTO.setStatus(1);
+            resultDTO.setData(essayQuestionDTOList);
+            return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+        } else {
+            List<CodingQuestionEntity> codingQuestionEntities = codingQuestionRepository.findCodingQuestionEntitiesByQuestionBankId(questionBankId);
+            List<CodingQuestionDTO> codingQuestionDTOList = codingQuestionMapper.toDto(codingQuestionEntities);
+
+            resultDTO.setStatus(1);
+            resultDTO.setData(codingQuestionDTOList);
+            return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+        }
+
     }
 
 
@@ -68,12 +104,26 @@ public class QuestionService {
     public ResponseEntity<ResultDTO> addMultipleChoiceQuestion(MultipleChoiceQuestionDTO questionDTO, String validateUserId) {
         // Validate permission
 //        ResponseEntity<ResultDTO> validationResult = validateUserPermission(questionDTO.getC(), validateUserId);
-//        if (validationResult != null) {
-//            return validationResult;
-//        }
+
+
 
         QuestionBankEntity questionBank = questionBankRepository.findById(questionDTO.getQuestionBankId()).orElse(null);
         ResultDTO resultDTO = new ResultDTO();
+
+        if(questionBank == null){
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        if(!validateIsTeacherInCourse(questionBank.getCourseId(), validateUserId)){
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
+        if (questionDTO.getAllowMultipleAnswers() && questionDTO.getOptions().stream().filter(MultipleChoiceOptionDTO::getIsCorrect).count() < 2) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Multiple correct answers are required when multiple answers are allowed.");
+            return new ResponseEntity<>(resultDTO, HttpStatus.BAD_REQUEST);
+        }
+
 
         MultipleChoiceQuestionEntity entity = new MultipleChoiceQuestionEntity();
         entity.setText(questionDTO.getText());
@@ -116,6 +166,14 @@ public class QuestionService {
         QuestionBankEntity questionBank = questionBankRepository.findById(questionDTO.getQuestionBankId()).orElse(null);
         ResultDTO resultDTO = new ResultDTO();
 
+        if(questionBank == null){
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        if(!validateIsTeacherInCourse(questionBank.getCourseId(), validateUserId)){
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
         CodingQuestionEntity entity = new CodingQuestionEntity();
         entity.setText(questionDTO.getText());
         entity.setPoints(questionDTO.getPoints());
@@ -146,6 +204,14 @@ public class QuestionService {
         QuestionBankEntity questionBank = questionBankRepository.findById(questionDTO.getQuestionBankId()).orElse(null);
         ResultDTO resultDTO = new ResultDTO();
 
+        if(questionBank == null){
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        if(!validateIsTeacherInCourse(questionBank.getCourseId(), validateUserId)){
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
         EssayQuestionEntity entity = new EssayQuestionEntity();
         entity.setText(questionDTO.getText());
         entity.setPoints(questionDTO.getPoints());
@@ -175,7 +241,7 @@ public class QuestionService {
             return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
         }
 
-        if (!validateUserPermission(questionBank.getCourseId(), validateUserId)) {
+        if (!validateIsTeacherInCourse(questionBank.getCourseId(), validateUserId)) {
             resultDTO.setStatus(0);
             resultDTO.setMessage("You don't have permission to add questions to this question bank");
             return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
@@ -245,6 +311,136 @@ public class QuestionService {
         }
     }
 
+    @Transactional
+    public ResponseEntity<ResultDTO> addMultipleChoiceQuestionsFromExcel(MultipartFile excelFile, String validateUserId, Long questionBankId) {
+        ResultDTO resultDTO = new ResultDTO();
+
+        // Validate question bank access
+        QuestionBankEntity questionBank = questionBankRepository.findById(questionBankId).orElse(null);
+        if (questionBank == null) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Question bank not found");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        if (!validateIsTeacherInCourse(questionBank.getCourseId(), validateUserId)) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("You don't have permission to add questions to this question bank");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            // Process Excel file
+            Workbook workbook = WorkbookFactory.create(excelFile.getInputStream());
+            Sheet sheet = workbook.getSheetAt(0);
+
+            List<MultipleChoiceQuestionEntity> savedQuestions = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
+
+            // Skip header row
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                try {
+                    // Read main question fields
+                    String text = getCellValueAsString(row.getCell(0));
+                    int points = (int) row.getCell(1).getNumericCellValue();
+                    String difficultyLevel = getCellValueAsString(row.getCell(2));
+                    boolean allowMultipleAnswers = "yes".equalsIgnoreCase(getCellValueAsString(row.getCell(3)));
+
+                    // Validate required fields
+                    if (text == null || text.trim().isEmpty()) {
+                        errors.add("Row " + (i+1) + ": Question text is required");
+                        continue;
+                    }
+
+                    // Create question entity
+                    MultipleChoiceQuestionEntity questionEntity = new MultipleChoiceQuestionEntity();
+                    questionEntity.setText(text);
+                    questionEntity.setPoints(points);
+                    questionEntity.setDifficultyLevel(difficultyLevel);
+                    questionEntity.setQuestionType(QuestionType.MULTIPLE_CHOICE);
+                    questionEntity.setUserId(validateUserId);
+                    questionEntity.setQuestionBank(questionBank);
+                    questionEntity.setAllowMultipleAnswers(allowMultipleAnswers);
+
+                    // Process options (starting from column 4)
+                    List<MultipleChoiceOptionEntity> optionEntities = new ArrayList<>();
+                    int optionCount = 0;
+                    int correctCount = 0;
+
+                    // Read options - each option takes 2 columns (text, isCorrect)
+                    for (int j = 0; j < 5; j++) { // Assuming max 5 options
+                        int optionTextColIndex = 4 + (j * 2);
+                        int optionCorrectColIndex = 5 + (j * 2);
+                        
+                        if (optionTextColIndex >= row.getLastCellNum()) break;
+                        
+                        String optionText = getCellValueAsString(row.getCell(optionTextColIndex));
+                        if (optionText == null || optionText.trim().isEmpty()) continue;
+                        
+                        boolean isCorrect = "yes".equalsIgnoreCase(getCellValueAsString(row.getCell(optionCorrectColIndex)));
+                        if (isCorrect) correctCount++;
+                        
+                        MultipleChoiceOptionEntity optionEntity = new MultipleChoiceOptionEntity();
+                        optionEntity.setText(optionText);
+                        optionEntity.setIsCorrect(isCorrect);
+                        optionEntity.setDisplayOrder(j);
+                        optionEntity.setQuestion(questionEntity);
+                        optionEntities.add(optionEntity);
+                        optionCount++;
+                    }
+
+                    // Validate options
+                    if (optionCount < 2) {
+                        errors.add("Row " + (i+1) + ": Question must have at least 2 options");
+                        continue;
+                    }
+
+                    if (correctCount == 0) {
+                        errors.add("Row " + (i+1) + ": Question must have at least 1 correct answer");
+                        continue;
+                    }
+
+                    if (allowMultipleAnswers && correctCount < 2) {
+                        errors.add("Row " + (i+1) + ": Multiple choice questions with multiple answers allowed must have at least 2 correct options");
+                        continue;
+                    }
+
+                    // Save question and options
+                    questionEntity = multipleChoiceQuestionRepository.save(questionEntity);
+                    questionEntity.setOptions(optionEntities);
+                    multipleChoiceOptionRepository.saveAll(optionEntities);
+                    
+                    savedQuestions.add(questionEntity);
+                } catch (Exception e) {
+                    errors.add("Error processing row " + (i+1) + ": " + e.getMessage());
+                }
+            }
+
+            workbook.close();
+
+            // Prepare result
+            resultDTO.setStatus(1);
+            resultDTO.setMessage("Processed " + savedQuestions.size() + " multiple choice questions" +
+                                (errors.isEmpty() ? "" : " with " + errors.size() + " errors"));
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("successCount", savedQuestions.size());
+            data.put("errors", errors);
+            data.put("questions", savedQuestions);
+            resultDTO.setData(data);
+
+            return new ResponseEntity<>(resultDTO,
+                    errors.isEmpty() ? HttpStatus.CREATED : HttpStatus.PARTIAL_CONTENT);
+
+        } catch (Exception e) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Failed to process Excel file: " + e.getMessage());
+            return new ResponseEntity<>(resultDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @Transactional
     public ResponseEntity<ResultDTO> updateMultipleChoiceQuestion(Long questionId, MultipleChoiceQuestionDTO questionDTO, String validateUserId) {
@@ -259,10 +455,16 @@ public class QuestionService {
         }
 
         // Validate permission
-        if (!validateUserPermission(existingQuestion.getQuestionBank().getCourseId(), validateUserId)) {
+        if (!validateIsTeacherInCourse(existingQuestion.getQuestionBank().getCourseId(), validateUserId)) {
             resultDTO.setStatus(0);
             resultDTO.setMessage("You don't have permission to update this question");
             return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
+        if (questionDTO.getAllowMultipleAnswers() && questionDTO.getOptions().stream().filter(MultipleChoiceOptionDTO::getIsCorrect).count() < 2) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Multiple correct answers are required when multiple answers are allowed.");
+            return new ResponseEntity<>(resultDTO, HttpStatus.BAD_REQUEST);
         }
 
         try {
@@ -287,7 +489,7 @@ public class QuestionService {
                     optionEntity.setQuestion(existingQuestion);
                     optionEntities.add(optionEntity);
                 }
-                existingQuestion.setOptions(optionEntities);
+                existingQuestion.getOptions().addAll(optionEntities);
             }
 
             MultipleChoiceQuestionEntity updatedQuestion = multipleChoiceQuestionRepository.save(existingQuestion);
@@ -316,7 +518,7 @@ public class QuestionService {
         }
 
         // Validate permission
-        if (!validateUserPermission(existingQuestion.getQuestionBank().getCourseId(), validateUserId)) {
+        if (!validateIsTeacherInCourse(existingQuestion.getQuestionBank().getCourseId(), validateUserId)) {
             resultDTO.setStatus(0);
             resultDTO.setMessage("You don't have permission to update this question");
             return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
@@ -358,7 +560,7 @@ public class QuestionService {
         }
 
         // Validate permission
-        if (!validateUserPermission(existingQuestion.getQuestionBank().getCourseId(), validateUserId)) {
+        if (!validateIsTeacherInCourse(existingQuestion.getQuestionBank().getCourseId(), validateUserId)) {
             resultDTO.setStatus(0);
             resultDTO.setMessage("You don't have permission to update this question");
             return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
@@ -384,6 +586,26 @@ public class QuestionService {
     }
 
 
+    public ResponseEntity<ResultDTO> deleteQuestion(Long questionId, String validateUserId) {
+        ResultDTO resultDTO = new ResultDTO();
+        QuestionEntity question = questionRepository.findById(questionId).orElse(null);
+        if (question == null) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("Question not found");
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+        if (!validateIsTeacherInCourse(question.getQuestionBank().getCourseId(), validateUserId)) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("You don't have permission to delete this question");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
+        questionRepository.delete(question);
+        resultDTO.setStatus(1);
+        resultDTO.setMessage("Question deleted successfully");
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+    }
+
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
 
@@ -398,9 +620,18 @@ public class QuestionService {
                 return null;
         }
     }
-    
 
-    public Boolean validateUserPermission(Long courseId, String userId) {
-        return true;
+
+    @CircuitBreaker(name = "course-service", fallbackMethod = "fallbackValidate")
+    public Boolean validateIsTeacherInCourse(Long courseId, String userId) {
+        ResultDTO resultDTO = courseServiceClient.validateIsTeacherInCourse(courseId, userId);
+        if(resultDTO.getStatus() == 1){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean fallbackValidate(Long courseId, String userId, Throwable t) {
+        return false;
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.example.quizservice.enums.QuestionType;
 
 import java.util.List;
 
@@ -24,6 +25,9 @@ public class QuestionBankEntity {
 
     @Column(name = "course_id", nullable = false)
     Long courseId;
+
+    @Column(name = "question_type")
+    QuestionType questionType;
 
     @Column(name = "author")
     String userId;

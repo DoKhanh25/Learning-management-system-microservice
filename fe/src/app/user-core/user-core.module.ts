@@ -41,6 +41,8 @@ import { LessonStudentManagementComponent } from './lesson/lesson-student-manage
 import { AssignmentManagementComponent } from './course/assignment-management/assignment-management.component';
 import {InputNumberModule} from "primeng/inputnumber";
 import {BadgeModule} from "primeng/badge";
+import { QuestionBankManagementComponent } from './quiz/question/question-bank-management/question-bank-management.component';
+import { QuestionBankDetailComponent } from './quiz/question/question-bank-detail/question-bank-detail.component';
 
 
 @NgModule({
@@ -53,7 +55,9 @@ import {BadgeModule} from "primeng/badge";
     LessonManagementComponent,
     CourseManagementComponent,
     LessonStudentManagementComponent,
-    AssignmentManagementComponent
+    AssignmentManagementComponent,
+    QuestionBankManagementComponent,
+    QuestionBankDetailComponent
   ],
   imports: [
     SafePipe,
