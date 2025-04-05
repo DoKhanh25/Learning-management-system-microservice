@@ -36,7 +36,10 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TimelineModule} from "primeng/timeline";
 import {MessageModule} from "primeng/message";
 import {FileUploadModule} from "primeng/fileupload";
-
+import { ExamMultipleChoiceComponent } from './quiz/exam-multiple-choice/exam-multiple-choice.component';
+import { ExamEssayComponent } from './quiz/exam-essay/exam-essay.component';
+import { ExamCodingComponent } from './quiz/exam-coding/exam-coding.component';
+import {MonacoEditorModule} from "ngx-monaco-editor-v2";
 
 @NgModule({
   declarations: [
@@ -45,6 +48,9 @@ import {FileUploadModule} from "primeng/fileupload";
     CourseDetailComponent,
     LessonDetailComponent,
     AssignmentDetailComponent,
+    ExamMultipleChoiceComponent,
+    ExamEssayComponent,
+    ExamCodingComponent,
   ],
   imports: [
     CommonModule,
@@ -78,7 +84,8 @@ import {FileUploadModule} from "primeng/fileupload";
     ProgressSpinnerModule,
     TimelineModule,
     MessageModule,
-    FileUploadModule
+    FileUploadModule,
+    MonacoEditorModule
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

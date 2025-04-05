@@ -1,0 +1,148 @@
+.time-remaining {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-body {
+  min-height: 500px;
+}
+
+.monaco-editor {
+  border: 1px solid #ccc;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.monaco-editor .overflow-guard {
+  position: static !important;
+}
+
+.blur-content {
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.fullscreen-warning, .submission-success {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+.warning-content, .success-content {
+  background-color: white;
+  border-radius: 5px;
+  padding: 2rem;
+  max-width: 500px;
+  text-align: center;
+}
+
+.warning-content i, .success-content i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.warning-content i {
+  color: #f59e0b;
+}
+
+.success-content i {
+  color: #10b981;
+}
+
+.fullscreen-note {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.start-exam-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.fullscreen-attempts {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.recovery-error {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.word-count-low {
+  color: #dc3545;
+}
+
+.word-count-medium {
+  color: #fd7e14;
+}
+
+.word-count-good {
+  color: #198754;
+}
+
+/* Test case results styling */
+.test-cases {
+  margin-bottom: 1.5rem;
+}
+
+.test-case .card {
+  transition: box-shadow 0.2s;
+}
+
+.test-case .card:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.test-io {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Highlight differences in test outputs */
+.expected-output, .actual-output {
+  position: relative;
+}
+
+.test-case.failed .card-header {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.test-case.passed .card-header {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.execution-results h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}

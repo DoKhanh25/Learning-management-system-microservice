@@ -6,6 +6,9 @@ import {HomeComponent} from "./home/home.component";
 import {CourseDetailComponent} from "./course/course-detail/course-detail.component";
 import {LessonDetailComponent} from "../user-core/lesson/lesson-detail/lesson-detail.component";
 import {AssignmentDetailComponent} from "./course/assignment-detail/assignment-detail.component";
+import {ExamMultipleChoiceComponent} from "./quiz/exam-multiple-choice/exam-multiple-choice.component";
+import {ExamEssayComponent} from "./quiz/exam-essay/exam-essay.component";
+import {ExamCodingComponent} from "./quiz/exam-coding/exam-coding.component";
 
 const routes: Routes = [
   {
@@ -30,12 +33,23 @@ const routes: Routes = [
         component: AssignmentDetailComponent
       },
       {
+        path: 'exam/:id',
+        component: ExamMultipleChoiceComponent
+      },
+      {
+        path: 'essay-exam/:id',
+        component: ExamEssayComponent
+      },
+      {
+        path: 'coding-exam/:id',
+        component: ExamCodingComponent
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'
       }
     ]
-
   }
 ];
 

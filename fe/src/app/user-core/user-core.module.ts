@@ -46,6 +46,7 @@ import { QuestionBankDetailComponent } from './quiz/question/question-bank-detai
 import { ExamManagementComponent } from './quiz/exam/exam-management/exam-management.component';
 import { ExamDetailComponent } from './quiz/exam/exam-detail/exam-detail.component';
 import {MultiSelectModule} from "primeng/multiselect";
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 
 @NgModule({
@@ -99,7 +100,8 @@ import {MultiSelectModule} from "primeng/multiselect";
     AccordionModule,
     InputNumberModule,
     BadgeModule,
-    MultiSelectModule
+    MultiSelectModule,
+    MonacoEditorModule
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

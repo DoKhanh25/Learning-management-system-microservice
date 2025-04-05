@@ -15,18 +15,33 @@ export class IntroductionComponent implements OnInit{
 
   }
   async ngOnInit() {
-    if(this.keycloakService.isLoggedIn() && this.keycloakService.getUserRoles().indexOf("ROLE_ADMIN") > -1){
-      console.log("ok")
-      await this.router.navigate(["/admin/home"])
+    console.log(this.keycloakService.getUserRoles())
+    if(this.keycloakService.isLoggedIn() ){
+      if(this.keycloakService.getUserRoles().indexOf("ROLE_ADMIN") > -1){
+        await this.router.navigate(["/admin/home"])
+      } else if(this.keycloakService.getUserRoles().indexOf("ROLE_TEACHER") > -1 && this.keycloakService.getUserRoles().indexOf("ROLE_ADMIN") < 0){
+        await this.router.navigate(["/user/home"])
+      } else {
+        await this.router.navigate(["/student/home"])
+      }
     }
   }
 
-  navigateToLogin(): void{
+  navigateToLogin(): void {
     this.keycloakService.login({
-      redirectUri: window.location.origin + "/admin/home"
-    })
+      redirectUri: window.location.origin
+    }).then(() => {
+      if (this.keycloakService.isLoggedIn()) {
+        const roles = this.keycloakService.getUserRoles();
+        if (roles.includes("ROLE_ADMIN")) {
+          this.router.navigate(["/admin/home"]);
+        } else if (roles.includes("ROLE_TEACHER") && !roles.includes("ROLE_ADMIN")) {
+          this.router.navigate(["/user/home"]);
+        } else {
+          this.router.navigate(["/student/home"]);
+        }
+      }
+    });
   }
-  navigateToRegister(): void{
-    this.router.navigate(['/auth/register']);
-  }
+
 }

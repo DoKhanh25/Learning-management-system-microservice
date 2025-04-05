@@ -56,6 +56,10 @@
                   <span *ngIf="exam.numberQuestions">/{{exam.numberQuestions}}</span>
                 </span>
               </div>
+              <div class="info-item">
+                <label>Số lần làm tối đa:</label>
+                <span class="info-value">{{exam.numberSubmission || 1}}</span>
+              </div>
             </div>
             <div class="info-description" *ngIf="exam.description">
               <label>Mô tả:</label>

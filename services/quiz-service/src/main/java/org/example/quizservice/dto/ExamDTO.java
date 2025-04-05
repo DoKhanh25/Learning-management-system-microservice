@@ -16,10 +16,12 @@ public class ExamDTO {
     private Long duration; // in minutes
     private Float totalScore;
     private Integer numberQuestions;
+    private Integer numberSubmission;
     private Boolean shuffleQuestions;
     private Boolean shuffleAnswers;
     private Date createdTime;
     private Date startTime;
     private Date endTime;
     private List<ExamQuestionDTO> questions;
+    private List<ExamSubmissionDTO> submissions;
 }

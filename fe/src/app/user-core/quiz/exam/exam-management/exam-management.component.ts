@@ -42,6 +42,7 @@ export class ExamManagementComponent implements OnInit {
       duration: [60, [Validators.required, Validators.min(1)]],
       totalScore: [null],
       numberQuestions: [null, [Validators.min(1)]],
+      numberSubmission: [1, [Validators.required, Validators.min(1)]],
       shuffleQuestions: [false],
       shuffleAnswers: [false],
       startTime: [null],
@@ -80,7 +81,8 @@ export class ExamManagementComponent implements OnInit {
     this.examForm.reset({
       shuffleQuestions: false,
       shuffleAnswers: false,
-      duration: 60
+      duration: 60,
+      numberSubmission: 1
     });
     this.displayDialog = true;
   }
@@ -95,6 +97,7 @@ export class ExamManagementComponent implements OnInit {
       duration: exam.duration,
       totalScore: exam.totalScore,
       numberQuestions: exam.numberQuestions,
+      numberSubmission: exam.numberSubmission || 1,
       shuffleQuestions: exam.shuffleQuestions,
       shuffleAnswers: exam.shuffleAnswers,
       startTime: exam.startTime ? new Date(exam.startTime) : null,

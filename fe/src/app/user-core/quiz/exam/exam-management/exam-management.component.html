@@ -141,6 +141,18 @@
               Thời gian làm bài phải lớn hơn 0.
             </small>
           </div>
+
+          <div class="field col-12 md:col-6">
+            <label for="numberSubmission">Số lần làm tối đa <span class="required-field">*</span></label>
+            <p-inputNumber id="numberSubmission" formControlName="numberSubmission" [showButtons]="true" buttonLayout="horizontal"
+              spinnerMode="horizontal" [min]="1" [step]="1" decrementButtonClass="p-button-secondary" 
+              incrementButtonClass="p-button-secondary" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus">
+            </p-inputNumber>
+            <small class="helper-text">Số lần học viên được phép làm bài. Mặc định là 1.</small>
+            <small class="p-error" *ngIf="examForm.get('numberSubmission')?.invalid && examForm.get('numberSubmission')?.touched">
+              Số lần làm bài phải lớn hơn 0.
+            </small>
+          </div>
         </div>
 
         <div class="formgrid grid">

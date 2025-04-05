@@ -1,0 +1,149 @@
+<div class="exam-container" [ngClass]="{'blur-content': !isFullScreen && !isFinished}">
+  <div *ngIf="loading" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <h3>Đang tải bài kiểm tra...</h3>
+  </div>
+
+  <div *ngIf="!loading" class="exam-content">
+    <!-- Header with exam info and timer -->
+    <div class="exam-header">
+      <div class="exam-info">
+        <h1 *ngIf="examInfo?.exam">{{ examInfo.exam.name }}</h1>
+        <div class="exam-meta">
+          <span><i class="pi pi-list"></i> Số câu hỏi: {{ questions.length }}</span>
+          <span><i class="pi pi-calculator"></i> Điểm: {{ examInfo?.exam?.totalPoints || 'N/A' }}</span>
+        </div>
+      </div>
+      <div class="timer-container">
+        <div class="timer" [ngClass]="{'timer-warning': remainingTime < 300}">
+          <i class="pi pi-clock"></i> 
+          <span>{{ formatTime(remainingTime) }}</span>
+        </div>
+        <p-progressBar [value]="getProgressPercentage()" [showValue]="false" 
+          [ngClass]="{'timer-warning-bar': remainingTime < 300}"></p-progressBar>
+      </div>
+    </div>
+
+    <div class="exam-body">
+      <!-- Question navigation sidebar -->
+      <div class="question-nav">
+        <div class="progress-info">
+          <div class="progress-text">
+            <div>Đã trả lời: {{ progress | number:'1.0-0' }}%</div>
+          </div>
+          <p-progressBar [value]="progress" [showValue]="false"></p-progressBar>
+        </div>
+        
+        <div class="question-list">
+          <button *ngFor="let question of questions; let i = index" 
+            class="question-nav-btn" 
+            [ngClass]="{
+              'active': currentQuestionIndex === i,
+              'answered': isQuestionAnswered(question.questionId)
+            }"
+            (click)="goToQuestion(i)">
+            {{ i + 1 }}
+          </button>
+        </div>
+
+        <div class="submission-actions">
+          <button pButton pRipple type="button" 
+            icon="pi pi-check" 
+            label="Nộp Bài" 
+            class="p-button-success submit-btn"
+            [disabled]="isSubmitting"
+            (click)="confirmSubmission()"></button>
+        </div>
+      </div>
+
+      <!-- Main question display area -->
+      <div class="question-display" *ngIf="questions.length > 0">
+        <div class="question-navigation-buttons">
+          <button pButton pRipple type="button" 
+            icon="pi pi-chevron-left" 
+            class="p-button-rounded p-button-text"
+            [disabled]="currentQuestionIndex === 0"
+            (click)="previousQuestion()"></button>
+          <span class="question-progress">Câu hỏi {{ currentQuestionIndex + 1 }} / {{ questions.length }}</span>
+          <button pButton pRipple type="button" 
+            icon="pi pi-chevron-right" 
+            class="p-button-rounded p-button-text"
+            [disabled]="currentQuestionIndex === questions.length - 1"
+            (click)="nextQuestion()"></button>
+        </div>
+
+        <div class="question-content">
+          <div class="question-text">
+            <h2>{{ questions[currentQuestionIndex].question.questionText }}</h2>
+            <div class="question-note">
+              <i class="pi pi-info-circle"></i> Viết câu trả lời có ý nghĩa và đầy đủ
+            </div>
+          </div>
+
+          <div class="essay-answer">
+            <div class="word-count" [ngClass]="getWordCountColor(wordCounts[questions[currentQuestionIndex].questionId])">
+              <i class="pi pi-pencil"></i> Số từ: {{ wordCounts[questions[currentQuestionIndex].questionId] || 0 }}
+            </div>
+            <p-editor 
+              [(ngModel)]="answers[questions[currentQuestionIndex].questionId]" 
+              (onTextChange)="onAnswerChange(questions[currentQuestionIndex].questionId, $event)"
+              [style]="{'height':'500px'}"
+              placeholder="Nhập câu trả lời của bạn ở đây...">
+            </p-editor>
+          </div>
+        </div>
+
+        <div class="question-navigation-footer">
+          <button pButton pRipple type="button" 
+            icon="pi pi-chevron-left" 
+            label="Câu trước" 
+            class="p-button-text"
+            [disabled]="currentQuestionIndex === 0"
+            (click)="previousQuestion()"></button>
+          
+          <button pButton pRipple type="button" 
+            icon="pi pi-chevron-right" 
+            iconPos="right"
+            label="Câu tiếp" 
+            [disabled]="currentQuestionIndex === questions.length - 1"
+            (click)="nextQuestion()"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen warning overlay -->
+  <div *ngIf="!isFullScreen && !isFinished" class="fullscreen-warning">
+    <div class="warning-content">
+      <i class="pi pi-exclamation-triangle"></i>
+      <h2>Yêu Cầu Toàn Màn Hình</h2>
+      <p>Bài kiểm tra này phải được thực hiện ở chế độ toàn màn hình. Vui lòng nhấp vào nút bên dưới để bắt đầu.</p>
+      <p class="fullscreen-note">Lưu ý: Nếu chế độ toàn màn hình liên tục thoát ra, hãy kiểm tra thông báo trình duyệt và cho phép toàn màn hình.</p>
+      <div class="fullscreen-attempts" *ngIf="fullScreenRecoveryAttempts > 1">
+        <p>Số lần thử khôi phục toàn màn hình: {{ fullScreenRecoveryAttempts }} / {{ maxFullScreenRecoveryAttempts }}</p>
+        <p *ngIf="fullScreenRecoveryAttempts >= maxFullScreenRecoveryAttempts" class="recovery-error">
+          <i class="pi pi-exclamation-circle"></i> 
+          Quá nhiều lần thử. Hãy thử sử dụng trình duyệt khác hoặc tắt các tiện ích mở rộng.
+        </p>
+      </div>
+      <button pButton pRipple type="button" 
+        label="Bắt Đầu Bài Kiểm Tra Ở Chế Độ Toàn Màn Hình" 
+        icon="pi pi-window-maximize"
+        class="p-button-primary start-exam-btn" 
+        (click)="requestFullScreen()"></button>
+    </div>
+  </div>
+
+  <!-- Submission success message -->
+  <div *ngIf="isFinished" class="submission-success">
+    <div class="success-content">
+      <i class="pi pi-check-circle"></i>
+      <h2>Nộp Bài Thành Công</h2>
+      <p>Câu trả lời của bạn đã được ghi nhận.</p>
+      <p>Đang chuyển hướng về trang khóa học...</p>
+    </div>
+  </div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog header="Xác nhận" icon="pi pi-exclamation-triangle"></p-confirmDialog>

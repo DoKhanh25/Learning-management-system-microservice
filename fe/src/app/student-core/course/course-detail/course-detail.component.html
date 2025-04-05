@@ -92,6 +92,74 @@
             </div>
           </div>
 
+          <!-- Exams Card -->
+          <div class="content-card">
+            <div class="card-header">
+              <h2><i class="pi pi-check-square lesson-icon"></i> Exams</h2>
+            </div>
+            <div class="card-body">
+              <!-- Show when exams exist -->
+              <p-table *ngIf="availableExams && availableExams.length > 0" [value]="availableExams"
+                       styleClass="p-datatable-sm p-datatable-hoverable-rows" [tableStyle]="{'min-width': '50rem'}">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 25%">Name</th>
+                    <th style="width: 12%">Start Date</th>
+                    <th style="width: 12%">End Date</th>
+                    <th style="width: 10%">Duration</th>
+                    <th style="width: 13%">Type</th>
+                    <th style="width: 13%">Status</th>
+                    <th style="width: 15%">Actions</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-exam>
+                  <tr>
+                    <td>
+                      <div class="flex align-items-center">
+                        <i class="pi pi-file-o lesson-icon"></i>
+                        <span class="lesson-title">{{ exam.name }}</span>
+                      </div>
+                    </td>
+                    <td>{{ exam.startTime | date:'medium' }}</td>
+                    <td>{{ exam.endTime | date:'medium' }}</td>
+                    <td>{{ exam.duration }} mins</td>
+                    <td>
+                      <p-tag [value]="exam.examType"
+                             [severity]="exam.examType === 'MULTIPLE_CHOICE' ? 'secondary' : 
+                                        exam.examType === 'ESSAY' ? 'success' : 'danger'">
+                      </p-tag>
+                    </td>
+                    <td>
+                      <p-tag
+                        [value]="getExamStatus(exam.startTime, exam.endTime)"
+                        [severity]="getExamStatus(exam.startTime, exam.endTime) === 'Available' ? 'success' :
+                                  getExamStatus(exam.startTime, exam.endTime) === 'Closed' ? 'danger' : 'info'">
+                      </p-tag>
+                    </td>
+                    <td>
+                      <button pButton pRipple
+                              icon="pi pi-play"
+                              label="Start"
+                              class="p-button-sm"
+                              [disabled]="getExamStatus(exam.startTime, exam.endTime) !== 'Available'"
+                              (click)="startExam(exam)">
+                      </button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+
+              <!-- No exams message -->
+              <div *ngIf="!availableExams || availableExams.length === 0" class="empty-state">
+                <div class="empty-state-icon">
+                  <i class="pi pi-check-square"></i>
+                </div>
+                <h3>No Exams</h3>
+                <p>There are no exams available for this course yet.</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Lessons & Sections Card -->
           <div class="content-card">
             <div class="card-header">
@@ -167,3 +235,17 @@
 
         <p-toast></p-toast>
         <p-confirmDialog [style]="{width: '450px'}" header="Confirm" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+        <p-confirmDialog key="startExamDialog" [style]="{width: '500px'}" icon="pi pi-exclamation-triangle">
+
+        </p-confirmDialog>
+
+        <style>
+          .exam-confirmation p {
+            margin: 8px 0;
+          }
+          .exam-confirmation .warning {
+            margin-top: 16px;
+            font-weight: bold;
+            color: #f44336;
+          }
+        </style>

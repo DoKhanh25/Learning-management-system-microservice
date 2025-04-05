@@ -117,6 +117,11 @@ public class GeminiAIService {
         aiChatSessionEntity.setCreatedTime(new Date());
         aiChatSessionEntity.setUserId(userId);
 
+        LessonEntity lessonEntity = lessonRepository.findById(aiChatSessionDTO.getLessonId()).orElse(null);
+        if(lessonEntity == null){
+            return new ResponseEntity<>(resultDTO, HttpStatus.BAD_REQUEST);
+        }
+        aiChatSessionEntity.setLesson(lessonEntity);
         aiChatSessionEntity = aiChatSessionRepository.save(aiChatSessionEntity);
         resultDTO.setMessage("Session created");
         resultDTO.setStatus(1);

@@ -2,8 +2,11 @@ package org.example.quizservice.controller;
 
 import com.example.commondto.dto.ResultDTO;
 import org.example.quizservice.dto.ExamDTO;
+import org.example.quizservice.dto.CodeExecutionRequestDTO;
 import org.example.quizservice.services.ExamService;
+import org.example.quizservice.services.ExamSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +19,21 @@ public class ExamController {
     @Autowired
     private ExamService examService;
 
+    @Autowired
+    private ExamSubmissionService examSubmissionService;
+
     @GetMapping("/getAllExamsByCourseId/{courseId}")
     public ResponseEntity<ResultDTO> getAllExamsByCourse(
             @PathVariable Long courseId,
             @RequestHeader("X-User-Id") String validateUserId) {
         return examService.getAllExamsByCourseId(courseId, validateUserId);
+    }
+
+    @GetMapping("/getAvailableExamsByCourseId/{courseId}")
+    public ResponseEntity<ResultDTO> getAvailableExamsByCourseId(
+            @PathVariable Long courseId,
+            @RequestHeader("X-User-Id") String validateUserId) {
+        return examService.getAvailableExamsByCourseId(courseId, validateUserId);
     }
 
     @GetMapping("/getExamById/{examId}")

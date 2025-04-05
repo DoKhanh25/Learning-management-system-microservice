@@ -22,6 +22,8 @@ import {MessageService} from "primeng/api";
 import {ProgressBarModule} from "primeng/progressbar";
 import {KeycloakAngularModule, KeycloakBearerInterceptor, KeycloakService} from "keycloak-angular";
 import {RouterModule} from "@angular/router";
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
     keycloak.init({
@@ -64,7 +66,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RippleModule,
     ProgressBarModule,
     KeycloakAngularModule,
-    RouterModule
+    RouterModule,
+    MonacoEditorModule.forRoot()
 
   ],
   providers: [

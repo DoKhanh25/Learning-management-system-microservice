@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExamQuestionRepository extends JpaRepository<ExamQuestionEntity, Long> {
@@ -19,4 +20,6 @@ public interface ExamQuestionRepository extends JpaRepository<ExamQuestionEntity
 
     @Query("SELECT COUNT(eq) FROM exam_question eq WHERE eq.exam.id = :examId AND eq.question.questionBank.id = :questionBankId")
     Integer countQuestionsByExamIdAndQuestionBankId(Long examId, Long questionBankId);
+
+    Optional<ExamQuestionEntity> findByExamIdAndQuestionId(Long examId, Long questionId);
 }

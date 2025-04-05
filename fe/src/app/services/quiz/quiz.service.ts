@@ -126,4 +126,49 @@ export class QuizService {
   findQuestionByExamId(examId: any): Observable<Result> {
     return this.httpClient.get<Result>(`${this.baseUrl}/findQuestionByExamId/${examId}`);
   }
+
+  getAvailableExamsByCourseId(courseId: any): Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/getAvailableExamsByCourseId/${courseId}`);
+  }
+
+  // Exam Submission endpoints
+  startExam(examId: any): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/startExam/${examId}`, {});
+  }
+
+  submitMultipleChoiceAnswer(submissionDTO: any): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/submitMultipleChoiceAnswer`, submissionDTO);
+  }
+
+  submitEssayAnswer(submissionDTO: any): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/submitEssayAnswer`, submissionDTO);
+  }
+
+  submitCodingAnswer(submissionDTO: any): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/submitCodingAnswer`, submissionDTO);
+  }
+
+  submitExam(examSubmissionId: any): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/submit/${examSubmissionId}`, {});
+  }
+
+  getExamSubmission(submissionId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getExamSubmission/${submissionId}`);
+  }
+
+  getExamSubmissions(examId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getExamSubmissions/${examId}`);
+  }
+
+  getExamQuestions(examSubmissionId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getExamQuestions/${examSubmissionId}`);
+  }
+
+  executeCode(executionRequest: any): Observable<Result> {
+    return this.httpClient.post<Result>(`${this.baseUrl}/executeCode`, executionRequest);
+  }
+
+  getSupportedLanguages(): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getSupportedLanguages`);
+  }
 }

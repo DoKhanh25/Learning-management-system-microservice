@@ -40,6 +40,9 @@ public class ExamEntity {
     @Column(name = "number_questions")
     Integer numberQuestions;
 
+    @Column(name = "number_submission")
+    Integer numberSubmission;
+
     @Column(name = "shuffle_questions")
     Boolean shuffleQuestions;
 
@@ -54,6 +57,10 @@ public class ExamEntity {
 
     @Column(name = "end_time")
     Date endTime;
+
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ExamSubmissionEntity> submissions;
 
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

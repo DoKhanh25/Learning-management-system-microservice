@@ -1,46 +1,46 @@
 <div class="question-bank-detail-container">
   <p-toast></p-toast>
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-  
+
   <div class="card">
     <div class="card-header">
       <div class="flex justify-content-between align-items-center">
         <div class="flex align-items-center">
-          <button pButton pRipple icon="pi pi-arrow-left" class="p-button-rounded p-button-text mr-2" 
+          <button pButton pRipple icon="pi pi-arrow-left" class="p-button-rounded p-button-text mr-2"
                   (click)="goBack()" pTooltip="Quay lại"></button>
           <h2>{{questionBank?.name || 'Đang tải ngân hàng câu hỏi...'}}</h2>
         </div>
         <div class="flex gap-2">
-          <p-button *ngIf="questionBank?.questionType === 'ESSAY'" 
-                    label="Nhập từ Excel" 
-                    icon="pi pi-file-excel" 
-                    styleClass="p-button-success" 
+          <p-button *ngIf="questionBank?.questionType === 'ESSAY'"
+                    label="Nhập từ Excel"
+                    icon="pi pi-file-excel"
+                    styleClass="p-button-success"
                     (onClick)="openUploadDialog()"></p-button>
-          <p-button *ngIf="questionBank?.questionType === 'MULTIPLE_CHOICE'" 
-                    label="Nhập từ Excel" 
-                    icon="pi pi-file-excel" 
-                    styleClass="p-button-success" 
+          <p-button *ngIf="questionBank?.questionType === 'MULTIPLE_CHOICE'"
+                    label="Nhập từ Excel"
+                    icon="pi pi-file-excel"
+                    styleClass="p-button-success"
                     (onClick)="openUploadDialog()"></p-button>
-          <p-button *ngIf="questionBank?.questionType" 
-                    label="Thêm câu hỏi" 
-                    icon="pi pi-plus" 
+          <p-button *ngIf="questionBank?.questionType"
+                    label="Thêm câu hỏi"
+                    icon="pi pi-plus"
                     (onClick)="openNewQuestion()"></p-button>
         </div>
       </div>
-      
+
       <div class="question-bank-info mt-3">
         <span class="text-sm text-500">{{questionBank?.description}}</span>
       </div>
     </div>
-    
+
     <div class="card-body">
       <p-tabView *ngIf="!loading && questions.length > 0">
         <!-- Hiển thị tùy theo loại câu hỏi -->
         <p-tabPanel *ngIf="questionBank?.questionType === 'MULTIPLE_CHOICE'" header="Câu hỏi trắc nghiệm">
-          <p-table [value]="questions" 
-                  [paginator]="true" 
-                  [rows]="10" 
-                  [rowHover]="true" 
+          <p-table [value]="questions"
+                  [paginator]="true"
+                  [rows]="10"
+                  [rowHover]="true"
                   styleClass="p-datatable-gridlines">
             <ng-template pTemplate="header">
               <tr>
@@ -66,20 +66,20 @@
                 </td>
                 <td>{{question.points}}</td>
                 <td>
-                  <p-tag [severity]="question.difficultyLevel === 'EASY' ? 'success' : 
+                  <p-tag [severity]="question.difficultyLevel === 'EASY' ? 'success' :
                                      question.difficultyLevel === 'MEDIUM' ? 'warning' : 'danger'">
                     {{getDifficultyLabel(question.difficultyLevel)}}
                   </p-tag>
                 </td>
                 <td>
                   <div class="flex gap-2">
-                    <button pButton pRipple icon="pi pi-pencil" 
+                    <button pButton pRipple icon="pi pi-pencil"
                             class="p-button-rounded p-button-primary p-button-sm"
-                            (click)="editQuestion(question)" 
+                            (click)="editQuestion(question)"
                             pTooltip="Chỉnh sửa"></button>
-                    <button pButton pRipple icon="pi pi-trash" 
+                    <button pButton pRipple icon="pi pi-trash"
                             class="p-button-rounded p-button-danger p-button-sm"
-                            (click)="deleteQuestion(question)" 
+                            (click)="deleteQuestion(question)"
                             pTooltip="Xóa"></button>
                   </div>
                 </td>
@@ -87,12 +87,12 @@
             </ng-template>
           </p-table>
         </p-tabPanel>
-        
+
         <p-tabPanel *ngIf="questionBank?.questionType === 'ESSAY'" header="Câu hỏi tự luận">
-          <p-table [value]="questions" 
-                  [paginator]="true" 
-                  [rows]="10" 
-                  [rowHover]="true" 
+          <p-table [value]="questions"
+                  [paginator]="true"
+                  [rows]="10"
+                  [rowHover]="true"
                   styleClass="p-datatable-gridlines">
             <ng-template pTemplate="header">
               <tr>
@@ -111,13 +111,13 @@
                 <td>{{question.points}}</td>
                 <td>
                   <div class="flex gap-2">
-                    <button pButton pRipple icon="pi pi-pencil" 
+                    <button pButton pRipple icon="pi pi-pencil"
                             class="p-button-rounded p-button-primary p-button-sm"
-                            (click)="editQuestion(question)" 
+                            (click)="editQuestion(question)"
                             pTooltip="Chỉnh sửa"></button>
-                    <button pButton pRipple icon="pi pi-trash" 
+                    <button pButton pRipple icon="pi pi-trash"
                             class="p-button-rounded p-button-danger p-button-sm"
-                            (click)="deleteQuestion(question)" 
+                            (click)="deleteQuestion(question)"
                             pTooltip="Xóa"></button>
                   </div>
                 </td>
@@ -125,12 +125,12 @@
             </ng-template>
           </p-table>
         </p-tabPanel>
-        
+
         <p-tabPanel *ngIf="questionBank?.questionType === 'CODING'" header="Câu hỏi lập trình">
-          <p-table [value]="questions" 
-                  [paginator]="true" 
-                  [rows]="10" 
-                  [rowHover]="true" 
+          <p-table [value]="questions"
+                  [paginator]="true"
+                  [rows]="10"
+                  [rowHover]="true"
                   styleClass="p-datatable-gridlines">
             <ng-template pTemplate="header">
               <tr>
@@ -151,13 +151,13 @@
                 <td>{{question.points}}</td>
                 <td>
                   <div class="flex gap-2">
-                    <button pButton pRipple icon="pi pi-pencil" 
+                    <button pButton pRipple icon="pi pi-pencil"
                             class="p-button-rounded p-button-primary p-button-sm"
-                            (click)="editQuestion(question)" 
+                            (click)="editQuestion(question)"
                             pTooltip="Chỉnh sửa"></button>
-                    <button pButton pRipple icon="pi pi-trash" 
+                    <button pButton pRipple icon="pi pi-trash"
                             class="p-button-rounded p-button-danger p-button-sm"
-                            (click)="deleteQuestion(question)" 
+                            (click)="deleteQuestion(question)"
                             pTooltip="Xóa"></button>
                   </div>
                 </td>
@@ -166,13 +166,13 @@
           </p-table>
         </p-tabPanel>
       </p-tabView>
-      
+
       <!-- Loading state -->
       <div *ngIf="loading" class="loading-container">
         <p-progressSpinner></p-progressSpinner>
         <span>Đang tải...</span>
       </div>
-      
+
       <!-- Empty state -->
       <div *ngIf="!loading && questions.length === 0" class="empty-state">
         <i class="pi pi-inbox empty-icon"></i>
@@ -182,14 +182,14 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Dialog for adding/editing questions -->
   <p-dialog [(visible)]="displayQuestionDialog"
             [style]="{width: '70vw'}"
             [header]="isEditMode ? 'Chỉnh sửa câu hỏi' : 'Thêm câu hỏi mới'"
             [modal]="true"
             styleClass="p-fluid">
-            
+
     <ng-template pTemplate="content">
       <form [formGroup]="questionForm">
         <!-- Common fields for all question types -->
@@ -221,7 +221,7 @@
             Nội dung câu hỏi là bắt buộc.
           </small>
         </div>
-        
+
         <div class="formgrid grid">
           <div class="field col-12 md:col-6">
             <label for="points">Điểm <span class="required-field">*</span></label>
@@ -230,7 +230,7 @@
               Điểm là bắt buộc và phải lớn hơn 0.
             </small>
           </div>
-          
+
           <div class="field col-12 md:col-6">
             <label for="difficultyLevel">Độ khó <span class="required-field">*</span></label>
             <p-dropdown id="difficultyLevel"
@@ -244,7 +244,7 @@
             </p-dropdown>
           </div>
         </div>
-        
+
         <!-- Multiple Choice specific fields -->
         <div *ngIf="isMultipleChoiceForm">
           <div class="field-checkbox">
@@ -256,7 +256,7 @@
               <span  *ngIf="!questionForm.get('allowMultipleAnswers')?.value">Chỉ có thể chọn một đáp án đúng.</span>
             </small>
           </div>
-          
+
           <div class="options-section">
             <div class="options-header flex justify-content-between align-items-center">
               <h3>Các lựa chọn</h3>
@@ -266,7 +266,7 @@
                       class="p-button-sm"
                       (click)="addOption()"></button>
             </div>
-            
+
             <div formArrayName="options" class="options-list">
               <div *ngFor="let option of optionsArray.controls; let i = index" [formGroupName]="i" class="option-item p-3 mb-2">
                 <div class="flex">
@@ -276,14 +276,14 @@
                         <label [for]="'option-text-' + i">Nội dung lựa chọn <span class="required-field">*</span></label>
                         <input pInputText [id]="'option-text-' + i" formControlName="text" class="w-full">
                       </div>
-                      
+
                       <div class="field-checkbox col-12 md:col-3 flex align-items-center">
                         <p-checkbox formControlName="isCorrect" [binary]="true" [inputId]="'option-correct-' + i"></p-checkbox>
                         <label [for]="'option-correct-' + i">Đáp án đúng</label>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="option-actions ml-2 flex align-items-center">
                     <button pButton pRipple type="button"
                             icon="pi pi-trash"
@@ -296,7 +296,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Coding specific fields -->
         <div *ngIf="isCodingForm">
           <div class="field">
@@ -304,77 +304,89 @@
             <p-dropdown id="programmingLanguage"
                        formControlName="programmingLanguage"
                        [options]="programmingLanguages"
-                       optionLabel="label"
-                       optionValue="value"
+                       optionLabel="language"
+                       optionValue="language"
                        [appendTo]="'body'"
-                          [showClear]="true"
+                       [showClear]="true"
                        placeholder="Chọn ngôn ngữ lập trình">
             </p-dropdown>
+            <small class="text-info">
+              <i class="pi pi-info-circle mr-1"></i>
+              Các ngôn ngữ được hỗ trợ: javascript, go, c, c++, rust, python, java
+            </small>
           </div>
-          
+
           <div class="field">
             <label for="starterCode">Mã khởi đầu</label>
-            <textarea pInputTextarea formControlName="starterCode" rows="5" 
-                     placeholder="Mã được cung cấp cho học viên khi bắt đầu bài tập..."></textarea>
+            <ngx-monaco-editor [options]="editorOptions" formControlName="starterCode" style="height: 200px;"></ngx-monaco-editor>
+            <small class="text-info">
+              <i class="pi pi-info-circle mr-1"></i>
+              Mã được cung cấp cho học viên khi bắt đầu bài tập
+            </small>
           </div>
-          
+
           <div class="field">
             <label for="solutionCode">Mã giải pháp <span class="required-field">*</span></label>
-            <textarea pInputTextarea formControlName="solutionCode" rows="8" 
-                     placeholder="Giải pháp mẫu..."></textarea>
+            <ngx-monaco-editor [options]="editorOptions" formControlName="solutionCode" style="height: 300px;"></ngx-monaco-editor>
             <small class="p-error" *ngIf="questionForm.get('solutionCode')?.invalid && questionForm.get('solutionCode')?.touched">
               Mã giải pháp là bắt buộc.
             </small>
           </div>
-          
+
           <div class="field">
             <label for="testCases">Test cases <span class="required-field">*</span></label>
-            <textarea pInputTextarea formControlName="testCases" rows="5" 
-                     placeholder="Các trường hợp kiểm thử để đánh giá bài làm..."></textarea>
+            <textarea pInputTextarea formControlName="testCases" rows="5"
+                     placeholder='[{"description": "Test case 1", "input": "input data", "expectedOutput": "expected output"}]'></textarea>
             <small class="p-error" *ngIf="questionForm.get('testCases')?.invalid && questionForm.get('testCases')?.touched">
               Test cases là bắt buộc.
+            </small>
+            <small class="block mt-1 text-info">
+              <i class="pi pi-info-circle mr-1"></i>
+              Định dạng JSON: danh sách các test case, mỗi test case có description, input và expectedOutput.
+              <br/>
+              Ví dụ: <code>[{{"{"}}description": "Test case 1", "input": "input data", "expectedOutput": "expected output"&#125;]</code>
             </small>
           </div>
         </div>
       </form>
     </ng-template>
-    
+
     <ng-template pTemplate="footer">
       <button pButton pRipple label="Hủy" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
       <button pButton pRipple label="Lưu" icon="pi pi-check" (click)="saveQuestion()"></button>
     </ng-template>
   </p-dialog>
-  
+
   <!-- Excel Upload Dialog -->
   <p-dialog [(visible)]="uploadDialogVisible" header="Nhập câu hỏi từ Excel" [modal]="true" [style]="{width: '450px'}">
     <div class="upload-container p-3">
       <p *ngIf="questionBank?.questionType === 'ESSAY'">
-        Tải lên file Excel chứa danh sách câu hỏi tự luận. File mẫu có thể tải 
+        Tải lên file Excel chứa danh sách câu hỏi tự luận. File mẫu có thể tải
         <a href="javascript:void(0);" (click)="downloadEssayQuestionTemplate()">tại đây</a>.
       </p>
       <p *ngIf="questionBank?.questionType === 'MULTIPLE_CHOICE'">
-        Tải lên file Excel chứa danh sách câu hỏi trắc nghiệm. File mẫu có thể tải 
+        Tải lên file Excel chứa danh sách câu hỏi trắc nghiệm. File mẫu có thể tải
         <a href="javascript:void(0);" (click)="downloadMultipleChoiceQuestionTemplate()">tại đây</a>.
       </p>
-      
-      <p-fileUpload mode="basic" 
-                  chooseLabel="Chọn file" 
+
+      <p-fileUpload mode="basic"
+                  chooseLabel="Chọn file"
                   [auto]="false"
                   accept=".xls,.xlsx"
                   [maxFileSize]="1000000"
                   (onSelect)="onFileSelected($event)"
                   [showUploadButton]="false"
                   [showCancelButton]="false"></p-fileUpload>
-      
+
       <div *ngIf="uploadProgress > 0" class="mt-3">
         <p-progressBar [value]="uploadProgress"></p-progressBar>
       </div>
     </div>
-    
+
     <ng-template pTemplate="footer">
       <button pButton pRipple label="Hủy" icon="pi pi-times" class="p-button-text" (click)="uploadDialogVisible = false"></button>
-      <button pButton pRipple label="Tải lên" icon="pi pi-upload" 
-              (click)="questionBank?.questionType === 'ESSAY' ? uploadFile() : uploadMultipleChoiceFile()" 
+      <button pButton pRipple label="Tải lên" icon="pi pi-upload"
+              (click)="questionBank?.questionType === 'ESSAY' ? uploadFile() : uploadMultipleChoiceFile()"
               [disabled]="!selectedFile"></button>
     </ng-template>
   </p-dialog>

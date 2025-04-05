@@ -12,6 +12,8 @@ import { Result } from '../../../../../model/result';
   styleUrls: ['./question-bank-detail.component.css'],
   providers: [MessageService, ConfirmationService]
 })
+
+
 export class QuestionBankDetailComponent implements OnInit {
   questionBankId!: number;
   courseId!: number;
@@ -23,35 +25,50 @@ export class QuestionBankDetailComponent implements OnInit {
   };
   questions: any[] = [];
   loading: boolean = true;
-  
+
   questionForm!: FormGroup;
   displayQuestionDialog: boolean = false;
   isEditMode: boolean = false;
   editingQuestionId: number | null = null;
   currentQuestionType: string = '';
-  
+
   isMultipleChoiceForm: boolean = false;
   isEssayForm: boolean = false;
   isCodingForm: boolean = false;
-  
+
   difficultyLevels = [
     { label: 'Dễ', value: 'EASY' },
     { label: 'Trung bình', value: 'MEDIUM' },
     { label: 'Khó', value: 'HARD' }
   ];
-  
+
   programmingLanguages = [
-    { label: 'Java', value: 'java' },
-    { label: 'Python', value: 'python' },
-    { label: 'JavaScript', value: 'javascript' },
-    { label: 'C++', value: 'cpp' }
+    { language: 'javascript', version: '1.32.3', aliases: ['deno-js'] },
+    { language: 'go', version: '1.16.2', aliases: ['go', 'golang'] },
+    { language: 'c', version: '10.2.0', aliases: ['gcc'] },
+    { language: 'c++', version: '10.2.0', aliases: ['cpp', 'g++'] },
+    { language: 'rust', version: '1.68.2', aliases: ['rs'] },
+    { language: 'python', version: '3.12.0', aliases: ['py', 'py3', 'python3', 'python3.12'] },
+    { language: 'java', version: '15.0.2', aliases: [] }
   ];
-  
+
   // Variables for file upload
   uploadDialogVisible: boolean = false;
   selectedFile: File | null = null;
   uploadProgress: number = 0;
-  
+
+  // Monaco editor configuration
+  editorOptions = {
+    theme: 'vs-dark',
+    language: 'java',
+    automaticLayout: true,
+    minimap: {
+      enabled: false
+    },
+    scrollBeyondLastLine: false,
+    fontSize: 14
+  };
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -67,16 +84,16 @@ export class QuestionBankDetailComponent implements OnInit {
       this.courseId = params['courseId'];
       this.loadQuestionBank();
     });
-    
+
     if (!this.courseId) {
       this.route.parent?.params.subscribe(params => {
         this.courseId = params['courseId'];
       });
     }
-    
+
     this.initializeForm();
   }
-  
+
   loadQuestionBank(): void {
     this.loading = true;
     this.quizService.getQuestionBankByQuestionBankId(this.questionBankId).subscribe({
@@ -86,31 +103,31 @@ export class QuestionBankDetailComponent implements OnInit {
           // Only load questions after question bank is loaded
           this.loadQuestions();
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Lỗi', 
-            detail: 'Không thể tải ngân hàng câu hỏi' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: 'Không thể tải ngân hàng câu hỏi'
           });
           this.loading = false;
         }
       },
       error: (error) => {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Lỗi', 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Lỗi',
           detail: 'Không thể tải ngân hàng câu hỏi: ' + (error.message || 'Lỗi không xác định')
         });
         this.loading = false;
       }
     });
   }
-  
+
   loadQuestions(): void {
     if (!this.questionBankId) {
       this.loading = false;
       return;
     }
-    
+
     this.quizService.getQuestionsByQuestionBankId(this.questionBankId).subscribe({
       next: (result) => {
         if (result.status === 1) {
@@ -124,25 +141,25 @@ export class QuestionBankDetailComponent implements OnInit {
             }
           }
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Lỗi', 
-            detail: 'Không thể tải danh sách câu hỏi' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: 'Không thể tải danh sách câu hỏi'
           });
         }
         this.loading = false;
       },
       error: (error) => {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Lỗi', 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Lỗi',
           detail: 'Không thể tải danh sách câu hỏi: ' + (error.message || 'Lỗi không xác định')
         });
         this.loading = false;
       }
     });
   }
-  
+
   initializeForm(): void {
     // Base form for all question types
     this.questionForm = this.fb.group({
@@ -153,31 +170,31 @@ export class QuestionBankDetailComponent implements OnInit {
       // Additional fields will be added dynamically based on question type
     });
   }
-  
+
   openNewQuestion(): void {
     if (!this.questionBank || !this.questionBank.questionType) {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Lỗi', 
-        detail: 'Loại câu hỏi chưa được xác định' 
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Loại câu hỏi chưa được xác định'
       });
       return;
     }
-    
+
     this.isEditMode = false;
     this.editingQuestionId = null;
     this.initializeForm();
-    
+
     this.setupFormForQuestionType(this.questionBank.questionType);
     this.displayQuestionDialog = true;
   }
-  
+
   setupFormForQuestionType(type: string): void {
     // Reset form type flags
     this.isMultipleChoiceForm = false;
     this.isEssayForm = false;
     this.isCodingForm = false;
-    
+
     // Setup form based on question type
     switch(type) {
       case 'MULTIPLE_CHOICE':
@@ -194,14 +211,14 @@ export class QuestionBankDetailComponent implements OnInit {
         break;
     }
   }
-  
+
   setupMultipleChoiceForm(): void {
     this.questionForm.addControl('allowMultipleAnswers', this.fb.control(false));
     this.questionForm.addControl('options', this.fb.array([]));
     // Add at least two options by default
     this.addOption();
     this.addOption();
-    
+
     // Subscribe to changes on allowMultipleAnswers to enforce validation
     this.questionForm.get('allowMultipleAnswers')?.valueChanges.subscribe(value => {
       if (!value) {
@@ -212,11 +229,11 @@ export class QuestionBankDetailComponent implements OnInit {
 
   enforceOneCorrectOption(): void {
     let foundCorrect = false;
-    
+
     for (let i = 0; i < this.optionsArray.length; i++) {
       const option = this.optionsArray.at(i);
       const isCorrect = option.get('isCorrect')?.value;
-      
+
       if (isCorrect) {
         if (foundCorrect) {
           // If we already found a correct option, set this one to false
@@ -227,14 +244,14 @@ export class QuestionBankDetailComponent implements OnInit {
       }
     }
   }
-  
+
   validateMultipleChoiceOptions(): boolean {
     const options = this.optionsArray.value;
     const allowMultipleAnswers = this.questionForm.get('allowMultipleAnswers')?.value;
-    
+
     // Check if at least one option is marked as correct
     const correctOptionsCount = options.filter((option: any) => option.isCorrect).length;
-    
+
     if (correctOptionsCount === 0) {
       this.messageService.add({
         severity: 'error',
@@ -243,7 +260,7 @@ export class QuestionBankDetailComponent implements OnInit {
       });
       return false;
     }
-    
+
     // If not allowing multiple answers, ensure only one option is marked as correct
     if (!allowMultipleAnswers && correctOptionsCount > 1) {
       this.messageService.add({
@@ -253,21 +270,41 @@ export class QuestionBankDetailComponent implements OnInit {
       });
       return false;
     }
-    
+
     return true;
   }
-  
+
   setupCodingForm(): void {
     this.questionForm.addControl('programmingLanguage', this.fb.control('java', Validators.required));
     this.questionForm.addControl('starterCode', this.fb.control(''));
     this.questionForm.addControl('solutionCode', this.fb.control('', Validators.required));
     this.questionForm.addControl('testCases', this.fb.control('', Validators.required));
+    
+    // Update editor language when programming language changes
+    this.questionForm.get('programmingLanguage')?.valueChanges.subscribe(language => {
+      this.updateEditorLanguage(language);
+    });
   }
-  
+
+  updateEditorLanguage(language: string): void {
+    // Map the language name to Monaco's language identifier if needed
+    let monacoLanguage = language;
+    
+    // Special case for C++
+    if (language === 'c++') {
+      monacoLanguage = 'cpp';
+    }
+    
+    this.editorOptions = {
+      ...this.editorOptions,
+      language: monacoLanguage
+    };
+  }
+
   get optionsArray(): FormArray {
     return this.questionForm.get('options') as FormArray;
   }
-  
+
   addOption(): void {
     const option = this.fb.group({
       text: ['', Validators.required],
@@ -276,7 +313,7 @@ export class QuestionBankDetailComponent implements OnInit {
     });
     this.optionsArray.push(option);
   }
-  
+
   removeOption(index: number): void {
     this.optionsArray.removeAt(index);
     // Update display order
@@ -284,15 +321,15 @@ export class QuestionBankDetailComponent implements OnInit {
       this.optionsArray.at(i).get('displayOrder')?.setValue(i);
     }
   }
-  
+
   editQuestion(question: any): void {
     this.isEditMode = true;
     this.editingQuestionId = question.id;
     this.initializeForm();
-    
+
     // Set up form based on question type
     this.setupFormForQuestionType(question.questionType);
-    
+
     // Patch common values
     this.questionForm.patchValue({
       text: question.text,
@@ -300,18 +337,18 @@ export class QuestionBankDetailComponent implements OnInit {
       difficultyLevel: question.difficultyLevel,
       questionBankId: this.questionBankId
     });
-    
+
     // Patch type-specific values
     if (question.questionType === 'MULTIPLE_CHOICE') {
       this.questionForm.patchValue({
         allowMultipleAnswers: question.allowMultipleAnswers
       });
-      
+
       // Clear default options
       while (this.optionsArray.length) {
         this.optionsArray.removeAt(0);
       }
-      
+
       // Add existing options
       if (question.options && question.options.length) {
         question.options.forEach((option: any) => {
@@ -329,28 +366,31 @@ export class QuestionBankDetailComponent implements OnInit {
         solutionCode: question.solutionCode,
         testCases: question.testCases
       });
+      
+      // Update editor language based on the question's programming language
+      this.updateEditorLanguage(question.programmingLanguage);
     }
-    
+
     this.displayQuestionDialog = true;
   }
-  
+
   saveQuestion(): void {
     if (this.questionForm.invalid) {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Lỗi', 
-        detail: 'Vui lòng điền đầy đủ các trường bắt buộc' 
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Vui lòng điền đầy đủ các trường bắt buộc'
       });
       return;
     }
-    
+
     // Validate options for multiple choice questions
     if (this.isMultipleChoiceForm && !this.validateMultipleChoiceOptions()) {
       return;
     }
-    
+
     const questionData = this.questionForm.value;
-    
+
     if (this.isEditMode && this.editingQuestionId) {
       // Update existing question
       if (this.isMultipleChoiceForm) {
@@ -371,21 +411,21 @@ export class QuestionBankDetailComponent implements OnInit {
       }
     }
   }
-  
+
   handleResponse = (result: any) => {
     if (result.status === 1) {
-      this.messageService.add({ 
-        severity: 'success', 
-        summary: 'Thành công', 
-        detail: this.isEditMode ? 'Cập nhật câu hỏi thành công' : 'Thêm câu hỏi thành công' 
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Thành công',
+        detail: this.isEditMode ? 'Cập nhật câu hỏi thành công' : 'Thêm câu hỏi thành công'
       });
       this.displayQuestionDialog = false;
       this.loadQuestions();
     } else {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Lỗi', 
-        detail: 'Không thể lưu câu hỏi' 
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Không thể lưu câu hỏi'
       });
     }
   }
@@ -396,31 +436,31 @@ export class QuestionBankDetailComponent implements OnInit {
         // Create a blob URL for the file
         const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
-        
+
         // Create a temporary link element
         const link = document.createElement('a');
         link.href = url;
         link.download = 'essay_question_template.xlsx'; // Set filename for download
-        
+
         // Append to body, click to trigger download, then remove
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
         // Clean up by revoking the blob URL
         window.URL.revokeObjectURL(url);
-        
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Thành công', 
-          detail: 'Tải mẫu câu hỏi thành công' 
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Thành công',
+          detail: 'Tải mẫu câu hỏi thành công'
         });
-      }, 
+      },
       (error) => {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Lỗi', 
-          detail: 'Không thể tải mẫu câu hỏi' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Lỗi',
+          detail: 'Không thể tải mẫu câu hỏi'
         });
       }
     );
@@ -432,31 +472,31 @@ export class QuestionBankDetailComponent implements OnInit {
         // Create a blob URL for the file
         const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
-        
+
         // Create a temporary link element
         const link = document.createElement('a');
         link.href = url;
         link.download = 'multiple_choice_question_template.xlsx'; // Set filename for download
-        
+
         // Append to body, click to trigger download, then remove
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
         // Clean up by revoking the blob URL
         window.URL.revokeObjectURL(url);
-        
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Thành công', 
-          detail: 'Tải mẫu câu hỏi trắc nghiệm thành công' 
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Thành công',
+          detail: 'Tải mẫu câu hỏi trắc nghiệm thành công'
         });
-      }, 
+      },
       (error) => {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Lỗi', 
-          detail: 'Không thể tải mẫu câu hỏi trắc nghiệm' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Lỗi',
+          detail: 'Không thể tải mẫu câu hỏi trắc nghiệm'
         });
       }
     );
@@ -464,50 +504,50 @@ export class QuestionBankDetailComponent implements OnInit {
 
   uploadMultipleChoiceFile(): void {
     if (!this.selectedFile) {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Lỗi', 
-        detail: 'Vui lòng chọn file để tải lên' 
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Vui lòng chọn file để tải lên'
       });
       return;
     }
-    
+
     this.uploadProgress = 50; // Simulate progress
-    
+
     this.quizService.importMultipleChoiceQuestionsFromExcel(this.selectedFile, this.questionBankId).subscribe({
       next: (result) => {
         this.uploadProgress = 100;
         if (result.status === 1) {
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Thành công', 
-            detail: 'Nhập câu hỏi trắc nghiệm từ Excel thành công' 
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Thành công',
+            detail: 'Nhập câu hỏi trắc nghiệm từ Excel thành công'
           });
           this.uploadDialogVisible = false;
           this.loadQuestions();
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Lỗi', 
-            detail: result.message || 'Không thể nhập câu hỏi trắc nghiệm từ Excel' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: result.message || 'Không thể nhập câu hỏi trắc nghiệm từ Excel'
           });
         }
       },
       error: (error) => {
         this.uploadProgress = 0;
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Lỗi', 
-          detail: 'Không thể nhập câu hỏi trắc nghiệm từ Excel' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Lỗi',
+          detail: 'Không thể nhập câu hỏi trắc nghiệm từ Excel'
         });
       }
     });
   }
-  
+
   hideDialog(): void {
     this.displayQuestionDialog = false;
   }
-  
+
   deleteQuestion(question: any): void {
     this.confirmationService.confirm({
       message: 'Bạn có chắc chắn muốn xóa câu hỏi này?',
@@ -517,86 +557,86 @@ export class QuestionBankDetailComponent implements OnInit {
         this.quizService.deleteQuestion(question.id).subscribe({
           next: (result) => {
             if (result.status === 1) {
-              this.messageService.add({ 
-                severity: 'success', 
-                summary: 'Thành công', 
-                detail: 'Đã xóa câu hỏi thành công' 
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Thành công',
+                detail: 'Đã xóa câu hỏi thành công'
               });
               this.loadQuestions();
-            } 
+            }
           },
           error: (error) => {
-            this.messageService.add({ 
-              severity: 'error', 
-              summary: 'Lỗi', 
-              detail: 'Không thể xóa câu hỏi' 
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Lỗi',
+              detail: 'Không thể xóa câu hỏi'
             });
           }
         })
       },
-    
+
     });
 
   }
-  
+
   getDifficultyLabel(difficulty: string): string {
     const found = this.difficultyLevels.find(d => d.value === difficulty);
     return found ? found.label : difficulty;
   }
-  
+
   // File upload methods
   openUploadDialog(): void {
     this.selectedFile = null;
     this.uploadProgress = 0;
     this.uploadDialogVisible = true;
   }
-  
+
   onFileSelected(event: any): void {
     this.selectedFile = event.files[0];
   }
-  
+
   uploadFile(): void {
     if (!this.selectedFile) {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Lỗi', 
-        detail: 'Vui lòng chọn file để tải lên' 
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Lỗi',
+        detail: 'Vui lòng chọn file để tải lên'
       });
       return;
     }
-    
+
     this.uploadProgress = 50; // Simulate progress
-    
+
     this.quizService.importEssayQuestionsFromExcel(this.selectedFile, this.questionBankId).subscribe({
       next: (result) => {
         this.uploadProgress = 100;
         if (result.status === 1) {
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Thành công', 
-            detail: 'Nhập câu hỏi từ Excel thành công' 
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Thành công',
+            detail: 'Nhập câu hỏi từ Excel thành công'
           });
           this.uploadDialogVisible = false;
           this.loadQuestions();
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Lỗi', 
-            detail: result.message || 'Không thể nhập câu hỏi từ Excel' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: result.message || 'Không thể nhập câu hỏi từ Excel'
           });
         }
       },
       error: (error) => {
         this.uploadProgress = 0;
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Lỗi', 
-          detail: 'Không thể nhập câu hỏi từ Excel' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Lỗi',
+          detail: 'Không thể nhập câu hỏi từ Excel'
         });
       }
     });
   }
-  
+
   goBack(): void {
     this.router.navigate(['/user/course', this.courseId, 'question-bank-management']);
   }
