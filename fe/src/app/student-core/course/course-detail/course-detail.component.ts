@@ -44,8 +44,7 @@ export class CourseDetailComponent implements OnInit {
   private setupBreadcrumb() {
     this.items = [
       { icon: 'pi pi-home', routerLink: '/student/home' },
-      { label: 'My Courses', routerLink: '/student/courses' },
-      { label: 'Course Details' }
+      { label: 'Chi tiết khóa học' }
     ];
   }
 

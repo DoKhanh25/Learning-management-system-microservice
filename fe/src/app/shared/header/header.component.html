@@ -149,65 +149,65 @@
                               </li>
                           </ul>
                         </li>
-                          <li>
-                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                              style="text-decoration: none;">
-                                  <i class="pi pi-calendar mr-2"></i>
-                                  <span class="font-medium">Calendar</span>
-                              </a>
-                          </li>
-                          <li>
-                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                              style="text-decoration: none;">
-                                  <i class="pi pi-cog mr-2"></i>
-                                  <span class="font-medium">Settings</span>
-                              </a>
-                          </li>
+<!--                          <li>-->
+<!--                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                              style="text-decoration: none;">-->
+<!--                                  <i class="pi pi-calendar mr-2"></i>-->
+<!--                                  <span class="font-medium">Calendar</span>-->
+<!--                              </a>-->
+<!--                          </li>-->
+<!--                          <li>-->
+<!--                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                              style="text-decoration: none;">-->
+<!--                                  <i class="pi pi-cog mr-2"></i>-->
+<!--                                  <span class="font-medium">Settings</span>-->
+<!--                              </a>-->
+<!--                          </li>-->
                       </ul>
                   </li>
               </ul>
-              <ul class="list-none p-3 m-0">
-                  <li>
-                      <div
-                          pRipple
-                          pStyleClass="@next"
-                          enterClass="hidden"
-                          enterActiveClass="slidedown"
-                          leaveToClass="hidden"
-                          leaveActiveClass="slideup"
-                          class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
-                      >
-                          <span class="font-medium">APPLICATION</span>
-                          <i class="pi pi-chevron-down"></i>
-                      </div>
-                      <ul class="list-none p-0 m-0 overflow-hidden">
-                          <li>
-                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                              style="text-decoration: none;">
-                                  <i class="pi pi-folder mr-2"></i>
-                                  <span class="font-medium">Projects</span>
-                              </a>
-                          </li>
-                          <li>
-                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                              style="text-decoration: none;">
-                                  <i class="pi pi-chart-bar mr-2"></i>
-                                  <span class="font-medium">Performance</span>
-                              </a>
-                          </li>
-                          <li>
-                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                              style="text-decoration: none;">
-                                  <i class="pi pi-cog mr-2"></i>
-                                  <span class="font-medium">Settings</span>
-                              </a>
-                          </li>
-                      </ul>
-                  </li>
-              </ul>
+<!--              <ul class="list-none p-3 m-0">-->
+<!--                  <li>-->
+<!--                      <div-->
+<!--                          pRipple-->
+<!--                          pStyleClass="@next"-->
+<!--                          enterClass="hidden"-->
+<!--                          enterActiveClass="slidedown"-->
+<!--                          leaveToClass="hidden"-->
+<!--                          leaveActiveClass="slideup"-->
+<!--                          class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"-->
+<!--                      >-->
+<!--                          <span class="font-medium">APPLICATION</span>-->
+<!--                          <i class="pi pi-chevron-down"></i>-->
+<!--                      </div>-->
+<!--                      <ul class="list-none p-0 m-0 overflow-hidden">-->
+<!--                          <li>-->
+<!--                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                              style="text-decoration: none;">-->
+<!--                                  <i class="pi pi-folder mr-2"></i>-->
+<!--                                  <span class="font-medium">Projects</span>-->
+<!--                              </a>-->
+<!--                          </li>-->
+<!--                          <li>-->
+<!--                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                              style="text-decoration: none;">-->
+<!--                                  <i class="pi pi-chart-bar mr-2"></i>-->
+<!--                                  <span class="font-medium">Performance</span>-->
+<!--                              </a>-->
+<!--                          </li>-->
+<!--                          <li>-->
+<!--                              <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                              style="text-decoration: none;">-->
+<!--                                  <i class="pi pi-cog mr-2"></i>-->
+<!--                                  <span class="font-medium">Settings</span>-->
+<!--                              </a>-->
+<!--                          </li>-->
+<!--                      </ul>-->
+<!--                  </li>-->
+<!--              </ul>-->
           </div>
 
-        <div *ngIf="role=='TEACHER' " class="overflow-y-auto">
+        <div *ngIf="role=='TEACHER'" class="overflow-y-auto">
 
           <ul class="list-none p-3 m-0">
             <li>
@@ -246,40 +246,80 @@
               </ul>
             </li>
           </ul>
+<!--          <ul class="list-none p-3 m-0">-->
+<!--            <li>-->
+<!--              <div-->
+<!--                pRipple-->
+<!--                pStyleClass="@next"-->
+<!--                enterClass="hidden"-->
+<!--                enterActiveClass="slidedown"-->
+<!--                leaveToClass="hidden"-->
+<!--                leaveActiveClass="slideup"-->
+<!--                class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"-->
+<!--              >-->
+<!--                <span class="font-medium">APPLICATION</span>-->
+<!--                <i class="pi pi-chevron-down"></i>-->
+<!--              </div>-->
+<!--              <ul class="list-none p-0 m-0 overflow-hidden">-->
+<!--                <li>-->
+<!--                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                     style="text-decoration: none;">-->
+<!--                    <i class="pi pi-folder mr-2"></i>-->
+<!--                    <span class="font-medium">Projects</span>-->
+<!--                  </a>-->
+<!--                </li>-->
+<!--                <li>-->
+<!--                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                     style="text-decoration: none;">-->
+<!--                    <i class="pi pi-chart-bar mr-2"></i>-->
+<!--                    <span class="font-medium">Performance</span>-->
+<!--                  </a>-->
+<!--                </li>-->
+<!--                <li>-->
+<!--                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"-->
+<!--                     style="text-decoration: none;">-->
+<!--                    <i class="pi pi-cog mr-2"></i>-->
+<!--                    <span class="font-medium">Settings</span>-->
+<!--                  </a>-->
+<!--                </li>-->
+<!--              </ul>-->
+<!--            </li>-->
+<!--          </ul>-->
+        </div>
+        <div *ngIf="role=='STUDENT' " class="overflow-y-auto">
+
           <ul class="list-none p-3 m-0">
             <li>
-              <div
-                pRipple
-                pStyleClass="@next"
-                enterClass="hidden"
-                enterActiveClass="slidedown"
-                leaveToClass="hidden"
-                leaveActiveClass="slideup"
-                class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
-              >
-                <span class="font-medium">APPLICATION</span>
-                <i class="pi pi-chevron-down"></i>
-              </div>
+<!--              <div-->
+<!--                pRipple-->
+<!--                pStyleClass="@next"-->
+<!--                enterClass="hidden"-->
+<!--                enterActiveClass="slidedown"-->
+<!--                leaveToClass="hidden"-->
+<!--                leaveActiveClass="slideup"-->
+<!--                class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"-->
+<!--              >-->
+<!--                <span class="font-medium">Chức năng</span>-->
+<!--                <i class="pi pi-chevron-down"></i>-->
+<!--              </div>-->
               <ul class="list-none p-0 m-0 overflow-hidden">
+
                 <li>
-                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                     style="text-decoration: none;">
-                    <i class="pi pi-folder mr-2"></i>
-                    <span class="font-medium">Projects</span>
+                  <a
+                    pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                    style="text-decoration: none;"
+                    routerLink="/student/home"
+                  >
+                    <i class="pi pi-calendar mr-2"></i>
+                    <span class="font-medium">Lớp học của tôi</span>
                   </a>
                 </li>
                 <li>
                   <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                     style="text-decoration: none;">
-                    <i class="pi pi-chart-bar mr-2"></i>
-                    <span class="font-medium">Performance</span>
-                  </a>
-                </li>
-                <li>
-                  <a pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
+                     routerLink="/student/course-list"
                      style="text-decoration: none;">
                     <i class="pi pi-cog mr-2"></i>
-                    <span class="font-medium">Settings</span>
+                    <span class="font-medium">Danh sách lớp học</span>
                   </a>
                 </li>
               </ul>

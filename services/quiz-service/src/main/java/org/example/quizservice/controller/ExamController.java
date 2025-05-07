@@ -6,6 +6,7 @@ import org.example.quizservice.dto.CodeExecutionRequestDTO;
 import org.example.quizservice.services.ExamService;
 import org.example.quizservice.services.ExamSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,16 @@ public class ExamController {
 
     @Autowired
     private ExamSubmissionService examSubmissionService;
+
+    @GetMapping("/countAllExams")
+    public ResponseEntity<ResultDTO> countAllExams(){
+        return examService.countAllExams();
+    }
+
+    @GetMapping("/getExamsTree")
+    public ResponseEntity<ResultDTO> getExamsTree(@RequestParam Long courseId){
+        return examService.getExamsTree(courseId);
+    }
 
     @GetMapping("/getAllExamsByCourseId/{courseId}")
     public ResponseEntity<ResultDTO> getAllExamsByCourse(

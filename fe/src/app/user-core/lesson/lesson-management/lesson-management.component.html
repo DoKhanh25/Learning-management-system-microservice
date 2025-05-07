@@ -3,23 +3,23 @@
   <p-card>
     <ng-template pTemplate="title">
       <div class="flex justify-content-between align-items-center">
-        <h2>{{lesson?.name}} - Lesson Pages</h2>
+        <h2>{{lesson?.name}} - Trang Bài Học</h2>
         <div class="flex gap-2">
-          <p-button label="Preview Lesson" icon="pi pi-eye" (onClick)="previewLesson()"></p-button>
-          <p-button label="Add Page" icon="pi pi-plus" (onClick)="openNewPageDialog()"></p-button>
+          <p-button label="Xem Trước Bài Học" icon="pi pi-eye" (onClick)="previewLesson()"></p-button>
+          <p-button label="Thêm Trang" icon="pi pi-plus" (onClick)="openNewPageDialog()"></p-button>
         </div>
       </div>
     </ng-template>
 
     <div *ngIf="loading" class="loading-container">
       <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)"></p-progressSpinner>
-      <span>Loading lesson content...</span>
+      <span>Đang tải nội dung bài học...</span>
     </div>
 
     <div *ngIf="!loading && lessonPages.length === 0" class="empty-state">
       <i class="pi pi-book" style="font-size: 3rem; opacity: 0.5;"></i>
-      <h3>No Pages Yet</h3>
-      <p>Create your first page by clicking 'Add Page' button</p>
+      <h3>Chưa Có Trang Nào</h3>
+      <p>Tạo trang đầu tiên của bạn bằng cách nhấp vào nút 'Thêm Trang'</p>
     </div>
 
     <div *ngIf="!loading && lessonPages.length > 0" cdkDropList (cdkDropListDropped)="onPageDrop($event)">
@@ -28,9 +28,9 @@
           <tr>
             <th style="width: 3rem"></th>
             <th style="width: 3rem">#</th>
-            <th>Title</th>
-            <th>Type</th>
-            <th style="width: 10rem">Actions</th>
+            <th>Tiêu đề</th>
+            <th>Loại</th>
+            <th style="width: 10rem">Hành động</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-page let-i="rowIndex">
@@ -59,30 +59,30 @@
 
   <!-- Dialog for adding/editing pages -->
   <p-dialog [(visible)]="displayPageDialog" [style]="{width: '90%'}" [modal]="true"
-            [header]="editingPageId ? 'Edit Page' : 'Add New Page'" [closeOnEscape]="false" [closable]="true">
+            [header]="editingPageId ? 'Chỉnh Sửa Trang' : 'Thêm Trang Mới'" [closeOnEscape]="false" [closable]="true">
     <form [formGroup]="pageForm" (ngSubmit)="savePage()">
       <div class="grid">
         <div class="col-12">
           <div class="p-field">
-            <label for="title">Title</label>
+            <label for="title">Tiêu đề</label>
             <input id="title" type="text" pInputText formControlName="title" class="w-full">
             <small class="p-error" *ngIf="pageForm.get('title')?.invalid && pageForm.get('title')?.touched">
-              Title is required
+              Tiêu đề là bắt buộc
             </small>
           </div>
         </div>
 
         <div class="col-12">
           <div class="p-field">
-            <label for="qType">Content Type</label>
+            <label for="qType">Loại Nội Dung</label>
             <p-dropdown id="qType" formControlName="qType" [options]="contentTypeOptions"
-                        placeholder="Select Content Type" styleClass="w-full"></p-dropdown>
+                        placeholder="Chọn Loại Nội Dung" styleClass="w-full"></p-dropdown>
           </div>
         </div>
 
         <div class="col-12">
           <div class="p-field">
-            <label for="content">Content</label>
+            <label for="content">Nội Dung</label>
 
             <div [ngSwitch]="pageForm.get('qType')?.value">
               <!-- Regular Content -->
@@ -101,23 +101,23 @@
                   <div [ngSwitch]="selectedVideoSource">
                     <div *ngSwitchCase="'URL'" class="mt-2">
                       <input pInputText formControlName="content" class="w-full"
-                             placeholder="Enter YouTube or Video URL">
-                      <small class="p-text-secondary">Paste the full YouTube or Video URL for embedding</small>
+                             placeholder="Nhập URL YouTube hoặc Video">
+                      <small class="p-text-secondary">Dán URL đầy đủ của YouTube hoặc Video để nhúng</small>
 
                       <div *ngIf="pageForm.get('content')?.value && pageForm.get('qType')?.value == 'VIDEO'" class="video-preview mt-2">
-                        <h5>Preview:</h5>
+                        <h5>Xem trước:</h5>
                         <app-video-player [videoUrl]="videoEmbedUrl"></app-video-player>
                       </div>
                     </div>
 
                     <div *ngSwitchCase="'UPLOAD'" class="mt-2">
-                      <p-fileUpload #videoFileUpload mode="basic" [auto]="true" chooseLabel="Upload Video"
+                      <p-fileUpload #videoFileUpload mode="basic" [auto]="true" chooseLabel="Tải lên Video"
                                     accept="video/*" [maxFileSize]="100000000"
                                     (onSelect)="onVideoFileSelect($event)" (uploadHandler)="onVideoFileUpload($event)"
                                     [customUpload]="true">
                       </p-fileUpload>
 
-                      <small class="p-text-secondary">Supported formats: MP4, WebM (max size: 100MB)</small>
+                      <small class="p-text-secondary">Định dạng hỗ trợ: MP4, WebM (kích thước tối đa: 100MB)</small>
 
                       <div *ngIf="uploadedVideoName" class="flex align-items-center gap-2 mt-2">
                         <i class="pi pi-video"></i>
@@ -127,10 +127,10 @@
                       </div>
 
                       <div *ngIf="uploadedVideoUrl" class="video-preview mt-3">
-                        <h5>Preview:</h5>
+                        <h5>Xem trước:</h5>
                         <video width="100%" height="250" controls>
                           <source [src]="uploadedVideoUrl" type="video/mp4">
-                          Your browser does not support the video tag.
+                          Trình duyệt của bạn không hỗ trợ thẻ video.
                         </video>
                       </div>
                     </div>
@@ -140,13 +140,13 @@
 
               <div *ngSwitchCase="'DOCUMENT'" class="document-upload">
                 <div class="flex flex-column gap-2">
-                  <p-fileUpload #fileUpload mode="basic" [auto]="true" chooseLabel="Upload Document"
+                  <p-fileUpload #fileUpload mode="basic" [auto]="true" chooseLabel="Tải lên Tài liệu"
                                 accept=".pdf,.doc,.docx" [maxFileSize]="50000000"
                                 (onSelect)="onFileSelect($event)" (uploadHandler)="onFileUpload($event)"
                                 [customUpload]="true">
                   </p-fileUpload>
 
-                  <small class="p-text-secondary">Supported formats: PDF, Word documents (.doc, .docx)</small>
+                  <small class="p-text-secondary">Định dạng hỗ trợ: PDF, tài liệu Word (.doc, .docx)</small>
 
                   <div *ngIf="uploadedFileName" class="flex align-items-center gap-2 mt-2">
                     <i class="pi pi-file"></i>
@@ -159,36 +159,19 @@
                 </div>
               </div>
 
-              <!-- Programming Content -->
-<!--              <p-editor *ngSwitchCase="'PROGRAMMING'" formControlName="content" [style]="{'height':'300px'}">-->
-<!--                <ng-template pTemplate="header">-->
-<!--                  <span class="ql-formats">-->
-<!--                    <select class="ql-header">-->
-<!--                      <option value="1">Heading</option>-->
-<!--                      <option value="2">Subheading</option>-->
-<!--                      <option selected>Normal</option>-->
-<!--                    </select>-->
-<!--                    <button class="ql-bold"></button>-->
-<!--                    <button class="ql-italic"></button>-->
-<!--                    <button class="ql-code-block"></button>-->
-<!--                  </span>-->
-<!--                </ng-template>-->
-<!--              </p-editor>-->
-
-              <!-- Short Answer -->
-<!--              <p-editor *ngSwitchDefault formControlName="content" [style]="{'height':'300px'}"></p-editor>-->
+              <!-- Programming Content and Short Answer sections commented out in original file -->
             </div>
 
             <small class="p-error" *ngIf="pageForm.get('content')?.invalid && pageForm.get('content')?.touched">
-              Content is required
+              Nội dung là bắt buộc
             </small>
           </div>
         </div>
       </div>
 
       <div class="flex justify-content-end mt-4 gap-2">
-        <p-button label="Cancel" icon="pi pi-times" (onClick)="displayPageDialog = false" styleClass="p-button-text"></p-button>
-        <p-button type="submit" label="Save" icon="pi pi-check" [disabled]="pageForm.invalid"></p-button>
+        <p-button label="Hủy" icon="pi pi-times" (onClick)="displayPageDialog = false" styleClass="p-button-text"></p-button>
+        <p-button type="submit" label="Lưu" icon="pi pi-check" [disabled]="pageForm.invalid"></p-button>
       </div>
     </form>
   </p-dialog>

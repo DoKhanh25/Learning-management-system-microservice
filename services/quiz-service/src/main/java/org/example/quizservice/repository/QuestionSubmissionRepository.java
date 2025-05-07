@@ -14,4 +14,7 @@ public interface QuestionSubmissionRepository extends JpaRepository<QuestionSubm
     
     @Query("SELECT qs FROM question_submission qs WHERE qs.examSubmission.id = :examSubmissionId AND qs.question.id = :questionId")
     Optional<QuestionSubmissionEntity> findByExamSubmissionIdAndQuestionId(Long examSubmissionId, Long questionId);
+
+
+
 }

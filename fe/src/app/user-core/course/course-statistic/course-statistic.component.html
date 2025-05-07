@@ -1,0 +1,308 @@
+<div class="course-statistics p-4">
+  <!-- Course header -->
+  <div class="course-header mb-4">
+    <h1>{{courseTitle || 'Thống kê khóa học'}}</h1>
+    <p class="text-muted">Xem thống kê chi tiết về nội dung và hoạt động của khóa học</p>
+  </div>
+
+  <!-- Loading indicator -->
+  <p-progressSpinner *ngIf="loading" styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+
+  <!-- Main content -->
+  <div class="grid" *ngIf="!loading">
+    <div class="col-12 md:col-4">
+      <!-- Statistics summary -->
+      <div class="statistics-summary p-card p-3 mb-3">
+        <div class="grid">
+          <div class="col-4 statistics-item">
+            <div class="value">{{nodeCounts.sections}}</div>
+            <div class="label">Chuyên mục</div>
+          </div>
+          <div class="col-4 statistics-item">
+            <div class="value">{{nodeCounts.lessons}}</div>
+            <div class="label">Bài học</div>
+          </div>
+          <div class="col-4 statistics-item">
+            <div class="value">{{nodeCounts.pages}}</div>
+            <div class="label">Trang</div>
+          </div>
+          <div class="col-4 statistics-item mt-3">
+            <div class="value">{{nodeCounts.assignments}}</div>
+            <div class="label">Bài tập</div>
+          </div>
+          <div class="col-4 statistics-item mt-3">
+            <div class="value">{{nodeCounts.exams}}</div>
+            <div class="label">Bài kiểm tra</div>
+          </div>
+          <div class="col-4 statistics-item mt-3">
+            <div class="value">{{nodeCounts.assignments + nodeCounts.exams}}</div>
+            <div class="label">Tổng đánh giá</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tree navigation -->
+      <div class="course-tree-container">
+        <p-tree
+          [value]="hierarchicalTree"
+          selectionMode="single"
+          [(selection)]="selectedTreeNode"
+          (onNodeSelect)="onNodeSelect($event)"
+          (onNodeExpand)="onNodeExpand($event)"
+          styleClass="course-tree">
+        </p-tree>
+
+        <div class="empty-state" *ngIf="hierarchicalTree.length === 0">
+          <i class="pi pi-info-circle"></i>
+          <span>Không có dữ liệu nội dung khóa học.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 md:col-8">
+      <!-- Selected item details -->
+      <div class="details-container" *ngIf="selectedNode">
+        <!-- Loading state -->
+        <div *ngIf="detailsLoading" class="flex align-items-center justify-content-center p-5">
+          <p-progressSpinner strokeWidth="4" [style]="{width: '2rem', height: '2rem'}"></p-progressSpinner>
+          <span class="ml-3">Đang tải...</span>
+        </div>
+
+        <!-- Content -->
+        <div *ngIf="!detailsLoading && selectedNode" class="details-content">
+          <div class="details-header flex align-items-center">
+            <i class="mr-2" [ngClass]="getNodeIcon(selectedNode.type)"></i>
+            <h2 class="m-0">{{selectedNode.title}}</h2>
+            <div class="node-badge ml-2" [style.background-color]="nodeColors[selectedNode.type]">
+              {{formatNodeType(selectedNode.type)}}
+            </div>
+          </div>
+
+          <!-- Course Section details -->
+          <div *ngIf="selectedNode.type === 'courseSection' && selectedNodeData">
+            <p-table [value]="selectedNodeData" styleClass="mt-3">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>ID</th>
+                  <th>Tên bài học</th>
+                  <th>Thứ tự</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-lesson>
+                <tr>
+                  <td>{{lesson.id}}</td>
+                  <td>{{lesson.name}}</td>
+                  <td>{{lesson.orderIndex}}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3" class="text-center">Không có bài học nào trong chuyên mục này.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Lesson details -->
+          <div *ngIf="selectedNode.type === 'lesson' && selectedNodeData">
+            <p-table [value]="selectedNodeData" styleClass="mt-3">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>ID</th>
+                  <th>Tên bài học</th>
+                  <th>Thứ tự</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-lesson>
+                <tr>
+                  <td>{{lesson.id}}</td>
+                  <td>{{lesson.name}}</td>
+                  <td>{{lesson.orderIndex}}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3" class="text-center">Không có bài học nào trong chuyên mục này.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Lesson Page details -->
+          <div *ngIf="selectedNode.type === 'lessonPage' && selectedNodeData">
+            <div class="grid mt-3">
+              <div class="col-12 md:col-6 field">
+                <label>Tiêu đề trang</label>
+                <div>{{selectedNodeData.title}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Thứ tự</label>
+                <div>{{selectedNodeData.orderIndex}}</div>
+              </div>
+              <div class="col-12 field">
+                <label>Nội dung</label>
+                <p-card>
+                  <div [innerHTML]="selectedNodeData.content"></div>
+                </p-card>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignment details -->
+          <div *ngIf="selectedNode.type === 'assignment' && selectedNodeData">
+            <div class="grid mt-3">
+              <div class="col-12 md:col-6 field">
+                <label>Tên bài tập</label>
+                <div>{{selectedNodeData.name}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Điểm tối đa</label>
+                <div>{{selectedNodeData.maxGrade || 0}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Ngày bắt đầu</label>
+                <div>{{formatDate(selectedNodeData.startDate)}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Thời hạn</label>
+                <div>{{formatDate(selectedNodeData.dueDate)}}</div>
+              </div>
+              <div class="col-12 field">
+                <label>Mô tả</label>
+                <div>{{selectedNodeData.description || 'Không có mô tả'}}</div>
+              </div>
+
+              <!-- Submissions -->
+              <div class="col-12">
+                <p-divider align="left">
+                  <span class="p-tag">Bài nộp</span>
+                </p-divider>
+
+                <p-table [value]="selectedNodeData.submissions" styleClass="mt-3" *ngIf="selectedNodeData.submissions?.length">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Sinh viên</th>
+                      <th>Ngày nộp</th>
+                      <th>Điểm số</th>
+                      <th>Trạng thái</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-submission>
+                    <tr>
+                      <td>{{submission.studentName}}</td>
+                      <td>{{formatDate(submission.submittedDate)}}</td>
+                      <td>{{submission.grade || 'Chưa chấm'}}/{{selectedNodeData.maxGrade}}</td>
+                      <td>
+                        <p-tag [severity]="submission.status === 'SUBMITTED' ? 'success' : 'warning'">
+                          {{submission.status === 'SUBMITTED' ? 'Đã nộp' : 'Nháp'}}
+                        </p-tag>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="4" class="text-center">Không có bài nộp nào.</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+
+                <div *ngIf="!selectedNodeData.submissions?.length" class="text-center p-3">
+                  <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+                  <div class="mt-3 text-muted">Chưa có bài nộp nào</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exam details -->
+          <div *ngIf="selectedNode.type === 'exam' && selectedNodeData">
+            <div class="grid mt-3">
+              <div class="col-12 md:col-6 field">
+                <label>Tên bài kiểm tra</label>
+                <div>{{selectedNodeData.name}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Điểm tối đa</label>
+                <div>{{selectedNodeData.maxGrade || 0}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Thời gian mở</label>
+                <div>{{formatDate(selectedNodeData.startTime)}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Thời gian đóng</label>
+                <div>{{formatDate(selectedNodeData.endTime)}}</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Thời gian làm bài</label>
+                <div>{{selectedNodeData.timeLimit}} phút</div>
+              </div>
+              <div class="col-12 md:col-6 field">
+                <label>Số câu hỏi</label>
+                <div>{{selectedNodeData.questions?.length || 0}}</div>
+              </div>
+
+              <!-- Submissions -->
+              <div class="col-12">
+                <p-divider align="left">
+                  <span class="p-tag">Bài làm</span>
+                </p-divider>
+
+                <p-table [value]="selectedNodeData.submissions" styleClass="mt-3" *ngIf="selectedNodeData.submissions?.length">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Sinh viên</th>
+                      <th>Thời gian nộp</th>
+                      <th>Điểm số</th>
+                      <th>Trạng thái</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-submission>
+                    <tr>
+                      <td>{{submission.studentName}}</td>
+                      <td>{{formatDate(submission.submittedAt)}}</td>
+                      <td>{{submission.grade || 'Tự động'}}/{{selectedNodeData.maxGrade}}</td>
+                      <td>
+                        <p-tag [severity]="submission.status === 'COMPLETED' ? 'success' : 'warning'">
+                          {{submission.status === 'COMPLETED' ? 'Hoàn thành' : 'Đang làm'}}
+                        </p-tag>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="4" class="text-center">Không có bài làm nào.</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+
+                <div *ngIf="!selectedNodeData.submissions?.length" class="text-center p-3">
+                  <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+                  <div class="mt-3 text-muted">Chưa có bài làm nào</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No data selected -->
+          <div *ngIf="!selectedNodeData && !detailsLoading" class="text-center p-5">
+            <i class="pi pi-exclamation-circle text-muted" style="font-size: 2rem"></i>
+            <div class="mt-3 text-muted">Không thể tải dữ liệu chi tiết</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No selection state -->
+      <div class="details-container empty-selection" *ngIf="!selectedNode">
+        <div class="text-center p-5">
+          <i class="pi pi-hand-pointer text-muted" style="font-size: 3rem"></i>
+          <h3 class="mt-3">Chọn một mục từ cây nội dung</h3>
+          <p class="text-muted">Chọn một chuyên mục, bài học, trang, bài tập hoặc bài kiểm tra để xem thông tin chi tiết</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast messages -->
+  <p-toast></p-toast>
+</div>

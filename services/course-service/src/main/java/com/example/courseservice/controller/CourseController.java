@@ -31,6 +31,11 @@ public class CourseController {
         return courseService.updateCourse(courseDTO, courseId);
     }
 
+    @GetMapping("/getAttendedCoursesByUserId")
+    public ResponseEntity<ResultDTO> getAttendedCoursesByUserId(@RequestParam("userId") String userId){
+        return courseService.getAttendedCoursesByUserId(userId);
+    }
+
 
     @PostMapping("/addCourse")
     public ResponseEntity<ResultDTO> addCourse(@RequestBody CourseCreateDTO courseCreateDTO){
@@ -47,6 +52,15 @@ public class CourseController {
         return courseService.deleteCourseById(id);
     }
 
+    @GetMapping("/getLessonPagesTree")
+    public ResponseEntity<ResultDTO> getLessonPagesTree(@RequestParam Long courseId){
+        return courseService.getLessonPagesTree(courseId);
+    }
+
+    @GetMapping("/getAssignmentsTree")
+    public ResponseEntity<ResultDTO> getAssignmentsTree(@RequestParam Long courseId){
+        return courseService.getAssignmentsTree(courseId);
+    }
 
     @GetMapping("/teacher/getAllCoursesByUserId")
     public ResponseEntity<ResultDTO> getAllTeacherCoursesByUserId(@RequestHeader("X-User-Id") String userId){
@@ -62,5 +76,7 @@ public class CourseController {
     public ResponseEntity<ResultDTO> getTeacherCourseById(@RequestParam Long id){
         return courseService.getTeacherCourseById(id);
     }
+
+
 
 }

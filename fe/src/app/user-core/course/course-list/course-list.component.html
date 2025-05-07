@@ -1,12 +1,12 @@
 <p-toast/>
 <div class="course-list-container">
   <div class="header-container">
-    <h2>Available Courses</h2>
+    <h2>Các khóa học hiện có</h2>
     <div class="p-inputgroup search-container">
       <span class="p-inputgroup-addon">
         <i class="pi pi-search"></i>
       </span>
-      <input type="text" pInputText [formControl]="searchControl" placeholder="Search courses...">
+      <input type="text" pInputText [formControl]="searchControl" placeholder="Tìm kiếm khóa học...">
     </div>
   </div>
 
@@ -14,8 +14,8 @@
 
   <div *ngIf="!loading && filteredCourses.length === 0" class="empty-state">
     <i class="pi pi-book" style="font-size: 3rem"></i>
-    <h3>No courses found</h3>
-    <p>Try adjusting your search terms or check back later for new courses.</p>
+    <h3>Không tìm thấy khóa học</h3>
+    <p>Hãy điều chỉnh từ khóa tìm kiếm hoặc quay lại sau để xem các khóa học mới.</p>
   </div>
 
   <div *ngIf="!loading" class="p-grid course-grid">
@@ -31,20 +31,20 @@
           <div class="course-details">
             <div class="detail-item">
               <i class="pi pi-calendar"></i>
-              <span>Start: {{formatDate(course.startDate)}}</span>
+              <span>Bắt đầu: {{formatDate(course.startDate)}}</span>
             </div>
             <div class="detail-item">
               <i class="pi pi-calendar-times"></i>
-              <span>End: {{formatDate(course.endDate)}}</span>
+              <span>Kết thúc: {{formatDate(course.endDate)}}</span>
             </div>
           </div>
 
           <div class="course-actions">
-            <button *ngIf="!course.attended" pButton pRipple type="button" label="Enroll"
+            <button *ngIf="!course.attended" pButton pRipple type="button" label="Đăng ký"
                     icon="pi pi-sign-in" class="p-button-success"
                     (click)="openEnrollDialog(course)"></button>
             <div *ngIf="course.attended" class="enrolled-badge">
-              <i class="pi pi-check-circle"></i> Enrolled
+              <i class="pi pi-check-circle"></i> Đã đăng ký
             </div>
           </div>
         </div>
@@ -54,7 +54,7 @@
 </div>
 
 <!-- Enroll Dialog -->
-<p-dialog header="Enroll in Course" [(visible)]="displayEnrollDialog"
+<p-dialog header="Đăng ký khóa học" [(visible)]="displayEnrollDialog"
          [modal]="true" [style]="{width: '450px'}"
          [breakpoints]="{'960px': '80vw'}" [draggable]="false" [resizable]="false">
 
@@ -68,27 +68,27 @@
     <p>{{selectedCourse?.summary}}</p>
 
     <div class="field">
-      <label for="role">Select Role</label>
+      <label for="role">Chọn vai trò</label>
       <p-dropdown id="role" [options]="courseRoles" [(ngModel)]="selectedRole"
-                  placeholder="Select a role" [style]="{'width':'100%'}"></p-dropdown>
-      <small>Choose your role for this course</small>
+                  placeholder="Chọn vai trò" [style]="{'width':'100%'}"></p-dropdown>
+      <small>Chọn vai trò của bạn cho khóa học này</small>
     </div>
 
     <div class="field">
-      <label for="password">Enrollment Password</label>
+      <label for="password">Mật khẩu đăng ký</label>
       <span class="p-input-icon-right">
         <i class="pi pi-lock"></i>
         <input id="password" type="password" pInputText [(ngModel)]="enrollPassword"
-               placeholder="Enter the course password">
+               placeholder="Nhập mật khẩu khóa học">
       </span>
-      <small>Required to enroll in this course</small>
+      <small>Bắt buộc để đăng ký khóa học này</small>
     </div>
   </div>
 </div>
   <ng-template pTemplate="footer">
-    <button pButton pRipple label="Cancel" icon="pi pi-times"
+    <button pButton pRipple label="Hủy" icon="pi pi-times"
             class="p-button-text" (click)="displayEnrollDialog=false"></button>
-    <button pButton pRipple label="Enroll" icon="pi pi-check"
+    <button pButton pRipple label="Đăng ký" icon="pi pi-check"
             class="p-button-text p-button-success" (click)="enrollCourse()"></button>
   </ng-template>
 </p-dialog>

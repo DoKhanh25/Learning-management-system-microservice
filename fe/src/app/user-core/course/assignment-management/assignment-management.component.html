@@ -10,20 +10,20 @@
                   <!-- Header with assignment details -->
                   <div class="header-section mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h2 class="m-0">{{assignment?.name}}</h2>
-                      <p-badge [value]="submissions?.length?.toString() || '0'" severity="info"
+                      <h2 class="m-0">{{assignment.name}}</h2>
+                      <p-badge [value]="submissions.length.toString() || '0'" severity="info"
                                styleClass="p-mr-2"></p-badge>
                     </div>
                     <div class="assignment-metadata">
-                      <span class="badge bg-primary me-2">{{assignment?.assignmentType}}</span>
+                      <span class="badge bg-primary me-2">{{assignment.assignmentType}}</span>
                       <span *ngIf="assignment?.startDate" class="text-muted me-3">
-                        <i class="pi pi-calendar me-1"></i> Bắt đầu: {{assignment?.startDate | date:'dd/MM/yyyy HH:mm'}}
+                        <i class="pi pi-calendar me-1"></i> Bắt đầu: {{assignment.startDate | date:'dd/MM/yyyy HH:mm'}}
                       </span>
                       <span *ngIf="assignment?.endDate" class="text-muted">
-                        <i class="pi pi-clock me-1"></i> Kết thúc: {{assignment?.endDate | date:'dd/MM/yyyy HH:mm'}}
+                        <i class="pi pi-clock me-1"></i> Kết thúc: {{assignment.endDate | date:'dd/MM/yyyy HH:mm'}}
                       </span>
                     </div>
-                    <div *ngIf="assignment?.description" class="mt-2" [innerHTML]="assignment?.description"></div>
+                    <div *ngIf="assignment?.description" class="mt-2" [innerHTML]="assignment.description"></div>
                   </div>
 
                   <!-- Loading Indicator -->
@@ -50,7 +50,7 @@
                             </tr>
                           </ng-template>
                           <ng-template pTemplate="body" let-submission>
-                            <tr [ngClass]="{'selected-row': selectedSubmission?.id === submission.id}"
+                            <tr [ngClass]="{'selected-row': selectedSubmission.id === submission.id}"
                                 (click)="viewSubmission(submission)">
                               <td>
                                 <!-- Display username instead of userId -->

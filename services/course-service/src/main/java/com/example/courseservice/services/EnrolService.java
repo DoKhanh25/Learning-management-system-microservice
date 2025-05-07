@@ -83,6 +83,19 @@ public class EnrolService {
 
     public ResponseEntity<ResultDTO> addUserEnrolment(EnrolDTO enrolDTO, String userId){
         ResultDTO resultDTO = new ResultDTO();
+        
+        // Validate EnrolDTO
+        if (enrolDTO == null) {
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("Enrolment data cannot be null");
+            return new ResponseEntity<>(resultDTO, HttpStatus.BAD_REQUEST);
+        }
+
+        if (enrolDTO.getCourseRole() == null) {
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("Course role is required");
+            return new ResponseEntity<>(resultDTO, HttpStatus.BAD_REQUEST);
+        }
 
         if(enrolDTO.getCourse() == null){
             resultDTO.setStatus(2);
@@ -109,6 +122,7 @@ public class EnrolService {
         EnrolEntity enrolEntity = new EnrolEntity();
         enrolEntity.setCourse(courseEntity);
         enrolEntity.setStatus((short) 1);
+        enrolEntity.setCourseRole(enrolDTO.getCourseRole());
         enrolEntity.setEnrolType(EnrolType.MANUAL);
         enrolEntity = enrolRepository.save(enrolEntity);
 

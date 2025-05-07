@@ -3,7 +3,7 @@
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
   <!-- Breadcrumb Navigation -->
- 
+
 
   <div class="card">
     <div class="card-header">
@@ -91,7 +91,7 @@
 
         <!-- Question List -->
         <p-table
-          [value]="exam?.examQuestions || []"
+          [value]="exam.examQuestions || []"
           [paginator]="true"
           [rows]="10"
           styleClass="p-datatable-gridlines p-datatable-sm"
@@ -119,7 +119,7 @@
               <td>
                 <p-tag [severity]="question?.questionType === 'MULTIPLE_CHOICE' ? 'info' :
                       question?.questionType === 'ESSAY' ? 'warning' : 'success'">
-                  {{getExamTypeName(question?.questionType || '')}}
+                  {{getExamTypeName(question.questionType || '')}}
                 </p-tag>
               </td>
               <td>{{question.points}}</td>
@@ -218,7 +218,7 @@
 
         <div class="field info-message" *ngIf="selectedQuestionBanks.length === 0">
           <i class="pi pi-info-circle"></i>
-          <span>Không có ngân hàng câu hỏi phù hợp với loại bài kiểm tra này ({{getExamTypeName(exam?.examType!)}}).</span>
+          <span>Không có ngân hàng câu hỏi phù hợp với loại bài kiểm tra này ({{getExamTypeName(exam.examType!)}}).</span>
         </div>
       </form>
     </ng-template>
@@ -283,7 +283,7 @@
 
         <div class="field info-message" *ngIf="selectedQuestionBanks.length === 0">
           <i class="pi pi-info-circle"></i>
-          <span>Không có ngân hàng câu hỏi phù hợp với loại bài kiểm tra này ({{getExamTypeName(exam?.examType!)}}).</span>
+          <span>Không có ngân hàng câu hỏi phù hợp với loại bài kiểm tra này ({{getExamTypeName(exam.examType!)}}).</span>
         </div>
       </form>
     </ng-template>

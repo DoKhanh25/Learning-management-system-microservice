@@ -23,7 +23,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +75,6 @@ public class JwtHeaderFilter implements GlobalFilter {
             return chain.filter(exchange);
         }
 
-
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         String accessToken;
 
@@ -101,7 +99,7 @@ public class JwtHeaderFilter implements GlobalFilter {
             accessToken = null;
         }
 
-        if(accessToken != null) {
+        if (accessToken != null) {
             // Skip the JWT verification using decoder since we'll use the token directly with Keycloak
             String resource = extractResource(request.getPath().value());
             String scope = extractScope(request.getMethod().name().toLowerCase());
@@ -120,15 +118,45 @@ public class JwtHeaderFilter implements GlobalFilter {
 
                         logger.info("RPT received successfully");
 
+                        // Extract permissions from RPT token
+                        Map<String, Object> permissions = extractPermissionsFromRpt(rpt);
+
                         // Get user info from the original token to add the X-User-Id header
                         return getUserInfo(accessToken)
                                 .flatMap(userId -> {
-                                    ServerHttpRequest modifiedRequest = request.mutate()
+                                    ServerHttpRequest.Builder requestBuilder = request.mutate()
                                             .header("X-User-Id", userId)
                                             .header("X-Roles", "user")
-                                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + rpt)
-                                            .build();
+                                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + rpt);
 
+                                    // Add permission headers from RPT
+                                    if (permissions != null) {
+                                        if (permissions.containsKey("resources")) {
+                                            requestBuilder.header("X-Resources", permissions.get("resources").toString());
+                                        }
+                                        if (permissions.containsKey("scopes")) {
+                                            requestBuilder.header("X-Scopes", permissions.get("scopes").toString());
+                                        }
+                                        if (permissions.containsKey("resourceScopes")) {
+                                            requestBuilder.header("X-Resource-Scopes", permissions.get("resourceScopes").toString());
+                                        }
+
+                                        // Check if user has access to the current resource with appropriate scope
+                                        String currentResource = extractResource(request.getPath().value());
+                                        String currentScope = extractScope(request.getMethod().name().toLowerCase());
+
+                                        if (!currentResource.isEmpty() && !currentScope.isEmpty()) {
+                                            boolean hasAccess = hasResourceScopeAccess(
+                                                    permissions,
+                                                    currentResource,
+                                                    currentScope
+                                            );
+                                            requestBuilder.header("X-Has-Access", String.valueOf(hasAccess));
+                                            logger.info("Access check for {}/{}: {}", currentResource, currentScope, hasAccess);
+                                        }
+                                    }
+
+                                    ServerHttpRequest modifiedRequest = requestBuilder.build();
                                     return chain.filter(exchange.mutate().request(modifiedRequest).build());
                                 })
                                 .onErrorResume(e -> {
@@ -229,26 +257,138 @@ public class JwtHeaderFilter implements GlobalFilter {
         }
     }
 
-//    private List<String> extractRoles(Jwt jwt) {
-//        if (jwt.getClaim("realm_access") instanceof Map) {
-//            Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-//            if (realmAccess.get("roles") instanceof List) {
-//                return (List<String>) realmAccess.get("roles");
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private String extractScopes(Jwt jwt) {
-//        String scopes = jwt.getClaimAsString("scope");
-//        if (scopes != null) return scopes;
-//        Map<String, Map<String, List<String>>> resourceAccess = jwt.getClaim("resource_access");
-//        if (resourceAccess != null && resourceAccess.containsKey(clientId)) {
-//            Map<String, List<String>> resource = resourceAccess.get(clientId);
-//            if (resource != null && resource.containsKey("scopes")) {
-//                return String.join(",", resource.get("scopes"));
-//            }
-//        }
-//        return "";
-//    }
+    /**
+     * Extracts permission information from the RPT token
+     *
+     * @param rptToken The RPT token from Keycloak
+     * @return Map containing permission details including resources and scopes
+     */
+    private Map<String, Object> extractPermissionsFromRpt(String rptToken) {
+        try {
+            // Split the JWT token
+            String[] parts = rptToken.split("\\.");
+            if (parts.length < 2) {
+                logger.error("Invalid JWT token format");
+                return null;
+            }
+
+            // Decode the payload
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            logger.debug("RPT payload: {}", payload);
+
+            // Parse the JSON
+            Map<String, Object> claims = new com.fasterxml.jackson.databind.ObjectMapper().readValue(
+                    payload, Map.class);
+
+            // Extract permissions
+            Map<String, Object> result = new java.util.HashMap<>();
+
+            // Check for authorization field which contains permissions in Keycloak RPT
+            if (claims.containsKey("authorization")) {
+                Map<String, Object> authorization = (Map<String, Object>) claims.get("authorization");
+
+                if (authorization.containsKey("permissions")) {
+                    List<Map<String, Object>> permissions = (List<Map<String, Object>>) authorization.get("permissions");
+
+                    // Create resource to scope mapping
+                    Map<String, List<String>> resourceScopeMap = new java.util.HashMap<>();
+                    List<String> allResources = new java.util.ArrayList<>();
+                    List<String> allScopes = new java.util.ArrayList<>();
+
+                    for (Map<String, Object> permission : permissions) {
+                        String resourceName = null;
+                        String resourceId = null;
+
+                        if (permission.containsKey("rsname")) {
+                            resourceName = permission.get("rsname").toString();
+                            allResources.add(resourceName);
+                        }
+
+                        if (permission.containsKey("resource_id")) {
+                            resourceId = permission.get("resource_id").toString();
+                            if (resourceName == null) {
+                                allResources.add(resourceId);
+                            }
+                        }
+
+                        // Use either resource name or id as the key
+                        String resourceKey = resourceName != null ? resourceName : resourceId;
+
+                        if (resourceKey != null && permission.containsKey("scopes")) {
+                            List<String> permScopes = (List<String>) permission.get("scopes");
+
+                            // Add to resource-scope mapping
+                            resourceScopeMap.computeIfAbsent(resourceKey, k -> new java.util.ArrayList<>())
+                                    .addAll(permScopes);
+
+                            // Add to overall scope list
+                            allScopes.addAll(permScopes);
+                        }
+                    }
+
+                    // Deduplicate scopes and resources
+                    allScopes = allScopes.stream().distinct().collect(java.util.stream.Collectors.toList());
+                    allResources = allResources.stream().distinct().collect(java.util.stream.Collectors.toList());
+
+                    // Create a JSON representation of resource-scope mappings
+                    StringBuilder resourceScopeJson = new StringBuilder("{");
+                    boolean first = true;
+                    for (Map.Entry<String, List<String>> entry : resourceScopeMap.entrySet()) {
+                        if (!first) {
+                            resourceScopeJson.append(",");
+                        }
+                        resourceScopeJson.append("\"").append(entry.getKey()).append("\":[");
+                        resourceScopeJson.append(entry.getValue().stream()
+                                .map(s -> "\"" + s + "\"")
+                                .collect(java.util.stream.Collectors.joining(",")));
+                        resourceScopeJson.append("]");
+                        first = false;
+                    }
+                    resourceScopeJson.append("}");
+
+                    result.put("resources", String.join(",", allResources));
+                    result.put("scopes", String.join(",", allScopes));
+                    result.put("resourceScopes", resourceScopeJson.toString());
+                    result.put("resourceScopeMap", resourceScopeMap);
+                    result.put("permissions", permissions);
+
+                    logger.info("Extracted permissions - Resources: {}, Scopes: {}",
+                            result.get("resources"), result.get("scopes"));
+                    logger.debug("Resource-Scope mapping: {}", resourceScopeJson);
+
+                    logger.info("Extracted resource-scope mapping: {}", resourceScopeJson);
+                }
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error decoding RPT token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Checks if user has access to specific resource with specific scope
+     *
+     * @param permissions The permissions extracted from RPT
+     * @param resource The resource to check
+     * @param requiredScope The required scope
+     * @return true if user has the required scope for the resource
+     */
+    private boolean hasResourceScopeAccess(Map<String, Object> permissions, String resource, String requiredScope) {
+        if (permissions == null || !permissions.containsKey("resourceScopeMap")) {
+            return false;
+        }
+
+        Map<String, List<String>> resourceScopeMap = (Map<String, List<String>>) permissions.get("resourceScopeMap");
+
+        // Check if resource exists in the map
+        if (!resourceScopeMap.containsKey(resource)) {
+            return false;
+        }
+
+        // Check if required scope is in the list of allowed scopes
+        List<String> allowedScopes = resourceScopeMap.get(resource);
+        return allowedScopes.contains(requiredScope);
+    }
 }

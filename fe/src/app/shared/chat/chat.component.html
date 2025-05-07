@@ -10,7 +10,7 @@
   <span class="p-input-icon-left p-fluid">
     <i class="pi pi-search"></i>
     <input type="text" pInputText [(ngModel)]="searchTerm"
-           placeholder="Search users..."
+           placeholder="Tìm kiếm người dùng..."
            (input)="searchUsers()">
   </span>
 
@@ -28,7 +28,7 @@
 
   <div class="chat-tabs">
     <p-tabView>
-      <p-tabPanel header="Private">
+      <p-tabPanel header="Riêng tư">
         <div class="chat-list">
           <div *ngFor="let chat of userChats"
                [ngClass]="{'chat-item': true, 'active': selectedChat?.id === chat.userId}"
@@ -36,15 +36,15 @@
             <p-avatar [label]="chat.username?.charAt(0)" shape="circle" styleClass="mr-2"></p-avatar>
             <div class="chat-info">
               <div class="chat-name">{{chat.username}}</div>
-<!--              <div class="last-message">{{messages[0] || 'No messages yet'}}</div>-->
+<!--              <div class="last-message">{{messages[0] || 'Chưa có tin nhắn'}}</div>-->
             </div>
           </div>
         </div>
       </p-tabPanel>
-      <p-tabPanel header="Groups">
+      <p-tabPanel header="Nhóm">
         <div class="chat-list">
           <div class="group-header">
-            <button pButton icon="pi pi-plus" label="Create Group"
+            <button pButton icon="pi pi-plus" label="Tạo nhóm"
                     class="p-button-sm p-button-outlined"
                     (click)="openCreateGroupDialog()"></button>
           </div>
@@ -54,7 +54,7 @@
             <p-avatar icon="pi pi-users" styleClass="mr-2"></p-avatar>
             <div class="chat-info">
               <div class="chat-name">{{chat.groupName}}</div>
-              <div class="last-message">{{chat.lastMessage?.content || 'No messages yet'}}</div>
+              <div class="last-message">{{chat.lastMessage?.content || 'Chưa có tin nhắn'}}</div>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@
       <!-- Message input -->
       <div class="bubble-input">
         <input type="text" pInputText [(ngModel)]="chat.newMessage"
-               placeholder="Type a message..."
+               placeholder="Nhập tin nhắn..."
                (keyup.enter)="sendMessageFromBubble(chat)">
         <button pButton icon="pi pi-send"
                 class="p-button-rounded p-button-text send-button"
@@ -113,32 +113,32 @@
 </div>
 
 
-<p-dialog header="Create Group Chat"
+<p-dialog header="Tạo trò chuyện nhóm"
           [(visible)]="showCreateGroupDialog"
           [style]="{width: '400px'}"
           [modal]="true"
           [baseZIndex]="1000">
   <div class="p-fluid">
     <div class="field">
-      <label for="groupName">Group Name</label>
+      <label for="groupName">Tên nhóm</label>
       <input id="groupName" type="text" pInputText [(ngModel)]="newGroup.name">
     </div>
 
     <div class="field">
-      <label>Add Members</label>
+      <label>Thêm thành viên</label>
       <p-multiSelect
         [options]="availableUsers"
         [(ngModel)]="newGroup.members"
         optionLabel="username"
-        placeholder="Select members"
+        placeholder="Chọn thành viên"
         [filter]="true" [appendTo]="'body'"></p-multiSelect>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton label="Cancel" icon="pi pi-times"
+    <button pButton label="Hủy" icon="pi pi-times"
             class="p-button-text" (click)="showCreateGroupDialog = false"></button>
-    <button pButton label="Create" icon="pi pi-check"
+    <button pButton label="Tạo" icon="pi pi-check"
             class="p-button-text" (click)="createGroupChat()"
             [disabled]="!newGroup.name || newGroup.members.length === 0"></button>
   </ng-template>

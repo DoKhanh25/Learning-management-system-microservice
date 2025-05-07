@@ -18,4 +18,7 @@ public interface ExamRepository extends JpaRepository<ExamEntity, Long> {
     
     @Query("SELECT e FROM exam e WHERE e.courseId IN :courseIds AND e.startTime <= :now AND e.endTime >= :now")
     List<ExamEntity> findAvailableExamsByCoursesIn(List<Long> courseIds, Date now);
+
+    @Query("select count(e) from exam e")
+    Long countAllExams();
 }

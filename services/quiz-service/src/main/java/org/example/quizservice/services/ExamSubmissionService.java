@@ -15,6 +15,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.example.quizservice.dto.*;
 import org.example.quizservice.entity.*;
+import org.example.quizservice.enums.ExamType;
 import org.example.quizservice.enums.QuestionType;
 import org.example.quizservice.feign.CourseServiceClient;
 import org.example.quizservice.mapper.ExamQuestionMapper;
@@ -52,7 +53,6 @@ public class ExamSubmissionService {
 
     private final int retryLimit = 10;
     private final int retryTime = 500;
-
 
 
     @Autowired
@@ -388,7 +388,12 @@ public class ExamSubmissionService {
             return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
         }
 
-        if (!submission.getUserId().equals(userId)) {
+        ExamEntity examEntity = examRepository.findById(submission.getExam().getId()).orElse(null);
+        if (examEntity == null) {
+            return new ResponseEntity<>(resultDTO, HttpStatus.NOT_FOUND);
+        }
+
+        if (!submission.getUserId().equals(userId) && !(validateTeacherInCourse(examEntity.getCourseId(), userId))) {
             resultDTO.setMessage("You don't have permission to view this submission");
             return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
         }
@@ -403,6 +408,12 @@ public class ExamSubmissionService {
         ExamEntity exam = examRepository.findById(examId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found"));
 
+        Boolean isTeacher = this.validateTeacherInCourse(exam.getCourseId(), userId);
+        if (!isTeacher) {
+            resultDTO.setMessage("You don't have permission to view this submission");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
         // Get all submissions for this exam
         List<ExamSubmissionEntity> submissions = examSubmissionRepository.findAll().stream()
                 .filter(sub -> sub.getExam().getId().equals(examId))
@@ -416,6 +427,7 @@ public class ExamSubmissionService {
         resultDTO.setData(submissionDTOs);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
+
 
     public ResponseEntity<ResultDTO> getExamQuestions(String userId, Long examSubmissionId) {
         ResultDTO resultDTO = new ResultDTO();
@@ -528,6 +540,56 @@ public class ExamSubmissionService {
         resultDTO.setStatus(1);
         resultDTO.setData(examQuestionDTOs);
         resultDTO.setMessage("Exam questions retrieved successfully");
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+    }
+
+    public ResponseEntity<ResultDTO> getQuestionSubmissions(Long examSubmissionId, String validateUserId) {
+        ResultDTO resultDTO = new ResultDTO();
+
+        ExamSubmissionEntity examSubmission = examSubmissionRepository.findById(examSubmissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam not found"));
+
+        ExamEntity exam = examSubmission.getExam();
+
+        Boolean isTeacher = this.validateTeacherInCourse(exam.getCourseId(), validateUserId);
+
+        if(!examSubmission.getUserId().equals(validateUserId)) {
+            if (!isTeacher || examSubmission.getSubmissionTime() == null) {
+                resultDTO.setMessage("You don't have permission to view this submission");
+                return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+            }
+        }
+
+        List<QuestionSubmissionEntity> questionSubmissions = questionSubmissionRepository.findByExamSubmissionId(examSubmissionId);
+
+        if(exam.getExamType() == ExamType.MULTIPLE_CHOICE) {
+            List<MultipleChoiceSubmissionEntity> list = questionSubmissions
+                    .stream()
+                    .map(e -> (MultipleChoiceSubmissionEntity) e)
+                    .toList();
+
+            resultDTO.setData(list);
+            resultDTO.setStatus(1);
+            return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+
+        } else if(exam.getExamType() == ExamType.ESSAY) {
+            List<EssaySubmissionEntity> list = questionSubmissions
+                    .stream()
+                    .map(e -> (EssaySubmissionEntity) e)
+                    .toList();
+
+            resultDTO.setData(list);
+            resultDTO.setStatus(1);
+            return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+        }
+
+        List<CodingSubmissionEntity> list = questionSubmissions
+                .stream()
+                .map(e -> (CodingSubmissionEntity) e)
+                .toList();
+
+        resultDTO.setData(list);
+        resultDTO.setStatus(1);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 
@@ -964,5 +1026,132 @@ public class ExamSubmissionService {
             }
             throw new PistonException(e.getMessage());
         }
+    }
+
+    @Transactional
+    public ResponseEntity<ResultDTO> gradeEssayQuestion(String userId, Map<String, Object> requestBody) {
+        ResultDTO resultDTO = new ResultDTO();
+        
+        Long submissionId = Long.valueOf(requestBody.get("submissionId").toString());
+        Long questionSubmissionId = Long.valueOf(requestBody.get("questionSubmissionId").toString());
+        Float score = Float.valueOf(requestBody.get("score").toString());
+        String feedback = (String) requestBody.get("feedback");
+        
+        // Verify the submission exists
+        ExamSubmissionEntity examSubmission = examSubmissionRepository.findById(submissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam submission not found"));
+        
+        // Verify the user is a teacher for this course
+        if (!validateTeacherInCourse(examSubmission.getExam().getCourseId(), userId)) {
+            resultDTO.setMessage("You don't have permission to grade this exam");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+        
+        // Get the question submission
+        EssaySubmissionEntity essaySubmission = (EssaySubmissionEntity) questionSubmissionRepository.findById(questionSubmissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question submission not found"));
+        
+        // Update the grade
+        essaySubmission.setScore(score);
+        essaySubmission.setFeedback(feedback);
+        essaySubmission.setGraded(true);
+        essaySubmission = (EssaySubmissionEntity) questionSubmissionRepository.save(essaySubmission);
+        
+        // Update the total score of the exam submission
+        updateExamSubmissionTotalScore(examSubmission);
+        
+        resultDTO.setStatus(1);
+        resultDTO.setData(convertToQuestionSubmissionDTO(essaySubmission));
+        resultDTO.setMessage("Essay graded successfully");
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+    }
+    
+    @Transactional
+    public ResponseEntity<ResultDTO> gradeCodingQuestion(String userId, Map<String, Object> requestBody) {
+        ResultDTO resultDTO = new ResultDTO();
+        
+        Long submissionId = Long.valueOf(requestBody.get("submissionId").toString());
+        Long questionSubmissionId = Long.valueOf(requestBody.get("questionSubmissionId").toString());
+        Float score = Float.valueOf(requestBody.get("score").toString());
+        String feedback = (String) requestBody.get("feedback");
+        
+        // Verify the submission exists
+        ExamSubmissionEntity examSubmission = examSubmissionRepository.findById(submissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam submission not found"));
+        
+        // Verify the user is a teacher for this course
+        if (!validateTeacherInCourse(examSubmission.getExam().getCourseId(), userId)) {
+            resultDTO.setMessage("You don't have permission to grade this exam");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+        
+        // Get the question submission
+        CodingSubmissionEntity codingSubmission = (CodingSubmissionEntity) questionSubmissionRepository.findById(questionSubmissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question submission not found"));
+        
+        // Update the grade
+        codingSubmission.setScore(score);
+        codingSubmission.setFeedback(feedback);
+        codingSubmission.setGraded(true);
+        codingSubmission = (CodingSubmissionEntity) questionSubmissionRepository.save(codingSubmission);
+        
+        // Update the total score of the exam submission
+        updateExamSubmissionTotalScore(examSubmission);
+        
+        resultDTO.setStatus(1);
+        resultDTO.setData(convertToQuestionSubmissionDTO(codingSubmission));
+        resultDTO.setMessage("Coding question graded successfully");
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+    }
+    
+    @Transactional
+    public ResponseEntity<ResultDTO> finalizeGrading(String userId, Long examSubmissionId) {
+        ResultDTO resultDTO = new ResultDTO();
+        
+        // Verify the submission exists
+        ExamSubmissionEntity examSubmission = examSubmissionRepository.findById(examSubmissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exam submission not found"));
+        
+        // Verify the user is a teacher for this course
+        if (!validateTeacherInCourse(examSubmission.getExam().getCourseId(), userId)) {
+            resultDTO.setMessage("You don't have permission to grade this exam");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+        
+        // Update the total score and mark as graded
+        updateExamSubmissionTotalScore(examSubmission);
+        examSubmission.setIsGraded(true);
+        examSubmission.setGradingTime(new Date());
+        examSubmission = examSubmissionRepository.save(examSubmission);
+        
+        resultDTO.setStatus(1);
+        resultDTO.setData(convertToDTO(examSubmission));
+        resultDTO.setMessage("Grading finalized successfully");
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+    }
+    
+    private void updateExamSubmissionTotalScore(ExamSubmissionEntity examSubmission) {
+        List<QuestionSubmissionEntity> submissions = questionSubmissionRepository
+                .findByExamSubmissionId(examSubmission.getId());
+        
+        float totalScore = 0;
+        boolean allGraded = true;
+        
+        for (QuestionSubmissionEntity submission : submissions) {
+            if (submission.getGraded() && submission.getScore() != null) {
+                totalScore += submission.getScore();
+            } else {
+                allGraded = false;
+            }
+        }
+        
+        examSubmission.setTotalScore(totalScore);
+        examSubmission.setIsGraded(allGraded);
+        
+        if (allGraded) {
+            examSubmission.setGradingTime(new Date());
+        }
+        
+        examSubmissionRepository.save(examSubmission);
     }
 }

@@ -63,8 +63,8 @@ export class RoleDetailComponent implements OnInit, OnChanges{
     this.items =
       [
         {icon: 'pi pi-home', route: '/'},
-        {label: 'Quản lý role', url: '/admin/role-management'},
-        {label: 'Thông tin role'}
+        {label: 'Quản lý vai trò', url: '/admin/role-management'},
+        {label: 'Thông tin vai trò'}
       ];
 
     this.updateRoleForm = this.fb.group({

@@ -62,6 +62,33 @@ public class LessonBranchService {
         return ResponseEntity.status(HttpStatus.OK).body(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> getStudentProgressByLessonId(Long lessonId, String validateUserId) {
+        ResultDTO resultDTO = new ResultDTO();
+
+        CourseRole courseRole = userEnrolmentsRepository.getCourseRoleByUserId(validateUserId);
+        CourseEntity courseEntity = lessonRepository.findCourseEntityByLessonId(lessonId);
+        EnrolEntity enrolEntity = userEnrolmentsRepository.getEnrolEntityByUserId(validateUserId, courseEntity.getId());
+
+
+        if(enrolEntity == null){
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("You dont have permission to view this page");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
+        if(courseRole == CourseRole.STUDENT) {
+            resultDTO.setStatus(0);
+            resultDTO.setMessage("You dont have permission to view this page");
+            return new ResponseEntity<>(resultDTO, HttpStatus.FORBIDDEN);
+        }
+
+        List<StudentProgressDTO> studentProgressDTOList = lessonBranchRepository.getStudentProgressByLessonId(lessonId);
+        resultDTO.setStatus(1);
+        resultDTO.setData(studentProgressDTOList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(resultDTO);
+    }
+
 
     public ResponseEntity<ResultDTO> saveLessonBranch(LessonBranchDTO lessonBranchDTO,
                                                       String userId) {

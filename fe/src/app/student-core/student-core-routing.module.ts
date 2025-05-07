@@ -9,6 +9,7 @@ import {AssignmentDetailComponent} from "./course/assignment-detail/assignment-d
 import {ExamMultipleChoiceComponent} from "./quiz/exam-multiple-choice/exam-multiple-choice.component";
 import {ExamEssayComponent} from "./quiz/exam-essay/exam-essay.component";
 import {ExamCodingComponent} from "./quiz/exam-coding/exam-coding.component";
+import {CourseListComponent} from "./course/course-list/course-list.component";
 
 const routes: Routes = [
   {
@@ -23,6 +24,10 @@ const routes: Routes = [
       {
         path: 'course-detail/:id',
         component: CourseDetailComponent
+      },
+      {
+        path: 'course-list',
+        component: CourseListComponent
       },
       {
         path: 'lesson-detail/:id',

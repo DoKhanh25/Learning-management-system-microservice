@@ -1,38 +1,38 @@
 <div class="card p-4">
           <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-4">
-            <h2 class="text-2xl font-bold m-0">Student Lesson Progress</h2>
+            <h2 class="text-2xl font-bold m-0">Tiến Độ Bài Học Của Học Viên</h2>
             <div class="flex gap-3 mt-3 md:mt-0">
-              <p-button icon="pi pi-arrow-left" label="Back" routerLink="/user/course-detail/{{courseId}}" styleClass="p-button-outlined"></p-button>
+              <p-button icon="pi pi-arrow-left" label="Quay Lại" routerLink="/user/course-detail/{{courseId}}" styleClass="p-button-outlined"></p-button>
             </div>
           </div>
 
           <p-card>
-            <h3 *ngIf="courseName" class="mb-3">Course: {{courseName}}</h3>
+            <h3 *ngIf="courseName" class="mb-3">Khóa Học: {{courseName}}</h3>
 
             <div class="grid">
               <div class="col-12 md:col-4">
                 <div class="p-field mb-3">
-                  <label for="section" class="block mb-2 font-semibold">Select Course Section</label>
+                  <label for="section" class="block mb-2 font-semibold">Chọn Phần Khóa Học</label>
                   <p-dropdown id="section" [options]="sections" [(ngModel)]="selectedSection" (onChange)="onSectionChange()"
-                            optionLabel="name" placeholder="Select a section" styleClass="w-full"
+                            optionLabel="name" placeholder="Chọn một phần" styleClass="w-full"
                             [disabled]="loading || sections.length === 0"></p-dropdown>
                 </div>
               </div>
 
               <div class="col-12 md:col-4">
                 <div class="p-field mb-3">
-                  <label for="lesson" class="block mb-2 font-semibold">Select Lesson</label>
+                  <label for="lesson" class="block mb-2 font-semibold">Chọn Bài Học</label>
                   <p-dropdown id="lesson" [options]="selectedSection ? sectionLessons : lessons" [(ngModel)]="selectedLesson"
-                            (onChange)="onLessonChange()" optionLabel="name" placeholder="Select a lesson" styleClass="w-full"
+                            (onChange)="onLessonChange()" optionLabel="name" placeholder="Chọn một bài học" styleClass="w-full"
                             [disabled]="loading || (selectedSection && sectionLessons.length === 0) || (!selectedSection && lessons.length === 0)"></p-dropdown>
                 </div>
               </div>
 
               <div class="col-12 md:col-4">
                 <div class="p-field mb-3">
-                  <label for="student" class="block mb-2 font-semibold">Select Student</label>
+                  <label for="student" class="block mb-2 font-semibold">Chọn Học Viên</label>
                   <p-dropdown id="student" [options]="students" [(ngModel)]="selectedStudent" (onChange)="onStudentChange()"
-                            optionLabel="name" placeholder="Select a student" styleClass="w-full"
+                            optionLabel="name" placeholder="Chọn một học viên" styleClass="w-full"
                             [disabled]="loading || students.length === 0"></p-dropdown>
                 </div>
               </div>
@@ -46,24 +46,24 @@
 
             <div *ngIf="!loading && selectedLesson && selectedStudent">
               <div class="mb-3">
-                <span class="font-semibold">Section:</span> {{selectedLesson.sectionName || 'N/A'}}
+                <span class="font-semibold">Phần:</span> {{selectedLesson.sectionName || 'N/A'}}
                 <span class="mx-2">|</span>
-                <span class="font-semibold">Lesson:</span> {{selectedLesson.name}}
+                <span class="font-semibold">Bài Học:</span> {{selectedLesson.name}}
                 <span class="mx-2">|</span>
-                <span class="font-semibold">Student:</span> {{selectedStudent.name}}
+                <span class="font-semibold">Học Viên:</span> {{selectedStudent.name}}
               </div>
 
               <div *ngIf="studentProgress.length === 0" class="text-center my-5">
                 <i class="pi pi-exclamation-circle text-5xl text-yellow-500 mb-3 block"></i>
-                <h3>No progress data found</h3>
-                <p>The student hasn't viewed any pages in this lesson yet.</p>
+                <h3>Không tìm thấy dữ liệu tiến độ</h3>
+                <p>Học viên chưa xem trang nào trong bài học này.</p>
               </div>
 
               <div *ngIf="studentProgress.length > 0">
                 <div class="flex justify-content-between align-items-center mb-3">
-                  <h3 class="m-0">Progress Summary</h3>
+                  <h3 class="m-0">Tóm Tắt Tiến Độ</h3>
                   <div class="text-right">
-                    <span class="font-bold">Total Time Spent: </span>
+                    <span class="font-bold">Tổng Thời Gian Đã Dành: </span>
                     <span class="text-primary font-bold">{{formatTime(totalTimeSpent)}}</span>
                   </div>
                 </div>
@@ -71,10 +71,10 @@
                 <p-table [value]="studentProgress" [tableStyle]="{'min-width': '50rem'}" styleClass="p-datatable-sm p-datatable-striped">
                   <ng-template pTemplate="header">
                     <tr>
-                      <th>Page Title</th>
-                      <th class="text-center">Completion Status</th>
-                      <th class="text-center">Start Time</th>
-                      <th class="text-center">Time Spent</th>
+                      <th>Tiêu Đề Trang</th>
+                      <th class="text-center">Trạng Thái Hoàn Thành</th>
+                      <th class="text-center">Thời Gian Bắt Đầu</th>
+                      <th class="text-center">Thời Gian Đã Dành</th>
                     </tr>
                   </ng-template>
                   <ng-template pTemplate="body" let-progress>
@@ -82,7 +82,7 @@
                       <td>{{progress.title}}</td>
                       <td class="text-center">
                         <p-tag [severity]="progress.completed ? 'success' : 'warning'"
-                               [value]="progress.completed ? 'Completed' : 'In Progress'"></p-tag>
+                               [value]="progress.completed ? 'Đã Hoàn Thành' : 'Đang Thực Hiện'"></p-tag>
                       </td>
                       <td class="text-center">{{progress.startTime | date:'short'}}</td>
                       <td class="text-center">{{formatTime(progress.timeSeen)}}</td>
@@ -91,7 +91,7 @@
                   </ng-template>
                   <ng-template pTemplate="emptymessage">
                     <tr>
-                      <td colspan="5" class="text-center p-3">No progress data available</td>
+                      <td colspan="5" class="text-center p-3">Không có dữ liệu tiến độ</td>
                     </tr>
                   </ng-template>
                 </p-table>
@@ -100,7 +100,7 @@
 
             <div *ngIf="!loading && (!selectedLesson || !selectedStudent)" class="text-center p-5">
               <i class="pi pi-info-circle text-4xl text-primary mb-3 block"></i>
-              <p>Please select a course section, lesson, and student to view progress data.</p>
+              <p>Vui lòng chọn phần khóa học, bài học và học viên để xem dữ liệu tiến độ.</p>
             </div>
           </p-card>
 

@@ -23,8 +23,8 @@ export class CourseListComponent implements OnInit {
   searchControl = new FormControl('');
   selectedRole: string = 'STUDENT';  // Default role
   courseRoles: any[] = [
-    { label: 'Student', value: 'STUDENT' },
-    { label: 'Teacher', value: 'TEACHER' }
+    { label: 'Học viên', value: 'STUDENT' },
+    { label: 'Giảng viên', value: 'TEACHER' }
   ];
 
   constructor(

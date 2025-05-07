@@ -30,6 +30,18 @@ export class CourseService {
     return this.httpClient.get<Result>(`${this.baseUrl}/getAllCourseAvailable`)
   }
 
+  getAttendedCoursesByUserId(userId: string): Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/getAttendedCoursesByUserId?userId=${userId}`)
+  }
+
+  getLessonPagesTree(courseId: any): Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/getLessonPagesTree?courseId=${courseId}`)
+  }
+
+  getAssignmentsTree(courseId: any): Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/getAssignmentsTree?courseId=${courseId}`)
+  }
+
   addCourse(course: any): Observable<Result>{
     return this.httpClient.post<Result>(`${this.baseUrl}/addCourse`, course);
   }
@@ -250,6 +262,8 @@ export class CourseService {
   deleteUserEnrolmentsByUserIdAndCourseId(courseId: any, userId: any){
     return this.httpClient.delete(`${this.baseUrl}/deleteUserEnrolmentsByUserIdAndCourseId?userId=${userId}&courseId=${courseId}`);
   }
-
+  getStudentProgressByLessonId(lessonId: any){
+    return this.httpClient.get<Result>(`${this.baseUrl}/getStudentProgressByLessonId?lessonId=${lessonId}`);
+  }
 
 }

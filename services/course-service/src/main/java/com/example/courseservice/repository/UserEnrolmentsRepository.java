@@ -45,4 +45,6 @@ public interface UserEnrolmentsRepository extends JpaRepository<UserEnrolmentsEn
     @Transactional
     @Query("delete from user_enrolment ue where ue.userId = :userId and ue.enrol.course.id = :courseId")
     void deleteUserEnrolmentsByUserIdAndCourseId(String userId, Long courseId);
+
+
 }

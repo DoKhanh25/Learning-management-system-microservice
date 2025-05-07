@@ -32,7 +32,7 @@
           <!-- Assignments Card -->
           <div class="content-card">
             <div class="card-header">
-              <h2><i class="pi pi-file-o"></i> Assignments</h2>
+              <h2><i class="pi pi-file-o"></i> Bài tập</h2>
             </div>
             <div class="card-body">
               <!-- Show when assignments exist -->
@@ -40,12 +40,12 @@
                        styleClass="p-datatable-sm p-datatable-hoverable-rows" [tableStyle]="{'min-width': '50rem'}">
                 <ng-template pTemplate="header">
                   <tr>
-                    <th style="width: 30%">Title</th>
-                    <th style="width: 15%">Start Date</th>
-                    <th style="width: 15%">Due Date</th>
-                    <th style="width: 15%">Type</th>
-                    <th style="width: 15%">Status</th>
-                    <th style="width: 10%">Actions</th>
+                    <th style="width: 30%">Tiêu đề</th>
+                    <th style="width: 15%">Ngày bắt đầu</th>
+                    <th style="width: 15%">Ngày hết hạn</th>
+                    <th style="width: 15%">Loại</th>
+                    <th style="width: 15%">Trạng thái</th>
+                    <th style="width: 10%">Thao tác</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-assignment>
@@ -73,7 +73,7 @@
                     <td>
                       <button pButton pRipple icon="pi pi-eye"
                               class="p-button-rounded p-button-text"
-                              pTooltip="View Assignment"
+                              pTooltip="Xem bài tập"
                               (click)="navigateToAssignmentDetail(assignment.id)">
                       </button>
                     </td>
@@ -86,8 +86,8 @@
                 <div class="empty-state-icon">
                   <i class="pi pi-file-o"></i>
                 </div>
-                <h3>No Assignments</h3>
-                <p>There are no assignments for this course yet.</p>
+                <h3>Không có bài tập</h3>
+                <p>Chưa có bài tập nào cho khóa học này.</p>
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@
           <!-- Exams Card -->
           <div class="content-card">
             <div class="card-header">
-              <h2><i class="pi pi-check-square lesson-icon"></i> Exams</h2>
+              <h2><i class="pi pi-check-square lesson-icon"></i> Bài kiểm tra</h2>
             </div>
             <div class="card-body">
               <!-- Show when exams exist -->
@@ -103,13 +103,13 @@
                        styleClass="p-datatable-sm p-datatable-hoverable-rows" [tableStyle]="{'min-width': '50rem'}">
                 <ng-template pTemplate="header">
                   <tr>
-                    <th style="width: 25%">Name</th>
-                    <th style="width: 12%">Start Date</th>
-                    <th style="width: 12%">End Date</th>
-                    <th style="width: 10%">Duration</th>
-                    <th style="width: 13%">Type</th>
-                    <th style="width: 13%">Status</th>
-                    <th style="width: 15%">Actions</th>
+                    <th style="width: 25%">Tên</th>
+                    <th style="width: 12%">Ngày bắt đầu</th>
+                    <th style="width: 12%">Ngày kết thúc</th>
+                    <th style="width: 10%">Thời gian</th>
+                    <th style="width: 13%">Loại</th>
+                    <th style="width: 13%">Trạng thái</th>
+                    <th style="width: 15%">Thao tác</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-exam>
@@ -122,10 +122,10 @@
                     </td>
                     <td>{{ exam.startTime | date:'medium' }}</td>
                     <td>{{ exam.endTime | date:'medium' }}</td>
-                    <td>{{ exam.duration }} mins</td>
+                    <td>{{ exam.duration }} phút</td>
                     <td>
                       <p-tag [value]="exam.examType"
-                             [severity]="exam.examType === 'MULTIPLE_CHOICE' ? 'secondary' : 
+                             [severity]="exam.examType === 'MULTIPLE_CHOICE' ? 'secondary' :
                                         exam.examType === 'ESSAY' ? 'success' : 'danger'">
                       </p-tag>
                     </td>
@@ -139,7 +139,7 @@
                     <td>
                       <button pButton pRipple
                               icon="pi pi-play"
-                              label="Start"
+                              label="Bắt đầu"
                               class="p-button-sm"
                               [disabled]="getExamStatus(exam.startTime, exam.endTime) !== 'Available'"
                               (click)="startExam(exam)">
@@ -154,8 +154,8 @@
                 <div class="empty-state-icon">
                   <i class="pi pi-check-square"></i>
                 </div>
-                <h3>No Exams</h3>
-                <p>There are no exams available for this course yet.</p>
+                <h3>Không có bài kiểm tra</h3>
+                <p>Chưa có bài kiểm tra nào cho khóa học này.</p>
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@
           <!-- Lessons & Sections Card -->
           <div class="content-card">
             <div class="card-header">
-              <h2><i class="pi pi-book"></i> Lessons</h2>
+              <h2><i class="pi pi-book"></i> Bài học</h2>
             </div>
             <div class="card-body">
               <div class="course-content" *ngIf="!loading">
@@ -171,8 +171,8 @@
                   <div class="empty-state-icon">
                     <i class="pi pi-folder-open"></i>
                   </div>
-                  <h3>No Content Yet</h3>
-                  <p>No content has been added to this course yet.</p>
+                  <h3>Chưa có nội dung</h3>
+                  <p>Chưa có nội dung nào được thêm vào khóa học này.</p>
                 </div>
 
                 <div *ngFor="let section of sections" class="section-container">
@@ -190,7 +190,7 @@
 
                     <div class="lessons-container" *ngIf="expandedSections[section.id]">
                       <div *ngIf="!section.lessons || section.lessons.length === 0" class="empty-lessons">
-                        <p>No lessons in this section yet.</p>
+                        <p>Chưa có bài học nào trong phần này.</p>
                       </div>
 
                       <p-table *ngIf="section.lessons && section.lessons.length > 0"
@@ -199,9 +199,9 @@
                                [tableStyle]="{'min-width': '50rem'}">
                         <ng-template pTemplate="header">
                           <tr>
-                            <th style="width: 60%">Lesson Name</th>
-                            <th>Summary</th>
-                            <th style="width: 80px">Actions</th>
+                            <th style="width: 60%">Tên bài học</th>
+                            <th>Tóm tắt</th>
+                            <th style="width: 80px">Thao tác</th>
                           </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-lesson>
@@ -216,7 +216,7 @@
                             <td>
                               <button pButton pRipple icon="pi pi-eye"
                                       class="p-button-rounded p-button-text action-btn"
-                                      pTooltip="View Lesson"
+                                      pTooltip="Xem bài học"
                                       (click)="navigateToLessonDetail(lesson.id)">
                               </button>
                             </td>
@@ -234,7 +234,7 @@
         </div>
 
         <p-toast></p-toast>
-        <p-confirmDialog [style]="{width: '450px'}" header="Confirm" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+        <p-confirmDialog [style]="{width: '450px'}" header="Xác nhận" icon="pi pi-exclamation-triangle"></p-confirmDialog>
         <p-confirmDialog key="startExamDialog" [style]="{width: '500px'}" icon="pi pi-exclamation-triangle">
 
         </p-confirmDialog>

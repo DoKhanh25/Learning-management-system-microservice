@@ -7,6 +7,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import {CourseSection} from "../../../../model/course";
 import {Assignment} from "../../../../model/assignment";
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {QuizService} from "../../../services/quiz/quiz.service";
 
 @Component({
   selector: 'app-course-detail',
@@ -40,6 +41,8 @@ export class CourseDetailComponent implements OnInit {
   showLessonForm = false;
   currentSectionId: number | null = null;
 
+  availableExams: any[] = [];
+
   sectionForm: FormGroup;
   lessonForm: FormGroup;
   expandedSections: {[key: number]: boolean} = {};
@@ -62,7 +65,8 @@ export class CourseDetailComponent implements OnInit {
     private fb: FormBuilder,
     private dialogService: DialogService,
     private router: Router,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private quizService: QuizService
 
   ) {
 
@@ -97,17 +101,38 @@ export class CourseDetailComponent implements OnInit {
         this.loadCourseData();
       }
     });
-
+    this.loadAvailableExams();
     this.setupBreadcrumb();
   }
 
   private setupBreadcrumb() {
     this.items = [
       { icon: 'pi pi-home', routerLink: '/home' },
-      { label: 'My Courses', routerLink: '/courses' },
-      { label: 'Course Details' }
+      { label: 'Chi tiết khóa học' }
     ];
   }
+
+  loadAvailableExams() {
+    if (!this.courseId) return;
+
+    this.quizService.getAvailableExamsByCourseId(this.courseId).subscribe({
+      next: (response) => {
+        if (response.status === 1) {
+          this.availableExams = response.data || [];
+        }
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load exams',
+          life: 3000
+        });
+      }
+    });
+  }
+
+
 
   loadCourseData() {
     if (!this.courseId) return;
@@ -141,6 +166,26 @@ export class CourseDetailComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  viewExam(id: any) {
+    if (this.courseId) {
+      this.router.navigate(['/user/course', this.courseId, 'exam', id, 'results']);
+    }
+  }
+
+  getExamStatus(startTime: string, endTime: string): string {
+    const currentDate = new Date();
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    if (currentDate < start) {
+      return 'Not Started';
+    } else if (currentDate >= start && currentDate <= end) {
+      return 'Available';
+    } else {
+      return 'Closed';
+    }
   }
 
   // Add method to load assignments
@@ -480,6 +525,9 @@ export class CourseDetailComponent implements OnInit {
 
   clickNavigateLessonStudentManagement(courseId: any){
     this.router.navigate(['/user/lesson-student-management', courseId]);
+  }
+  clickNavigateStatistic(courseId: any){
+    this.router.navigate(['/user/course-statistic', courseId]);
   }
 
   navigateToQuestionBankManagement(courseId: any) {

@@ -6,6 +6,7 @@ import {UserService} from "../../../services/user-service/user.service";
 import {AuthService} from "../../../services/auth/auth.service";
 import {CohortService} from "../../../services/cohort/cohort.service";
 import {DiscoveryService} from "../../../services/discovery/discovery.service";
+import {QuizService} from "../../../services/quiz/quiz.service";
 
 interface Statistic {
   label: string;
@@ -61,7 +62,8 @@ export class HomeComponent implements OnInit {
               private userService: UserService,
               private authService: AuthService,
               private cohortService: CohortService,
-              private discoveryService: DiscoveryService) {}
+              private discoveryService: DiscoveryService,
+              private quizService: QuizService) {}
 
   ngOnInit(): void {
     this.items = [
@@ -169,6 +171,8 @@ export class HomeComponent implements OnInit {
       }
     );
 
+
+
     // Assuming you have a cohort service with a method to get stats
     this.cohortService.getAllCohorts().subscribe(
       (result) => {
@@ -179,8 +183,11 @@ export class HomeComponent implements OnInit {
       }
     );
 
-    this.statistics[3].value = 24;
-    this.statistics[3].progressValue = 60;
+    this.quizService.countAllExams().subscribe((result) => {
+      if(result && result.status == 1){
+        this.statistics[3].value = result.data;
+      }
+    })
   }
 
   private setupQuickAccessMenu(): void {

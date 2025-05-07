@@ -27,7 +27,7 @@ export class ExamCodingComponent implements OnInit, OnDestroy {
     language: 'javascript',
     fontSize: 14,
     automaticLayout: true,
-    height: '500px'
+    height: '600px'
   };
 
   code: string = '// Write your code here';

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 public class ExamSubmissionController {
@@ -76,10 +78,37 @@ public class ExamSubmissionController {
         return examSubmissionService.getExamQuestions(validateUserId, examSubmissionId);
     }
 
+    @GetMapping("/getQuestionSubmissions/{examSubmissionId}")
+    public ResponseEntity<ResultDTO> getQuestionSubmissions(
+            @RequestHeader("X-User-Id") String validateUserId,
+            @PathVariable Long examSubmissionId) {
+        return examSubmissionService.getQuestionSubmissions(examSubmissionId, validateUserId);
+    }
     @PostMapping("/executeCode")
     public ResponseEntity<ResultDTO> executeCode(
             @RequestHeader("X-User-Id") String validateUserId,
             @RequestBody CodeExecutionRequestDTO requestDTO) {
         return examSubmissionService.codeExecute(validateUserId, requestDTO);
+    }
+
+    @PostMapping("/gradeEssayQuestion")
+    public ResponseEntity<ResultDTO> gradeEssayQuestion(
+            @RequestHeader("X-User-Id") String validateUserId,
+            @RequestBody Map<String, Object> requestBody) {
+        return examSubmissionService.gradeEssayQuestion(validateUserId, requestBody);
+    }
+
+    @PostMapping("/gradeCodingQuestion")
+    public ResponseEntity<ResultDTO> gradeCodingQuestion(
+            @RequestHeader("X-User-Id") String validateUserId,
+            @RequestBody Map<String, Object> requestBody) {
+        return examSubmissionService.gradeCodingQuestion(validateUserId, requestBody);
+    }
+
+    @PostMapping("/finalizeGrading/{examSubmissionId}")
+    public ResponseEntity<ResultDTO> finalizeGrading(
+            @RequestHeader("X-User-Id") String validateUserId,
+            @PathVariable Long examSubmissionId) {
+        return examSubmissionService.finalizeGrading(validateUserId, examSubmissionId);
     }
 }

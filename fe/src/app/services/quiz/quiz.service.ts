@@ -12,6 +12,14 @@ export class QuizService {
 
   constructor(public httpClient: HttpClient) { }
 
+  countAllExams(): Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/countAllExams`)
+  }
+
+  getExamsTree(courseId: any): Observable<Result>{
+    return this.httpClient.get<Result>(`${this.baseUrl}/getExamsTree?courseId=${courseId}`)
+  }
+
   // Question Bank endpoints
   getAllQuestionBanksByCourseId(courseId: any): Observable<Result> {
     return this.httpClient.get<Result>(`${this.baseUrl}/getAllQuestionBanksByCourseId?courseId=${courseId}`);
@@ -156,19 +164,41 @@ export class QuizService {
     return this.httpClient.get<Result>(`${this.baseUrl}/getExamSubmission/${submissionId}`);
   }
 
-  getExamSubmissions(examId: any): Observable<Result> {
-    return this.httpClient.get<Result>(`${this.baseUrl}/getExamSubmissions/${examId}`);
-  }
-
   getExamQuestions(examSubmissionId: any): Observable<Result> {
     return this.httpClient.get<Result>(`${this.baseUrl}/getExamQuestions/${examSubmissionId}`);
+  }
+
+  getQuestionSubmissions(examSubmissionId: any): Observable<Result> {
+    return this.httpClient.get<Result>(`${this.baseUrl}/getQuestionSubmissions/${examSubmissionId}`);
   }
 
   executeCode(executionRequest: any): Observable<Result> {
     return this.httpClient.post<Result>(`${this.baseUrl}/executeCode`, executionRequest);
   }
 
-  getSupportedLanguages(): Observable<Result> {
-    return this.httpClient.get<Result>(`${this.baseUrl}/getSupportedLanguages`);
+  getExamSubmissions(examId: number): Observable<any> {
+    return this.httpClient.get(`${this.baseUrl}/getExamSubmissions/${examId}`);
+  }
+
+  updateEssaySubmissionGrade(data: {
+    submissionId: number,
+    questionSubmissionId: number,
+    score: number,
+    feedback: string
+  }): Observable<any> {
+    return this.httpClient.post(`${this.baseUrl}/gradeEssayQuestion`, data);
+  }
+
+  updateCodingSubmissionGrade(data: {
+    submissionId: number,
+    questionSubmissionId: number,
+    score: number,
+    feedback: string
+  }): Observable<any> {
+    return this.httpClient.post(`${this.baseUrl}/gradeCodingQuestion`, data);
+  }
+
+  finalizeGrading(submissionId: number): Observable<any> {
+    return this.httpClient.post(`${this.baseUrl}/finalizeGrading/${submissionId}`, {});
   }
 }

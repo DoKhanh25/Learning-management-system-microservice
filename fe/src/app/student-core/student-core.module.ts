@@ -40,6 +40,7 @@ import { ExamMultipleChoiceComponent } from './quiz/exam-multiple-choice/exam-mu
 import { ExamEssayComponent } from './quiz/exam-essay/exam-essay.component';
 import { ExamCodingComponent } from './quiz/exam-coding/exam-coding.component';
 import {MonacoEditorModule} from "ngx-monaco-editor-v2";
+import { CourseListComponent } from './course/course-list/course-list.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import {MonacoEditorModule} from "ngx-monaco-editor-v2";
     ExamMultipleChoiceComponent,
     ExamEssayComponent,
     ExamCodingComponent,
+    CourseListComponent,
   ],
   imports: [
     CommonModule,

@@ -45,57 +45,46 @@
       </div>
     </ng-template>
   </p-card>
-  <div class="col-8 grid h-20rem">
-    <p-card class="col-6 text-center">
+  <div class="col-8 grid">
+    <p-card class="col-6 text-center shadow-2 h-full" styleClass="h-full p-0 surface-card">
       <ng-template pTemplate="title">
         <p-progressBar mode="indeterminate" *ngIf="sessionLoading"  [style]="{'height': '6px'}"></p-progressBar>
         <br>
-        Phiên hoạt động
+        <div class="text-xl font-bold text-900 mb-2">Phiên hoạt động</div>
       </ng-template>
       <ng-template pTemplate="content">
-        <div class="mt-3 text-center" *ngIf="newestSession!=undefined">
-          <div class="session-item"><strong>Địa chỉ IP</strong>: {{newestSession.ipAddress}}</div>
-          <div class="session-item"><strong>Ngày tạo:</strong>{{newestSession.start}} </div>
-          <div class="session-item"><strong>Truy cập gần đây:</strong>{{newestSession.lastAccess}}</div>
-          <div class="session-item"><strong>Client:</strong>{{newestSession.clients}}</div>
-        </div>
-        <div class="mt-3 text-center" *ngIf="newestSession==undefined">
-          <p>Người dùng chưa từng hoạt động</p>
-        </div>
-      </ng-template>
-    </p-card>
-
-    <p-card class="col-6 text-center">
-      <ng-template pTemplate="title">
-        <br>
-        Khóa học
-      </ng-template>
-      <ng-template pTemplate="content">
-        <div class="mt-3 text-center">
-          <p>Đang phát triển</p>
+        <div class="card-content p-3 overflow-auto" style="min-height: 250px; max-height: 250px;">
+          <div class="mt-3 text-center" *ngIf="newestSession!=undefined">
+            <div class="session-item mb-2"><strong>Địa chỉ IP</strong>: {{newestSession.ipAddress}}</div>
+            <div class="session-item mb-2"><strong>Ngày tạo:</strong> {{newestSession.start}} </div>
+            <div class="session-item mb-2"><strong>Truy cập gần đây:</strong> {{newestSession.lastAccess}}</div>
+          </div>
+          <div class="mt-3 text-center flex align-items-center justify-content-center" style="height: 150px;" *ngIf="newestSession==undefined">
+            <p class="text-500 font-italic">Người dùng không hoạt động</p>
+          </div>
         </div>
       </ng-template>
     </p-card>
 
-    <p-card class="col-6 text-center">
+    <p-card class="col-6 text-center shadow-2 h-full" styleClass="h-full p-0 surface-card">
       <ng-template pTemplate="title">
+        <p-progressBar mode="indeterminate" *ngIf="courseLoading" [style]="{'height': '6px'}"></p-progressBar>
         <br>
-        Kết quả học tập
+        <div class="text-xl font-bold text-900 mb-2">Khóa học</div>
       </ng-template>
       <ng-template pTemplate="content">
-        <div class="mt-3 text-center">
-          <p>Đang phát triển</p>
-        </div>
-      </ng-template>
-    </p-card>
-    <p-card class="col-6 text-center">
-      <ng-template pTemplate="title">
-        <br>
-        Kết quả học tập
-      </ng-template>
-      <ng-template pTemplate="content">
-        <div class="mt-3 text-center">
-          <p>Đang phát triển</p>
+        <div class="card-content p-3 overflow-auto" style="min-height: 250px; max-height: 250px;">
+          <div class="mt-3 text-left" *ngIf="!courseLoading && attendedCourses.length > 0">
+            <ul class="list-none p-0 m-0">
+              <li *ngFor="let course of attendedCourses" class="mb-3 pb-2 border-bottom-1 border-300">
+                <span class="font-medium text-900">{{course.name}}</span>
+                <div *ngIf="course.summary" class="text-sm text-500 mt-1">{{course.summary}}</div>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-3 text-center flex align-items-center justify-content-center" style="height: 150px;" *ngIf="!courseLoading && attendedCourses.length === 0">
+            <p class="text-500 font-italic">Không có khóa học nào được tham gia</p>
+          </div>
         </div>
       </ng-template>
     </p-card>

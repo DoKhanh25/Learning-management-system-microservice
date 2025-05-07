@@ -40,7 +40,7 @@ export class RoleListComponent implements OnInit{
     this.items =
       [
         { icon: 'pi pi-home', route: '/' },
-        { label: 'Quản lý role', url: '/admin/role-management' }
+        { label: 'Quản lý vai trò', url: '/admin/role-management' }
       ];
 
     this.roleAddForm = this.fb.group({

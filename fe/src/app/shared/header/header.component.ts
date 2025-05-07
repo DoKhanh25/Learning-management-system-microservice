@@ -66,7 +66,7 @@ export class HeaderComponent implements OnInit {
       this.role = 'TEACHER';
     }
     else if(roles.includes('ROLE_STUDENT') && !roles.includes('ROLE_ADMIN') && !roles.includes('ROLE_TEACHER')){
-      this.role = 'USER';
+      this.role = 'STUDENT';
     }
 
     this.authService.getUserProfile().then(profile => {

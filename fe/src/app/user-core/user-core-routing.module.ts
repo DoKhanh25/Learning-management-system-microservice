@@ -15,6 +15,8 @@ import { QuestionBankManagementComponent } from './quiz/question/question-bank-m
 import { QuestionBankDetailComponent } from './quiz/question/question-bank-detail/question-bank-detail.component';
 import { ExamManagementComponent } from './quiz/exam/exam-management/exam-management.component';
 import { ExamDetailComponent } from './quiz/exam/exam-detail/exam-detail.component';
+import { ExamResultManagementComponent } from './quiz/exam/exam-result-management/exam-result-management.component';
+import {CourseStatisticComponent} from "./course/course-statistic/course-statistic.component";
 
 const routes: Routes = [
   {
@@ -72,6 +74,14 @@ const routes: Routes = [
       {
         path: 'course/:courseId/exam-detail/:examId',
         component: ExamDetailComponent
+      },
+      {
+        path: 'course/:courseId/exam/:examId/results',
+        component: ExamResultManagementComponent
+      },
+      {
+        path: 'course-statistic/:courseId',
+        component: CourseStatisticComponent
       },
       {
         path: '',

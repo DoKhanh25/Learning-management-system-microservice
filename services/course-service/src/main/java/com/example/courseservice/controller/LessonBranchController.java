@@ -28,4 +28,10 @@ public class LessonBranchController {
                                                       @RequestHeader("X-User-Id") String userId){
         return lessonBranchService.saveLessonBranch(lessonBranchDTO, userId);
     }
+
+    @GetMapping("/getStudentProgressByLessonId")
+    public ResponseEntity<ResultDTO> getStudentProgressByLessonId(@RequestParam("lessonId") Long lessonId,
+                                                                           @RequestHeader("X-User-Id") String validateUserId){
+        return lessonBranchService.getStudentProgressByLessonId(lessonId, validateUserId);
+    }
 }

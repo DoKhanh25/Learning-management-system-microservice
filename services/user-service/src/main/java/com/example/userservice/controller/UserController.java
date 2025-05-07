@@ -1,10 +1,12 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.PermissionUtils;
 import com.example.userservice.dto.*;
 import com.example.userservice.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,7 +50,11 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<ResultDTO> createUser(@RequestBody UserInfoPostDTO userInfoPostDTO){
+    public ResponseEntity<ResultDTO> createUser(@RequestBody UserInfoPostDTO userInfoPostDTO,
+                                                @RequestHeader("X-Resource-Scopes") String headers){
+        if(!PermissionUtils.canCreate("user-management", headers)){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return userService.createUser(userInfoPostDTO);
     }
 
@@ -58,19 +64,29 @@ public class UserController {
     }
 
     @PostMapping(value = "/uploadUsersExcel", consumes = {"multipart/form-data"})
-    public ResponseEntity<Resource> uploadUsersCreateExcel(@RequestParam(name = "file") MultipartFile file) throws Exception{
+    public ResponseEntity<Resource> uploadUsersCreateExcel(@RequestParam(name = "file") MultipartFile file,
+                                                           @RequestHeader("X-Resource-Scopes") String headers) throws Exception{
+        if(!PermissionUtils.canCreate("user-management", headers)){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return userService.uploadUsersExcel(file);
     }
 
     @PostMapping(value = "updateUser/{userId}")
     public ResponseEntity<ResultDTO> updateUser(@RequestBody UserInfoPostDTO userInfoPostDTO,
-                                                @PathVariable String userId){
-        log.info(userId, userInfoPostDTO.getEmail());
+                                                @PathVariable String userId,
+                                                @RequestHeader("X-Resource-Scopes") String headers){
+        if(!PermissionUtils.canEdit("user-management", headers)){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return userService.updateUser(userInfoPostDTO, userId);
     }
 
     @PostMapping(value = "/disableUsers")
-    public ResponseEntity<ResultDTO> disableUsers(@RequestBody List<String> userIds){
+    public ResponseEntity<ResultDTO> disableUsers(@RequestBody List<String> userIds, @RequestHeader("X-Resource-Scopes") String headers){
+        if(!PermissionUtils.canEdit("user-management", headers)){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return userService.disableUsers(userIds);
     }
 

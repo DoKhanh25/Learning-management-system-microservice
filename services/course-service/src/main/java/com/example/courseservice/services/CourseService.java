@@ -1,22 +1,17 @@
 package com.example.courseservice.services;
 
+import com.example.commondto.dto.TreeGridNodeDTO;
 import com.example.courseservice.context.CycleAvoidingMappingContext;
 import com.example.courseservice.dto.*;
-import com.example.courseservice.entity.CourseEntity;
-import com.example.courseservice.entity.CourseSectionsEntity;
-import com.example.courseservice.entity.LessonEntity;
+import com.example.courseservice.entity.*;
 import com.example.courseservice.mapper.CourseMapper;
 import com.example.courseservice.mapper.LessonMapper;
-import com.example.courseservice.repository.CourseRepository;
-import com.example.courseservice.repository.CourseSectionsRepository;
-import com.example.courseservice.repository.LessonRepository;
-import com.example.courseservice.repository.UserEnrolmentsRepository;
+import com.example.courseservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +25,16 @@ public class CourseService {
     LessonRepository lessonRepository;
 
     @Autowired
+    LessonPagesRepository lessonPagesRepository;
+
+    @Autowired
     CourseSectionsRepository courseSectionsRepository;
 
     @Autowired
     UserEnrolmentsRepository userEnrolmentsRepository;
+
+    @Autowired
+    AssignmentRepository assignmentRepository;
 
     @Autowired
     CourseMapper courseMapper;
@@ -87,6 +88,14 @@ public class CourseService {
         resultDTO.setData(courseAvailableDTOs);
         resultDTO.setStatus(1);
 
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getAttendedCoursesByUserId(String userId){
+        ResultDTO resultDTO = new ResultDTO();
+        List<CourseEntity> attendedCourseEntities = userEnrolmentsRepository.getCoursesByUserId(userId);
+        resultDTO.setData(attendedCourseEntities);
+        resultDTO.setStatus(1);
         return ResponseEntity.ok(resultDTO);
     }
 
@@ -195,10 +204,8 @@ public class CourseService {
             c.setEnrols(null);
             c.setResources(null);
         }
-
         resultDTO.setData(courseDTOList);
         return ResponseEntity.ok(resultDTO);
-
     }
 
     public ResponseEntity<ResultDTO> getTeacherCourseById(Long id){
@@ -230,5 +237,77 @@ public class CourseService {
         return ResponseEntity.ok(resultDTO);
     }
 
+    public ResponseEntity<ResultDTO> getAssignmentsTree(Long courseId){
+        ResultDTO resultDTO = new ResultDTO();
+        CourseEntity courseEntity = courseRepository.findById(courseId).orElse(null);
+        List<TreeGridNodeDTO> treeGridNodeDTOList = new ArrayList<>();
+
+        if(courseEntity == null){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("No data");
+            return ResponseEntity.notFound().build();
+        }
+
+        List<AssignmentEntity> assignmentEntityList = assignmentRepository.findAssignmentEntitiesByCourseId(courseId);
+        for (AssignmentEntity assignmentEntity: assignmentEntityList){
+            TreeGridNodeDTO treeGridNodeDTO = new TreeGridNodeDTO();
+            treeGridNodeDTO.setId(assignmentEntity.getId());
+            treeGridNodeDTO.setParentId(null);
+            treeGridNodeDTO.setType("assignment");
+            treeGridNodeDTO.setTitle(assignmentEntity.getName());
+            treeGridNodeDTOList.add(treeGridNodeDTO);
+        }
+        resultDTO.setData(treeGridNodeDTOList);
+        resultDTO.setStatus(1);
+        return ResponseEntity.ok(resultDTO);
+
+    }
+
+    public ResponseEntity<ResultDTO> getLessonPagesTree(Long courseId){
+        ResultDTO resultDTO = new ResultDTO();
+        List<TreeGridNodeDTO> treeGridNodeDTOList = new ArrayList<>();
+
+        CourseEntity courseEntity = courseRepository.findById(courseId).orElse(null);
+
+        if(courseEntity == null){
+            resultDTO.setStatus(2);
+            resultDTO.setMessage("No data");
+            return ResponseEntity.notFound().build();
+        }
+
+        List<CourseSectionsEntity> courseSectionsEntities = courseEntity.getCourseSections();
+        for (CourseSectionsEntity cs: courseSectionsEntities){
+            // Add course section node
+            TreeGridNodeDTO sectionNode = new TreeGridNodeDTO();
+            sectionNode.setId(cs.getId());
+            sectionNode.setTitle(cs.getName());
+            sectionNode.setType("courseSection");
+            sectionNode.setParentId(null); // Course sections are top level
+            treeGridNodeDTOList.add(sectionNode);
+            
+            // Add lesson nodes with section as parent
+            List<LessonEntity> lessonEntities = lessonRepository.findLessonEntitiesBySectionId(cs.getId());
+            for (LessonEntity lesson: lessonEntities){
+                TreeGridNodeDTO lessonNode = new TreeGridNodeDTO();
+                lessonNode.setId(lesson.getId());
+                lessonNode.setTitle(lesson.getName());
+                lessonNode.setParentId(cs.getId());
+                lessonNode.setType("lesson");
+                treeGridNodeDTOList.add(lessonNode);
+
+//                for (LessonPagesEntity page : lesson.getLessonPages()) {
+//                    TreeGridNodeDTO pageNode = new TreeGridNodeDTO();
+//                    pageNode.setId(page.getId());
+//                    pageNode.setTitle(page.getTitle());
+//                    pageNode.setParentId(lesson.getId());
+//                    pageNode.setType("lessonPage");
+//                    treeGridNodeDTOList.add(pageNode);
+//                }
+           }
+        }
+        resultDTO.setData(treeGridNodeDTOList);
+        resultDTO.setStatus(1);
+        return ResponseEntity.ok(resultDTO);
+    }
 
 }

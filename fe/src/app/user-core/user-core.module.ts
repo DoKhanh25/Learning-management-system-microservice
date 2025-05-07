@@ -30,7 +30,6 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TagModule} from "primeng/tag";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {SelectButtonModule} from "primeng/selectbutton";
-import {AppModule} from "../app.module";
 import {SafePipe} from "../pipe/safe.pipe";
 import {CheckboxModule} from "primeng/checkbox";
 import {CalendarModule} from "primeng/calendar";
@@ -47,6 +46,11 @@ import { ExamManagementComponent } from './quiz/exam/exam-management/exam-manage
 import { ExamDetailComponent } from './quiz/exam/exam-detail/exam-detail.component';
 import {MultiSelectModule} from "primeng/multiselect";
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { ExamResultManagementComponent } from './quiz/exam/exam-result-management/exam-result-management.component';
+import {BlockUIModule} from "primeng/blockui";
+import { CourseStatisticComponent } from './course/course-statistic/course-statistic.component';
+import {TreeModule} from "primeng/tree";
+import {ChipModule} from "primeng/chip";
 
 
 @NgModule({
@@ -63,46 +67,51 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
     QuestionBankManagementComponent,
     QuestionBankDetailComponent,
     ExamManagementComponent,
-    ExamDetailComponent
+    ExamDetailComponent,
+    ExamResultManagementComponent,
+    CourseStatisticComponent
   ],
-  imports: [
-    SafePipe,
-    CommonModule,
-    UserCoreRoutingModule,
-    SharedModule,
-    BreadcrumbModule,
-    PrimeTemplate,
-    CarouselModule,
-    CardModule,
-    FileUploadModule,
-    TableModule,
-    DropdownModule,
-    DialogModule,
-    ReactiveFormsModule,
-    DividerModule,
-    SkeletonModule,
-    InputTextModule,
-    InputTextareaModule,
-    ToastModule,
-    Ripple,
-    EditorModule,
-    FormsModule,
-    CdkDropList,
-    ProgressSpinnerModule,
-    TagModule,
-    ConfirmDialogModule,
-    CdkDragHandle,
-    CdkDrag,
-    SelectButtonModule,
-    CheckboxModule,
-    CalendarModule,
-    TabViewModule,
-    AccordionModule,
-    InputNumberModule,
-    BadgeModule,
-    MultiSelectModule,
-    MonacoEditorModule
-  ],
+    imports: [
+        SafePipe,
+        CommonModule,
+        UserCoreRoutingModule,
+        SharedModule,
+        BreadcrumbModule,
+        PrimeTemplate,
+        CarouselModule,
+        CardModule,
+        FileUploadModule,
+        TableModule,
+        DropdownModule,
+        DialogModule,
+        ReactiveFormsModule,
+        DividerModule,
+        SkeletonModule,
+        InputTextModule,
+        InputTextareaModule,
+        ToastModule,
+        Ripple,
+        EditorModule,
+        FormsModule,
+        CdkDropList,
+        ProgressSpinnerModule,
+        TagModule,
+        ConfirmDialogModule,
+        CdkDragHandle,
+        CdkDrag,
+        SelectButtonModule,
+        CheckboxModule,
+        CalendarModule,
+        TabViewModule,
+        AccordionModule,
+        InputNumberModule,
+        BadgeModule,
+        MultiSelectModule,
+        MonacoEditorModule,
+        BlockUIModule,
+        TreeModule,
+        ChipModule
+    ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ]

@@ -1,0 +1,274 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}" header="Xác nhận" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+
+<div class="container">
+  <div class="header-actions">
+    <p-button icon="pi pi-arrow-left" label="Quay lại Khóa học" styleClass="p-button-outlined p-button-secondary mr-2" (onClick)="backToCourse()"></p-button>
+    <p-button icon="pi pi-list" label="Tất cả Bài kiểm tra" styleClass="p-button-outlined" (onClick)="backToExams()"></p-button>
+  </div>
+
+  <div class="exam-info card" *ngIf="exam">
+    <h2><i class="pi pi-book mr-2"></i>{{exam.name}}</h2>
+    <div class="exam-metadata">
+      <span><i class="pi pi-calendar"></i> Bắt đầu: {{formatDateVN(exam.startTime)}}</span>
+      <span><i class="pi pi-calendar-times"></i> Kết thúc: {{formatDateVN(exam.endTime)}}</span>
+      <span><i class="pi pi-clock"></i> Thời gian: {{exam.duration}} phút</span>
+      <span><i class="pi pi-users"></i> {{submissions.length || 0}} bài nộp</span>
+    </div>
+  </div>
+
+  <div class="results-container">
+    <div class="submissions-list">
+      <p-card styleClass="h-full">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-between align-items-center p-3 bg-primary" style="background-color: #f5f7fa; border-bottom: 1px solid #e0e0e0">
+            <h3 style="margin: 0; color: #3f51b5; font-weight: 600;"><i class="pi pi-users mr-2"></i>Bài nộp của Học viên</h3>
+            <p-button *ngIf="submissions && submissions.length > 0" icon="pi pi-file-excel"
+                      tooltip="Xuất Excel" tooltipPosition="left"
+                      styleClass="p-button-text p-button-rounded p-button-plain"></p-button>
+          </div>
+        </ng-template>
+
+        <p-table [value]="submissions" [loading]="loading" dataKey="id"
+                 styleClass="p-datatable-sm p-datatable-hoverable-rows"
+                 [scrollable]="true" scrollHeight="calc(100vh - 280px)"
+                 [rowHover]="true" selectionMode="single"
+                 [(selection)]="selectedSubmission" (onRowSelect)="viewSubmission($event.data)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 30%">Học viên</th>
+              <th style="width: 25%">Ngày nộp bài</th>
+              <th style="width: 15%">Trạng thái</th>
+              <th style="width: 15%">Điểm</th>
+              <th style="width: 15%">Thao tác</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-submission>
+            <tr [pSelectableRow]="submission" [ngClass]="{'bg-highlight': selectedSubmission && selectedSubmission.id === submission.id}">
+              <td>
+                <div class="student-info">
+                  <span class="student-name">{{getUserName(submission.userId)}}</span>
+                  <small class="student-id"><i class="pi pi-id-card mr-1"></i>{{submission.userId}}</small>
+                </div>
+              </td>
+              <td>
+                <span *ngIf="submission.submissionTime" class="date-display">
+                  <i class="pi pi-calendar-check mr-1" style="color: #4caf50"></i>
+                  {{formatDateVN(submission.submissionTime)}}
+                </span>
+                <span *ngIf="!submission.submissionTime" class="text-yellow-500">
+                  <i class="pi pi-clock mr-1"></i> Đang làm
+                </span>
+              </td>
+              <td>
+                <p-tag
+                  [value]="getStatus(submission)"
+                  [severity]="getStatusSeverity(submission)"
+                  [rounded]="true"
+                  styleClass="status-tag">
+                </p-tag>
+              </td>
+              <td>
+                <span *ngIf="submission.isGraded" class="score">
+                  <i class="pi pi-check-circle mr-1"></i>
+                  {{submission.totalScore}}
+                </span>
+                <span *ngIf="!submission.isGraded" style="color: #9e9e9e">
+                  <i class="pi pi-minus-circle mr-1"></i> Chưa chấm
+                </span>
+              </td>
+              <td>
+                <div class="flex gap-2">
+                  <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
+                          pTooltip="Xem chi tiết" tooltipPosition="left" (click)="viewSubmission(submission)"></button>
+                  <button *ngIf="submission.submissionTime && !submission.isGraded"
+                          pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm p-button-success"
+                          pTooltip="Chấm điểm" tooltipPosition="left" (click)="viewSubmission(submission)"></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center p-4">
+                <div class="empty-message">
+                  <i class="pi pi-inbox"></i>
+                  <p>Không có bài nộp nào cho bài kiểm tra này</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <div class="submission-details">
+      <p-card *ngIf="submissionDetails" styleClass="h-full">
+        <ng-template pTemplate="header">
+          <div class="submission-header">
+            <div class="flex justify-content-between align-items-center">
+              <h3><i class="pi pi-user mr-2"></i>Chi tiết bài nộp</h3>
+              <p-tag
+                [value]="getStatus(submissionDetails)"
+                [severity]="getStatusSeverity(submissionDetails)"
+                [rounded]="true"
+                styleClass="status-tag">
+              </p-tag>
+            </div>
+            <div class="submission-meta">
+              <span><i class="pi pi-user"></i> {{getUserName(submissionDetails.userId)}}</span>
+              <span><i class="pi pi-id-card"></i> {{submissionDetails.userId}}</span>
+              <span><i class="pi pi-calendar"></i> Bắt đầu: {{formatDateVN(submissionDetails.startTime)}}</span>
+              <span *ngIf="submissionDetails.submissionTime">
+                <i class="pi pi-check-circle"></i> Nộp lúc: {{formatDateVN(submissionDetails.submissionTime)}}
+              </span>
+            </div>
+          </div>
+        </ng-template>
+
+        <div *ngIf="questionSubmissions.length > 0" class="question-submissions">
+          <p-accordion [multiple]="true">
+            <p-accordionTab *ngFor="let qs of questionSubmissions; let i = index"
+                            [selected]="i < 2"
+                            styleClass="mb-2">
+              <ng-template pTemplate="header">
+                <div class="question-header">
+                  <span class="question-number">Câu {{i + 1}}</span>
+                  <span class="question-type">
+                    <i class="pi" [ngClass]="{
+                      'pi-list': getQuestionType(qs) === 'MULTIPLE_CHOICE',
+                      'pi-pencil': getQuestionType(qs) === 'ESSAY',
+                      'pi-code': getQuestionType(qs) === 'CODING'
+                    }"></i>
+                    {{getQuestionTypeLabel(qs)}}
+                  </span>
+                  <span class="question-score" *ngIf="qs.graded">
+                    <i class="pi pi-check-circle mr-1"></i>{{qs.score}}
+                  </span>
+                </div>
+              </ng-template>
+
+              <div class="question-details">
+                <!-- Multiple Choice Question -->
+                <div *ngIf="getQuestionType(qs) === 'MULTIPLE_CHOICE'" class="multiple-choice-response">
+                  <h4><i class="pi pi-check-square mr-2"></i>Các lựa chọn đã chọn:</h4>
+                  <ul>
+                    <li *ngFor="let optionId of qs.selectedOptionIds">
+                      <i class="pi pi-check mr-2" style="color: #4caf50"></i>{{optionId}}
+                    </li>
+                  </ul>
+                  <div class="score-info">
+                    <span><strong>Điểm:</strong> {{qs.score || 0}} <span class="ml-2 text-sm text-success">(Tự động chấm)</span></span>
+                  </div>
+                </div>
+
+                <!-- Essay Question -->
+                <div *ngIf="getQuestionType(qs) === 'ESSAY'" class="essay-response">
+                  <h4><i class="pi pi-file-o mr-2"></i>Câu trả lời của học viên:</h4>
+                  <div class="response-text">
+                    <p>{{qs.answerText}}</p>
+                  </div>
+                  <div class="word-count">
+                    {{qs.wordCount}} từ
+                  </div>
+                  <div class="score-info">
+                    <span><strong>Điểm:</strong> {{qs.score || 0}}</span>
+                    <span *ngIf="qs.feedback" class="feedback">
+                      <strong>Phản hồi:</strong> {{qs.feedback}}
+                    </span>
+                  </div>
+                  <div class="grading-actions" *ngIf="!submissionDetails.isGraded">
+                    <button pButton label="Chấm điểm" icon="pi pi-pencil" 
+                            class="p-button-sm p-button-outlined" 
+                            (click)="openGradeDialog(qs)"></button>
+                  </div>
+                </div>
+
+                <!-- Coding Question -->
+                <div *ngIf="getQuestionType(qs) === 'CODING'" class="coding-response">
+                  <h4><i class="pi pi-code mr-2"></i>Mã của học viên:</h4>
+                  <p-card styleClass="code-card">
+                    <pre class="code-block"><code>{{qs.submittedCode}}</code></pre>
+                  </p-card>
+                  <div *ngIf="qs.testResults" class="test-results">
+                    <h5>Kết quả kiểm thử:</h5>
+                    <div class="test-result-text">
+                      {{qs.testResults}}
+                    </div>
+                  </div>
+                  <div class="score-info">
+                    <span><strong>Điểm:</strong> {{qs.score || 0}}</span>
+                    <span *ngIf="qs.feedback" class="feedback">
+                      <strong>Phản hồi:</strong> {{qs.feedback}}
+                    </span>
+                  </div>
+                  <div class="grading-actions" *ngIf="!submissionDetails.isGraded">
+                    <button pButton label="Chấm điểm" icon="pi pi-pencil" 
+                            class="p-button-sm p-button-outlined" 
+                            (click)="openGradeDialog(qs)"></button>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+
+        <div *ngIf="!questionSubmissions || questionSubmissions.length === 0" class="no-answers">
+          <div class="empty-message">
+            <i class="pi pi-inbox"></i>
+            <p>Không tìm thấy câu trả lời</p>
+          </div>
+        </div>
+
+        <div class="submission-actions">
+          <p-button *ngIf="!submissionDetails.isGraded && submissionDetails.submissionTime" 
+                   label="Hoàn tất chấm điểm" icon="pi pi-check-circle" 
+                   styleClass="p-button-success" (onClick)="finalizeGrading()"></p-button>
+          
+          <div *ngIf="submissionDetails.isGraded" class="final-grade">
+            <h3><i class="pi pi-check-circle mr-2"></i>Điểm cuối cùng: {{submissionDetails.totalScore}}</h3>
+            <p><i class="pi pi-calendar-times mr-2"></i>Chấm điểm lúc: {{formatDateVN(submissionDetails.gradingTime)}}</p>
+            <p *ngIf="submissionDetails.gradedBy"><i class="pi pi-user mr-2"></i>Người chấm: {{getUserName(submissionDetails.gradedBy)}}</p>
+          </div>
+        </div>
+      </p-card>
+
+      <div *ngIf="!submissionDetails" class="select-prompt">
+        <div class="empty-message">
+          <i class="pi pi-user"></i>
+          <p>Chọn một bài nộp để xem chi tiết</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grade Dialog -->
+<p-dialog [(visible)]="displayGradeDialog" [style]="{width: '500px'}" header="Chấm điểm" [modal]="true" styleClass="p-fluid grade-dialog" [draggable]="false" [resizable]="false">
+  <form [formGroup]="gradeForm" (ngSubmit)="submitGrade()">
+    <div class="field">
+      <label for="score" class="block font-medium mb-2">Điểm số</label>
+      <p-inputNumber id="score" formControlName="score" [min]="0" [max]="10" [showButtons]="true" buttonLayout="horizontal" 
+                     spinnerMode="horizontal" decrementButtonClass="p-button-secondary" incrementButtonClass="p-button-secondary"
+                     incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"></p-inputNumber>
+      <small *ngIf="gradeForm.get('score')?.invalid && gradeForm.get('score')?.touched" class="p-error block mt-1">Vui lòng nhập điểm hợp lệ</small>
+    </div>
+    
+    <div class="field">
+      <label for="feedback" class="block font-medium mb-2">Phản hồi</label>
+      <textarea id="feedback" pInputTextarea formControlName="feedback" rows="5" placeholder="Cung cấp phản hồi mang tính xây dựng cho học viên"></textarea>
+    </div>
+    
+    <div class="dialog-buttons">
+      <p-button type="button" label="Hủy" icon="pi pi-times" styleClass="p-button-text" (onClick)="displayGradeDialog = false"></p-button>
+      <p-button type="submit" label="Lưu điểm" icon="pi pi-check" [disabled]="gradeForm.invalid"></p-button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-blockUI [blocked]="loading">
+  <div class="loading-indicator">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+</p-blockUI>

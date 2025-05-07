@@ -1,6 +1,7 @@
 package org.example.quizservice.services;
 
 import com.example.commondto.dto.ResultDTO;
+import com.example.commondto.dto.TreeGridNodeDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.example.quizservice.dto.ExamDTO;
 import org.example.quizservice.dto.ExamQuestionDTO;
@@ -51,6 +52,30 @@ public class ExamService {
 
     @Autowired
     private CourseServiceClient courseServiceClient;
+
+    public ResponseEntity<ResultDTO> countAllExams(){
+        ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setStatus(1);
+        resultDTO.setData(examRepository.countAllExams());
+        return ResponseEntity.status(HttpStatus.OK).body(resultDTO);
+    }
+
+    public ResponseEntity<ResultDTO> getExamsTree(Long courseId){
+        ResultDTO resultDTO = new ResultDTO();
+        List<TreeGridNodeDTO> treeGridNodeDTOList = new ArrayList<>();
+        resultDTO.setStatus(1);
+
+        List<ExamEntity> examEntities = examRepository.findByCourseId(courseId);
+        for (ExamEntity examEntity : examEntities) {
+            TreeGridNodeDTO nodeDTO = new TreeGridNodeDTO();
+            nodeDTO.setId(examEntity.getId());
+            nodeDTO.setTitle(examEntity.getName());
+            nodeDTO.setType("exam");
+            treeGridNodeDTOList.add(nodeDTO);
+        }
+        resultDTO.setData(treeGridNodeDTOList);
+        return ResponseEntity.status(HttpStatus.OK).body(resultDTO);
+    }
 
     public ResponseEntity<ResultDTO> getAllExamsByCourseId(Long courseId, String validateUserId) {
         ResultDTO resultDTO = new ResultDTO();

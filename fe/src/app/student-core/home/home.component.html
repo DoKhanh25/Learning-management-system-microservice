@@ -4,7 +4,7 @@
     <div class="welcome-card">
       <div class="welcome-content">
         <h1>Xin chào, {{ teacherName }}</h1>
-        <p class="welcome-subtitle">Welcome to your teaching dashboard</p>
+        <p class="welcome-subtitle">Xin chào danh sách khóa học</p>
         <div class="welcome-stats">
           <div class="stat-pill">
             <i class="pi pi-book"></i>
@@ -34,15 +34,6 @@
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-icon students-icon">
-        <i class="pi pi-users"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-value">{{totalStudents}}</span>
-        <span class="stat-label">Tổng học sinh</span>
-      </div>
-    </div>
 
     <div class="stat-card">
       <div class="stat-icon completion-icon">
@@ -92,10 +83,6 @@
 
               <div class="course-metrics">
                 <div class="metric">
-                  <i class="pi pi-users"></i>
-                  <span>{{course.studentCount || 0}} học sinh</span>
-                </div>
-                <div class="metric">
                   <i class="pi pi-clock"></i>
                   <span>{{course.length}}</span>
                 </div>
@@ -142,10 +129,6 @@
             <p class="course-description">{{ course.description }}</p>
 
             <div class="course-metrics">
-              <div class="metric">
-                <i class="pi pi-users"></i>
-                <span>{{course.studentCount || 0}} học sinh</span>
-              </div>
               <div class="metric">
                 <i class="pi pi-clock"></i>
                 <span>{{course.length}}</span>

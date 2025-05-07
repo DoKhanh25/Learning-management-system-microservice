@@ -19,4 +19,5 @@ public interface ExamSubmissionRepository extends JpaRepository<ExamSubmissionEn
     
     @Query("SELECT COUNT(es) FROM exam_submission es WHERE es.userId = :userId AND es.exam.id = :examId")
     Integer countSubmissionsByUserAndExam(String userId, Long examId);
+
 }
