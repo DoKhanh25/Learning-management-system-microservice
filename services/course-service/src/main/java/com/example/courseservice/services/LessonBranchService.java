@@ -56,6 +56,8 @@ public class LessonBranchService {
         }
 
         List<StudentProgressDTO> studentProgressDTOList = lessonBranchRepository.getStudentProgressByLessonPagesIdAndUserId(lessonId, userId);
+        studentProgressDTOList.removeIf(studentProgressDTO -> studentProgressDTO.getStartTime() == null);
+
         resultDTO.setStatus(1);
         resultDTO.setData(studentProgressDTOList);
 
